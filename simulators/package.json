@@ -1,0 +1,26 @@
+{
+  "name": "sentinel-soc-simulators",
+  "version": "1.0.0",
+  "description": "Log simulators for SentinelSOC",
+  "main": "index.js",
+  "scripts": {
+    "windows": "node windowsSimulator.js",
+    "linux": "node linuxSimulator.js",
+    "apache": "node apacheSimulator.js",
+    "nginx": "node nginxSimulator.js",
+    "suricata": "node suricataSimulator.js",
+    "snort": "node snortSimulator.js",
+    "firewall": "node firewallSimulator.js",
+    "all": "concurrently \"node windowsSimulator.js\" \"node linuxSimulator.js\" \"node apacheSimulator.js\" \"node nginxSimulator.js\" \"node suricataSimulator.js\" \"node snortSimulator.js\" \"node firewallSimulator.js\""
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "axios": "^1.6.0",
+    "dotenv": "^17.4.2",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.24.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
