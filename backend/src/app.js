@@ -28,6 +28,7 @@ const logRoutes = require('./routes/logRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
 const iocRoutes = require('./routes/iocRoutes');
+const threatRuleRoutes = require('./routes/threatRuleRoutes');
 
 // Initialize express app
 const app = express();
@@ -139,6 +140,10 @@ app.use(`${API_PREFIX}/alerts`, alertRoutes);
 app.use(`${API_PREFIX}/incidents`, incidentRoutes);
 // IOC management routes
 app.use(`${API_PREFIX}/iocs`, iocRoutes);
+
+// Threat rule management routes
+app.use(`${API_PREFIX}/threat-rules`, threatRuleRoutes);
+
 // Logging routes
 app.use(`${API_PREFIX}`, logRoutes);
 app.use(`${API_PREFIX}`, logSourceRoutes);
@@ -162,6 +167,7 @@ app.get('/', (req, res) => {
       alerts: `${API_PREFIX}/alerts`,
       incidents: `${API_PREFIX}/incidents`,
       iocs: `${API_PREFIX}/iocs`,
+      threatRules: `${API_PREFIX}/threat-rules`,
       logSources: `${API_PREFIX}/log-sources`,
       logs: `${API_PREFIX}/logs`
     }
@@ -204,6 +210,9 @@ async function startServer() {
       console.log(`   GET  ${API_PREFIX}/assets`);
       console.log(`   GET  ${API_PREFIX}/log-sources`);
       console.log(`   POST ${API_PREFIX}/logs/ingest`);
+      console.log(`   GET  ${API_PREFIX}/alerts`);
+      console.log(`   GET  ${API_PREFIX}/incidents`);
+      console.log(`   GET  ${API_PREFIX}/threat-rules`);
       console.log(`   GET  ${API_PREFIX}/logs`);
       console.log(`   GET  ${API_PREFIX}/iocs`);
     });
