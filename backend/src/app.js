@@ -31,6 +31,7 @@ const iocRoutes = require('./routes/iocRoutes');
 const threatRuleRoutes = require('./routes/threatRuleRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Initialize express app
 const app = express();
@@ -152,6 +153,8 @@ app.use(`${API_PREFIX}/audit-logs`, auditLogRoutes);
 // Logging routes
 app.use(`${API_PREFIX}`, logRoutes);
 app.use(`${API_PREFIX}`, logSourceRoutes);
+// Settings routes
+app.use(`${API_PREFIX}/settings`, settingsRoutes);
 
 console.log('✅ All routes mounted');
 
@@ -176,7 +179,8 @@ app.get('/', (req, res) => {
       reports: `${API_PREFIX}/reports`,
       auditLogs: `${API_PREFIX}/audit-logs`,
       logSources: `${API_PREFIX}/log-sources`,
-      logs: `${API_PREFIX}/logs`
+      logs: `${API_PREFIX}/logs`,
+      settings: `${API_PREFIX}/settings`
     }
   });
 });
@@ -224,6 +228,7 @@ async function startServer() {
       console.log(`   GET  ${API_PREFIX}/audit-logs`);
       console.log(`   GET  ${API_PREFIX}/logs`);
       console.log(`   GET  ${API_PREFIX}/iocs`);
+      console.log(`   GET  ${API_PREFIX}/settings`);
     });
 
     // Graceful shutdown
