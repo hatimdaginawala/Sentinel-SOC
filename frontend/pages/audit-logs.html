@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - System Audit Logs</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-clock-rotate-left text-success"></i> Analyst Activity Audit Trail</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="audit-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Module</th>
+                    <th>Performed By</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_audit_logs')) return;
+
+      loadAuditLogs();
+    });
+
+    async function loadAuditLogs() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/audit-logs?organization=${orgId}&limit=100`);
+        if (response.success && response.data) {
+          const logs = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('audit-list');
+          tbody.innerHTML = '';
+
+          logs.forEach(log => {
+            let statusBadge = log.status === 'success' ? 'badge-online' : 'badge-offline';
+            let performer = log.performedBy ? `${Utils.escapeHTML(log.performedBy.username || '')} (${log.performedBy.email || ''})` : 'System';
+
+            tbody.innerHTML += `
+              <tr>
+                <td>${Utils.formatDate(log.createdAt)}</td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(log.action)}</span></td>
+                <td><strong>${Utils.escapeHTML(log.module)}</strong></td>
+                <td>${performer}</td>
+                <td><span class="font-xs" style="font-family:monospace;">${Utils.escapeHTML(log.ipAddress || '127.0.0.1')}</span></td>
+                <td><span class="badge ${statusBadge}">${log.status}</span></td>
+                <td><span class="font-xs text-secondary">${Utils.escapeHTML(typeof log.details === 'object' ? JSON.stringify(log.details) : log.details || '')}</span></td>
+              </tr>
+            `;
+          });
+
+          datatableInstance = Tables.init('#audit-table', {
+            order: [[0, 'desc']]
+          });
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve audit trail logs', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -15,7 +15,7 @@ require('dotenv').config();
 // Configuration
 // Configuration
 const CONFIG = {
-  API_URL: process.env.API_URL || 'http://localhost:5000/api/v1/logs/ingest',
+  API_URL: process.env.API_URL || 'http://localhost:3000/api/v1/logs/ingest',
   SOURCE_ID: process.env.NGINX_SOURCE_ID || '',
   AUTH_TOKEN: process.env.NGINX_AUTH_TOKEN || '',
   INTERVAL_MIN: 2000,
@@ -70,7 +70,7 @@ const NGINX_HOSTNAMES = [
 
 const UPSTREAMS = [
   'backend-01:8080', 'backend-02:8080', 'backend-03:8080',
-  'app-01:3000', 'app-02:3000', 'api-01:5000', 'api-02:5000'
+  'app-01:3000', 'app-02:3000', 'api-01:3000', 'api-02:3000'
 ];
 
 // Common error messages
@@ -417,7 +417,7 @@ async function runSimulator() {
 
     } catch (error) {
       console.error(`❌ Error in simulation loop: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
   }
 }

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Assets Management</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-server text-success"></i> Managed Security Assets</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-asset"><i class="fa-solid fa-plus"></i> Register Asset</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="assets-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Asset Name</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Criticality</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Location</th>
+                    <th>Last Active</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="assets-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="asset-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="asset-modal-title">Register Asset</h3>
+        <button class="modal-close" id="asset-modal-close">&times;</button>
+      </div>
+      <form id="asset-form">
+        <input type="hidden" name="asset-id" id="asset-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Asset Name / Hostname</label>
+            <input type="text" name="name" class="form-control" placeholder="srv-web-prod" required>
+            <span class="form-error">Asset name is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">IP Address</label>
+              <input type="text" name="ipAddress" class="form-control" placeholder="10.0.1.15" required>
+              <span class="form-error">Please enter a valid IP address</span>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">MAC Address</label>
+              <input type="text" name="macAddress" class="form-control" placeholder="00:15:5D:01:AF:12">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Asset Type</label>
+              <select name="type" class="form-control">
+                <option value="server">Server</option>
+                <option value="workstation">Workstation</option>
+                <option value="firewall">Firewall</option>
+                <option value="router">Router</option>
+                <option value="switch">Switch</option>
+                <option value="cloud_server">Cloud Server</option>
+                <option value="web_application">Web Application</option>
+                <option value="database">Database</option>
+                <option value="security_appliance">Security Appliance</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Asset Criticality</label>
+              <select name="criticality" class="form-control">
+                <option value="low">Low (Non-production)</option>
+                <option value="medium">Medium (Internal business)</option>
+                <option value="high">High (Production database/app)</option>
+                <option value="critical">Critical (Sensitive customer data)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Department Owner</label>
+              <input type="text" name="owner" class="form-control" placeholder="IT Security Operations">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Physical / Virtual Location</label>
+              <input type="text" name="location" class="form-control" placeholder="AWS US-East-1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <option value="active">active</option>
+              <option value="Offline">Offline</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="asset-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="asset-modal-submit">Register Asset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_assets')) return;
+
+      loadAssets();
+      setupModal();
+    });
+
+    async function loadAssets() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/assets?organization=${orgId}`);
+        if (response.success && response.data) {
+const assets = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('assets-list');
+          tbody.innerHTML = '';
+
+          assets.forEach(asset => {
+            let statusBadge = '';
+            if (asset.status === 'active' || asset.status === 'active') statusBadge = 'badge-active';
+            else statusBadge = 'badge-offline';
+
+            let critBadge = '';
+            if (asset.criticality === 'critical') critBadge = 'badge-critical';
+            else if (asset.criticality === 'high') critBadge = 'badge-high';
+            else if (asset.criticality === 'medium') critBadge = 'badge-medium';
+            else critBadge = 'badge-low';
+
+            const iconClass = Utils.getAssetTypeIcon(asset.type);
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(asset.name)}</strong></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(asset.ipAddress)}</span></td>
+                <td><i class="fa-solid ${iconClass} mr-1 text-muted"></i> ${Utils.escapeHTML(asset.type)}</td>
+                <td><span class="badge ${critBadge}">${asset.criticality}</span></td>
+                <td><span class="badge ${statusBadge}">${asset.status}</span></td>
+                <td>${Utils.escapeHTML(asset.owner || 'N/A')}</td>
+                <td>${Utils.escapeHTML(asset.location || 'N/A')}</td>
+                <td>${Utils.formatDate(asset.updatedAt)}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn edit" onclick="editAsset('${asset._id}')" title="Modify Asset"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn delete" onclick="deleteAsset('${asset._id}')" title="Remove Asset"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check permissions
+          if (!Auth.hasPermission('manage_assets')) {
+            document.getElementById('btn-add-asset').style.display = 'none';
+            document.querySelectorAll('.table-btn').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#assets-table');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve assets', 'error');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('asset-modal');
+      const addBtn = document.getElementById('btn-add-asset');
+      const closeBtn = document.getElementById('asset-modal-close');
+      const cancelBtn = document.getElementById('asset-modal-cancel');
+      const form = document.getElementById('asset-form');
+
+      const openModal = (title = 'Register Asset') => {
+        document.getElementById('asset-modal-title').textContent = title;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('asset-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal());
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { name: ['required'], ipAddress: ['required'] }, async (formData) => {
+        const id = document.getElementById('asset-id').value;
+        const orgId = localStorage.getItem('currentOrgId') || '';
+
+        const payload = {
+          name: formData.get('name'),
+          ipAddress: formData.get('ipAddress'),
+          macAddress: formData.get('macAddress'),
+          type: formData.get('type'),
+          criticality: formData.get('criticality'),
+          owner: formData.get('owner'),
+          location: formData.get('location'),
+          status: formData.get('status'),
+          organization: orgId
+        };
+
+        let response;
+        if (id) {
+          response = await API.put(`/assets/${id}`, payload);
+        } else {
+          response = await API.post('/assets', payload);
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'Asset updated successfully' : 'Asset registered successfully', 'success');
+          await loadAssets();
+          return true;
+        } else {
+          throw new Error(response.message || 'Operation failed');
+        }
+      });
+    }
+
+    async function editAsset(id) {
+      try {
+        const response = await API.get(`/assets/${id}`);
+        if (response.success && response.data) {
+          const asset = response.data;
+          
+          document.getElementById('asset-id').value = asset._id;
+          const form = document.getElementById('asset-form');
+          
+          Forms.populate(form, asset);
+
+          document.getElementById('asset-modal-title').textContent = 'Modify Asset';
+          document.getElementById('asset-modal').classList.add('active');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to fetch details', 'error');
+      }
+    }
+
+    async function deleteAsset(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Removing this asset will break associations with registered log sources and historical logs.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, delete asset!'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/assets/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Asset has been removed.', 'success');
+            await loadAssets();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Deletion failed', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

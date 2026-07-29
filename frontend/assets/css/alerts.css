@@ -1,0 +1,102 @@
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  border-radius: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Severity levels */
+.badge-critical {
+  background-color: rgba(197, 48, 48, 0.1);
+  color: var(--color-danger);
+  border: 1px solid rgba(197, 48, 48, 0.2);
+}
+
+.badge-high {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: var(--color-warning);
+  border: 1px solid rgba(237, 137, 54, 0.2);
+}
+
+.badge-medium {
+  background-color: rgba(236, 201, 75, 0.1);
+  color: #D69E2E;
+  border: 1px solid rgba(236, 201, 75, 0.2);
+}
+
+.badge-low {
+  background-color: rgba(47, 133, 90, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(47, 133, 90, 0.2);
+}
+
+.badge-info {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--color-info);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+/* General States */
+.badge-online, .badge-active, .badge-open {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+}
+
+.badge-offline, .badge-inactive, .badge-closed {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.badge-investigating {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--color-info);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.badge-resolved {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+}
+
+.badge-suppressed {
+  background-color: rgba(156, 163, 175, 0.1);
+  color: var(--text-muted);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.badge-escalated {
+  background-color: rgba(197, 48, 48, 0.1);
+  color: var(--color-danger);
+  border: 1px solid rgba(197, 48, 48, 0.2);
+}
+
+/* Toast alert styling */
+.toast-notification {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+body.dark-theme .swal2-popup {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-theme .swal2-title,
+body.dark-theme .swal2-html-container {
+  color: var(--text-primary) !important;
+}
+body.dark-theme .swal2-validation-message {
+  background-color: var(--bg-primary) !important;
+  color: var(--color-danger) !important;
+}

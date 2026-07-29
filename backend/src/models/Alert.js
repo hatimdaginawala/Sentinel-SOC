@@ -481,131 +481,75 @@ alertSchema.statics = {
    * Get alert statistics
    */
   async getStatistics(organizationId = null, timeRange = '24h') {
-    const match = {};
-    if (organizationId) match.organization = mongoose.Types.ObjectId(organizationId);
+  const match = {};
+  if (organizationId) {
+    // Fix: Use 'new' with ObjectId
+    match.organization = new mongoose.Types.ObjectId(organizationId);
+  }
 
-    // Set time range
-    const now = new Date();
-    let startDate = new Date();
-    switch(timeRange) {
-      case '1h':
-        startDate.setHours(now.getHours() - 1);
-        break;
-      case '24h':
-        startDate.setDate(now.getDate() - 1);
-        break;
-      case '7d':
-        startDate.setDate(now.getDate() - 7);
-        break;
-      case '30d':
-        startDate.setDate(now.getDate() - 30);
-        break;
-      default:
-        startDate.setDate(now.getDate() - 1);
-    }
-    match.createdAt = { $gte: startDate };
+  // Set time range
+  const now = new Date();
+  let startDate = new Date();
+  switch(timeRange) {
+    case '1h':
+      startDate.setHours(now.getHours() - 1);
+      break;
+    case '24h':
+      startDate.setDate(now.getDate() - 1);
+      break;
+    case '7d':
+      startDate.setDate(now.getDate() - 7);
+      break;
+    case '30d':
+      startDate.setDate(now.getDate() - 30);
+      break;
+    default:
+      startDate.setDate(now.getDate() - 1);
+  }
+  match.createdAt = { $gte: startDate };
 
-    const stats = await this.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          critical: {
-            $sum: { $cond: [{ $eq: ['$severity', 'critical'] }, 1, 0] }
-          },
-          high: {
-            $sum: { $cond: [{ $eq: ['$severity', 'high'] }, 1, 0] }
-          },
-          medium: {
-            $sum: { $cond: [{ $eq: ['$severity', 'medium'] }, 1, 0] }
-          },
-          low: {
-            $sum: { $cond: [{ $eq: ['$severity', 'low'] }, 1, 0] }
-          },
-          info: {
-            $sum: { $cond: [{ $eq: ['$severity', 'info'] }, 1, 0] }
-          },
-          active: {
-            $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
-          },
-          investigating: {
-            $sum: { $cond: [{ $eq: ['$status', 'investigating'] }, 1, 0] }
-          },
-          resolved: {
-            $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
-          },
-          closed: {
-            $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] }
-          },
-          suppressed: {
-            $sum: { $cond: [{ $eq: ['$status', 'suppressed'] }, 1, 0] }
-          },
-          avgRiskScore: { $avg: '$riskScore' },
-          avgTimeToResolution: { $avg: { $subtract: ['$resolution.resolvedAt', '$createdAt'] } }
-        }
+  const stats = await this.aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        critical: {
+          $sum: { $cond: [{ $eq: ['$severity', 'critical'] }, 1, 0] }
+        },
+        high: {
+          $sum: { $cond: [{ $eq: ['$severity', 'high'] }, 1, 0] }
+        },
+        medium: {
+          $sum: { $cond: [{ $eq: ['$severity', 'medium'] }, 1, 0] }
+        },
+        low: {
+          $sum: { $cond: [{ $eq: ['$severity', 'low'] }, 1, 0] }
+        },
+        info: {
+          $sum: { $cond: [{ $eq: ['$severity', 'info'] }, 1, 0] }
+        },
+        active: {
+          $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
+        },
+        investigating: {
+          $sum: { $cond: [{ $eq: ['$status', 'investigating'] }, 1, 0] }
+        },
+        resolved: {
+          $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+        },
+        closed: {
+          $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] }
+        },
+        suppressed: {
+          $sum: { $cond: [{ $eq: ['$status', 'suppressed'] }, 1, 0] }
+        },
+        avgRiskScore: { $avg: '$riskScore' },
+        avgTimeToResolution: { $avg: { $subtract: ['$resolution.resolvedAt', '$createdAt'] } }
       }
-    ]);
-
-    // Get breakdown by category
-    const categoryStats = await this.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } }
-    ]);
-
-    // Get breakdown by threat type
-    const threatTypeStats = await this.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: '$threatType',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 }
-    ]);
-
-    // Get top source IPs
-    const topSourceIPs = await this.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: '$sourceIP',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 }
-    ]);
-
-    return {
-      summary: stats[0] || {
-        total: 0,
-        critical: 0,
-        high: 0,
-        medium: 0,
-        low: 0,
-        info: 0,
-        active: 0,
-        investigating: 0,
-        resolved: 0,
-        closed: 0,
-        suppressed: 0,
-        avgRiskScore: 0,
-        avgTimeToResolution: 0
-      },
-      categoryBreakdown: categoryStats,
-      threatTypeBreakdown: threatTypeStats,
-      topSourceIPs: topSourceIPs.filter(ip => ip._id && ip._id !== '')
-    };
-  },
+    }
+  ]);
+},
 
   /**
    * Get alerts by organization

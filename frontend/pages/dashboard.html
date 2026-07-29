@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Security Command Dashboard</title>
+  
+  <!-- CDNs for icons, tables, sweetalert, socket.io, charts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <!-- Core App Styles -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/charts.css">
+  <link rel="stylesheet" href="/assets/css/dashboard.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-chart-line text-success"></i> Security Command Center</h1>
+          <button class="btn btn-secondary btn-sm" onclick="Dashboard.refreshMetrics()"><i class="fa-solid fa-arrows-rotate"></i> Refresh Feed</button>
+        </div>
+
+        <!-- Dashboard Loading Indicator -->
+        <div id="dashboard-loader" class="loader-overlay">
+          <div class="text-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-success" style="font-size: var(--font-2xl)"></i>
+            <p class="mt-2 text-muted">Retrieving real-time metrics...</p>
+          </div>
+        </div>
+
+        <!-- KPI Score Grid -->
+        <div class="dashboard-grid">
+          
+          <!-- Threat Score -->
+          <div class="card kpi-card" id="kpi-threat-score">
+            <div class="kpi-header">
+              <span class="kpi-title">Threat Score</span>
+              <i class="fa-solid fa-biohazard kpi-icon"></i>
+            </div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-subtext">NORMAL</div>
+            <div class="metric-progress">
+              <div class="metric-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Risk Score -->
+          <div class="card kpi-card" id="kpi-risk-score">
+            <div class="kpi-header">
+              <span class="kpi-title">Risk Score</span>
+              <i class="fa-solid fa-triangle-exclamation kpi-icon"></i>
+            </div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-subtext">Security Posture: 100%</div>
+            <div class="metric-progress">
+              <div class="metric-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Active Alerts -->
+          <div class="card kpi-card" id="kpi-active-alerts">
+            <div class="kpi-header">
+              <span class="kpi-title">Active Alerts</span>
+              <i class="fa-solid fa-bell kpi-icon"></i>
+            </div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-subtext">Critical: 0, High: 0</div>
+          </div>
+
+          <!-- Assets Online -->
+          <div class="card kpi-card" id="kpi-assets-online">
+            <div class="kpi-header">
+              <span class="kpi-title">Assets Online</span>
+              <i class="fa-solid fa-server kpi-icon"></i>
+            </div>
+            <div class="kpi-value">0/0</div>
+            <div class="kpi-subtext">0 Offline</div>
+          </div>
+
+          <!-- Logs/Min -->
+          <div class="card kpi-card" id="kpi-logs-per-minute">
+            <div class="kpi-header">
+              <span class="kpi-title">Avg Logs / Min</span>
+              <i class="fa-solid fa-wave-square kpi-icon"></i>
+            </div>
+            <div class="kpi-value">0</div>
+            <div class="kpi-subtext">Total: 0</div>
+          </div>
+
+        </div>
+
+        <!-- Section Grids for Charts and Feeds -->
+        <div class="dashboard-panels">
+          
+          <!-- Column 1: Historical Timeline and Event Breakdown -->
+          <div class="d-flex flex-column gap-lg">
+            
+            <!-- Ingestion Timeline Chart -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-wave-square"></i> Log Ingestion Volume (24 Hours)</span>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="chart-logs-timeline"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Double Columns for smaller breakdowns -->
+            <div class="chart-card-grid">
+              
+              <!-- Logs by Category -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title"><i class="fa-solid fa-network-wired"></i> Logs by Event Category</span>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <canvas id="chart-logs-categories"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alert Severity Breakdown -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title"><i class="fa-solid fa-shield-halved"></i> Active Alerts Severity</span>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <canvas id="chart-alerts-severities"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Recent Correlated Threats list -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-bug text-warning"></i> Recent Security Anomalies / Threat Alerts</span>
+                <a href="/pages/alerts.html" class="btn btn-secondary btn-sm">All Alerts</a>
+              </div>
+              <div class="card-body">
+                <div id="recent-threats-list" class="threat-feed">
+                  <!-- Loaded dynamically -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Column 2: Side Panel for Live events activity and Incidents -->
+          <div class="d-flex flex-column gap-lg">
+            
+            <!-- Live Logs feed -->
+            <div class="card" style="flex-grow: 1;">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-circle-dot text-danger fa-beat"></i> Ingested Event Feed (Real-Time)</span>
+              </div>
+              <div class="card-body">
+                <div id="live-logs-feed" class="live-activity-list">
+                  <!-- Realtime socket.io streams here -->
+                  <div class="p-4 text-center text-muted">Listening for new log streams...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Incident Tickets Feed -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-ticket text-danger"></i> Active Incident Tickets</span>
+                <a href="/pages/incidents.html" class="btn btn-secondary btn-sm">Incident Manager</a>
+              </div>
+              <div class="card-body">
+                <div id="recent-incidents-list" class="live-activity-list">
+                  <!-- Dynamic inc list -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Core Script Integrations -->
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/charts.js"></script>
+  <script src="/assets/js/dashboard.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Direct authorization check
+      if (Auth.checkAuth()) {
+        Dashboard.init();
+      }
+    });
+  </script>
+</body>
+</html>

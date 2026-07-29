@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - User Profile</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-user text-success"></i> Analyst Profile Details</h1>
+        </div>
+
+        <div class="row">
+          
+          <!-- Column 1: Profile overview card -->
+          <div class="col-4">
+            <div class="card text-center p-4">
+              <div class="user-avatar m-0 auto" style="width: 80px; height: 80px; font-size: var(--font-2xl); margin: 0 auto var(--spacing-md) auto;">SA</div>
+              <h3 class="m-0 user-name">Super Admin</h3>
+              <span class="badge badge-info mt-1 user-role" style="display:inline-block;">Super Admin</span>
+              
+              <ul class="info-list mt-4 text-left">
+                <li class="info-item">
+                  <span class="info-key">Username:</span>
+                  <span class="info-value" id="profile-username">superadmin</span>
+                </li>
+                <li class="info-item">
+                  <span class="info-key">Email:</span>
+                  <span class="info-value" id="profile-email">superadmin@sentinel-soc.com</span>
+                </li>
+                <li class="info-item">
+                  <span class="info-key">Tenant Organization:</span>
+                  <span class="info-value" id="profile-org">Acme Corporation</span>
+                </li>
+                <li class="info-item">
+                  <span class="info-key">Last Login Date:</span>
+                  <span class="info-value" id="profile-lastlogin">N/A</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Column 2: Operations / Password edits -->
+          <div class="col-8 d-flex flex-column gap-lg">
+            
+            <!-- Modify Profile Data -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-regular fa-id-card"></i> Personal Profile Data</span>
+              </div>
+              <form id="profile-form">
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">First Name</label>
+                      <input type="text" name="firstName" class="form-control" placeholder="Super" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Last Name</label>
+                      <input type="text" name="lastName" class="form-control" placeholder="Admin" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary btn-sm">Update Details</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-key"></i> Change Passwords</span>
+              </div>
+              <form id="password-form">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label">Current Authentication Password</label>
+                    <input type="password" name="oldPassword" class="form-control" placeholder="••••••••" required>
+                    <span class="form-error">Current password is required</span>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">New Password</label>
+                      <input type="password" name="newPassword" class="form-control" placeholder="••••••••" required>
+                      <span class="form-error">Enter a valid 8+ character password (A-Z, a-z, 0-9, special)</span>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Verify New Password</label>
+                      <input type="password" name="confirmPassword" class="form-control" placeholder="••••••••" required>
+                      <span class="form-error">Passwords must match</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary btn-sm">Update Password</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.checkAuth()) return;
+
+      const profile = await Auth.fetchProfile();
+      if (profile) {
+        // Populate profile overview labels
+        document.getElementById('profile-username').textContent = profile.username;
+        document.getElementById('profile-email').textContent = profile.email;
+        document.getElementById('profile-org').textContent = profile.organization?.name || 'N/A';
+        document.getElementById('profile-lastlogin').textContent = profile.lastLogin ? Utils.formatDate(profile.lastLogin) : 'Just Now';
+        
+        // Populate details form fields
+        const profForm = document.getElementById('profile-form');
+        profForm.querySelector('[name="firstName"]').value = profile.firstName;
+        profForm.querySelector('[name="lastName"]').value = profile.lastName;
+      }
+
+      bindForms();
+    });
+
+    function bindForms() {
+      // Profile updates submit
+      Forms.bind(document.getElementById('profile-form'), {}, async (formData) => {
+        const user = Auth.getCurrentUser();
+        const payload = {
+          firstName: formData.get('firstName'),
+          lastName: formData.get('lastName')
+        };
+
+        const response = await API.put(`/users/${user._id}`, payload);
+        if (response.success && response.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          
+          // Refresh navbar UI
+          Navbar.updateUserProfile();
+          
+          Swal.fire('Success', 'Profile details updated successfully', 'success');
+          return true;
+        }
+        throw new Error(response.message);
+      });
+
+      // Password updates submit
+      Forms.bind(document.getElementById('password-form'), {
+        oldPassword: ['required'],
+        newPassword: ['password']
+      }, async (formData) => {
+        const oldPassword = formData.get('oldPassword');
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+
+        if (newPassword !== confirmPassword) {
+          throw new Error('New passwords do not match');
+        }
+
+        const response = await API.post('/users/change-password', { oldPassword, newPassword });
+        if (response.success) {
+          Swal.fire('Password Updated', 'Your operational password has been modified', 'success');
+          return true;
+        }
+        throw new Error(response.message);
+      });
+    }
+  </script>
+</body>
+</html>

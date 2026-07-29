@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - 403 Forbidden</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .error-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100vw;
+      background-color: var(--bg-primary);
+      text-align: center;
+    }
+    .error-box {
+      max-width: 480px;
+      padding: var(--spacing-xl);
+    }
+    .error-code {
+      font-size: 6rem;
+      font-weight: 800;
+      color: var(--color-warning);
+      line-height: 1;
+      margin-bottom: var(--spacing-sm);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="error-container">
+    <div class="error-box card">
+      <div class="card-body">
+        <div class="error-code">403</div>
+        <h2 class="mb-3">Access Restrictions Active</h2>
+        <p class="text-secondary mb-4">Your current operational analyst role does not have authorization permissions required to access this subsystem. This access violation has been logged in the audit trail.</p>
+        <a href="/pages/dashboard.html" class="btn btn-primary"><i class="fa-solid fa-house"></i> Return to Command Center</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

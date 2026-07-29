@@ -33,6 +33,11 @@ const reportRoutes = require('./routes/reportRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 
+// Import audit middleware
+const audit = require('./middleware/audit');
+
+console.log('🚀 Starting SentinelSOC server...');
+
 // Initialize express app
 const app = express();
 const server = http.createServer(app);
@@ -65,11 +70,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://cdn.datatables.net', 'https://fonts.googleapis.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://cdn.socket.io', 'https://cdn.datatables.net', 'https://code.jquery.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'data:'],
+      connectSrc: ["'self'", 'ws:', 'wss:', 'http:', 'https:'],
+      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
+      scriptSrcAttr: ["'unsafe-inline'"],
     },
   },
 }));
@@ -117,12 +123,23 @@ app.get('/health', (req, res) => {
 const API_PREFIX = process.env.API_PREFIX || '/api/v1';
 
 // ============================================
-// MOUNT ALL ROUTES
+// MOUNT AUTH ROUTES FIRST (NO AUDIT)
 // ============================================
-console.log('🔧 Mounting routes...');
-
-// Auth routes (handled by userRoutes for login/register)
+console.log('🔧 Mounting auth routes...');
 app.use(`${API_PREFIX}/auth`, userRoutes);
+
+// ============================================
+// APPLY AUDIT MIDDLEWARE HERE
+// All routes after this point will be audited
+// ============================================
+console.log('🔍 Applying audit middleware...');
+app.use(audit());
+console.log('✅ Audit middleware applied');
+
+// ============================================
+// MOUNT ALL OTHER ROUTES (WILL BE AUDITED)
+// ============================================
+console.log('🔧 Mounting protected routes...');
 
 // User management routes
 app.use(`${API_PREFIX}/users`, userRoutes);
@@ -136,35 +153,44 @@ app.use(`${API_PREFIX}/organizations`, organizationRoutes);
 // Asset management routes
 app.use(`${API_PREFIX}/assets`, assetRoutes);
 
+// Log management routes
+app.use(`${API_PREFIX}`, logRoutes);
+
+// Log Source management routes
+app.use(`${API_PREFIX}`, logSourceRoutes);
+
 // Alert management routes
-app.use(`${API_PREFIX}/alerts`, alertRoutes);
-  
+app.use(`${API_PREFIX}`, alertRoutes);
+
 // Incident management routes
-app.use(`${API_PREFIX}/incidents`, incidentRoutes);
+app.use(`${API_PREFIX}`, incidentRoutes);
+
 // IOC management routes
-app.use(`${API_PREFIX}/iocs`, iocRoutes);
+app.use(`${API_PREFIX}`, iocRoutes);
 
 // Threat rule management routes
-app.use(`${API_PREFIX}/threat-rules`, threatRuleRoutes);
+app.use(`${API_PREFIX}`, threatRuleRoutes);
+
 // Report management routes
-app.use(`${API_PREFIX}/reports`, reportRoutes);
+app.use(`${API_PREFIX}`, reportRoutes);
+
 // Audit log routes
-app.use(`${API_PREFIX}/audit-logs`, auditLogRoutes);
-// Logging routes
-app.use(`${API_PREFIX}`, logRoutes);
-app.use(`${API_PREFIX}`, logSourceRoutes);
+app.use(`${API_PREFIX}`, auditLogRoutes);
+
 // Settings routes
-app.use(`${API_PREFIX}/settings`, settingsRoutes);
+app.use(`${API_PREFIX}`, settingsRoutes);
 
 console.log('✅ All routes mounted');
 
 // Root route
 app.get('/', (req, res) => {
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    return res.redirect('/pages/login.html');
+  }
   res.json({
     name: 'SentinelSOC',
     version: '1.0.0',
     status: 'operational',
-    documentation: `${API_PREFIX}/docs`,
     health: '/health',
     endpoints: {
       auth: `${API_PREFIX}/auth`,
@@ -192,52 +218,56 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Database connection and server startup
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    // Connect to MongoDB
+    console.log('🔗 Connecting to MongoDB...');
     await database.connect();
+    console.log('✅ MongoDB connected');
     
     // Initialize system roles
     try {
+      console.log('🎯 Initializing system roles...');
       const RoleService = require('./services/roleService');
       await RoleService.initializeSystemRoles();
+      console.log('✅ System roles initialized');
     } catch (roleError) {
-      logger.warn('⚠️ Role initialization failed, but continuing server startup:', roleError.message);
+      console.warn('⚠️ Role initialization failed:', roleError.message);
     }
     
     // Start server
     server.listen(PORT, () => {
-      logger.info(`🚀 SentinelSOC server running on port ${PORT}`);
-      logger.info(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`🔗 API URL: http://localhost:${PORT}${API_PREFIX}`);
-      logger.info(`💚 Health check: http://localhost:${PORT}/health`);
+      console.log(`\n🚀 SentinelSOC server running on port ${PORT}`);
+      console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 API URL: http://localhost:${PORT}${API_PREFIX}`);
+      console.log(`💚 Health check: http://localhost:${PORT}/health`);
       
-      // Log available endpoints
       console.log('\n📋 Available API Endpoints:');
-      console.log(`   POST ${API_PREFIX}/auth/login`);
-      console.log(`   GET  ${API_PREFIX}/organizations`);
-      console.log(`   GET  ${API_PREFIX}/assets`);
-      console.log(`   GET  ${API_PREFIX}/log-sources`);
-      console.log(`   POST ${API_PREFIX}/logs/ingest`);
-      console.log(`   GET  ${API_PREFIX}/alerts`);
-      console.log(`   GET  ${API_PREFIX}/incidents`);
-      console.log(`   GET  ${API_PREFIX}/threat-rules`);
-      console.log(`   GET  ${API_PREFIX}/reports`);
-      console.log(`   GET  ${API_PREFIX}/audit-logs`);
-      console.log(`   GET  ${API_PREFIX}/logs`);
-      console.log(`   GET  ${API_PREFIX}/iocs`);
-      console.log(`   GET  ${API_PREFIX}/settings`);
+      console.log(`   POST ${API_PREFIX}/auth/login (NO AUDIT)`);
+      console.log(`   POST ${API_PREFIX}/auth/refresh (NO AUDIT)`);
+      console.log(`   GET  ${API_PREFIX}/organizations (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/assets (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/log-sources (AUDITED)`);
+      console.log(`   POST ${API_PREFIX}/logs/ingest (NO AUDIT)`);
+      console.log(`   GET  ${API_PREFIX}/alerts (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/incidents (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/threat-rules (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/reports (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/audit-logs (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/logs (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/iocs (AUDITED)`);
+      console.log(`   GET  ${API_PREFIX}/settings (AUDITED)`);
+      console.log('\n✅ Server is ready!');
     });
 
     // Graceful shutdown
     const shutdown = async () => {
-      logger.info('🔄 Received shutdown signal');
+      console.log('🔄 Received shutdown signal');
       server.close(async () => {
-        logger.info('📴 HTTP server closed');
+        console.log('📴 HTTP server closed');
         await database.disconnect();
-        logger.info('👋 Shutdown complete');
+        console.log('👋 Shutdown complete');
         process.exit(0);
       });
     };
@@ -246,25 +276,27 @@ async function startServer() {
     process.on('SIGINT', shutdown);
 
   } catch (error) {
-    logger.error('❌ Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
+    console.error(error.stack);
     process.exit(1);
   }
 }
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (error) => {
-  logger.error('Unhandled Rejection:', error);
+  console.error('❌ Unhandled Rejection:', error);
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception:', error);
+  console.error('❌ Uncaught Exception:', error);
   process.exit(1);
 });
 
 // Start the server
 if (require.main === module) {
+  console.log('🏁 Starting server...');
   startServer();
 }
 

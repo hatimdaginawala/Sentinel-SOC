@@ -412,7 +412,7 @@ iocSchema.statics = {
    */
   async getStatistics(organizationId = null) {
     const match = {};
-    if (organizationId) match.organization = mongoose.Types.ObjectId(organizationId);
+    if (organizationId) match.organization = new mongoose.Types.ObjectId(organizationId)
 
     const stats = await this.aggregate([
       { $match: match },

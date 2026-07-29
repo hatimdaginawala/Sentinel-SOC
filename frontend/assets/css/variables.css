@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Fonts */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* Layout sizes */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 70px;
+  --navbar-height: 60px;
+  --transition-speed: 0.2s;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Font Sizes */
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-md: 1rem;
+  --font-lg: 1.125rem;
+  --font-xl: 1.25rem;
+  --font-2xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  /* Default Theme Colors (Light Theme) */
+  --bg-primary: #F5F6F8;
+  --bg-secondary: #FFFFFF;
+  --card-bg: #FFFFFF;
+  
+  /* Sidebar Specific (Always dark/professional or themed) */
+  --sidebar-bg: #1F2937;
+  --sidebar-hover: #374151;
+  --sidebar-text: #F3F4F6;
+  --sidebar-active-bg: #111827;
+  --sidebar-border: #374151;
+  
+  /* Borders */
+  --border-color: #E5E7EB;
+  
+  /* Brand/Status Colors */
+  --color-primary: #2F855A;
+  --color-primary-hover: #225E3A;
+  --color-success: #2E7D32;
+  --color-warning: #ED8936;
+  --color-danger: #C53030;
+  --color-info: #2563EB;
+  
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-on-primary: #FFFFFF;
+}

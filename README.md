@@ -317,7 +317,7 @@ Create a `.env` file in the `backend` directory:
 
 ```env
 # Server Configuration
-PORT=5000
+PORT=3000
 NODE_ENV=development
 
 # Database Configuration
@@ -388,7 +388,7 @@ npm run firewall
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Server port | 5000 |
+| `PORT` | Server port | 3000 |
 | `NODE_ENV` | Environment mode | development |
 | `MONGODB_URI` | MongoDB connection string | mongodb://127.0.0.1:27017/sentinel_soc |
 | `JWT_SECRET` | JWT secret key | Required |
@@ -639,12 +639,12 @@ node src/seed.js
 
 
 # Login
-curl -X POST http://localhost:5000/api/v1/auth/login \
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"identifier":"superadmin@sentinel-soc.com","password":"SuperAdmin@2024!"}'
 
 # Create log source (replace token and IDs)
-curl -X POST http://localhost:5000/api/v1/log-sources \
+curl -X POST http://localhost:3000/api/v1/log-sources \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

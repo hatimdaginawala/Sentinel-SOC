@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Incident Manager</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-ticket text-success"></i> Incident Ticket Queue</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-incident"><i class="fa-solid fa-plus"></i> Open Ticket</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="incidents-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Ticket Title</th>
+                    <th>Description</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Assigned Responder</th>
+                    <th>Mitigation Details</th>
+                    <th>Reported Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="incidents-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- CREATE/EDIT TICKET MODAL -->
+  <div class="modal-overlay" id="incident-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="incident-modal-title">Open Incident Ticket</h3>
+        <button class="modal-close" id="incident-modal-close">&times;</button>
+      </div>
+      <form id="incident-form">
+        <input type="hidden" name="incident-id" id="incident-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Ticket Title</label>
+            <input type="text" name="title" class="form-control" placeholder="Unauthorized SSH scan from WAN IP" required>
+            <span class="form-error">Ticket title is required</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Detailed Scope Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Identify the origin IP and scope of firewall blocks..." required></textarea>
+            <span class="form-error">Detailed scope description is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Incident Severity</label>
+              <select name="severity" class="form-control">
+                <option value="critical">Critical (Data Breach / Denial of Service)</option>
+                <option value="high">High (Privileged Scan / Malware Communication)</option>
+                <option value="medium">Medium (Single Brute force / Port scans)</option>
+                <option value="low">Low (Policy warning)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lifecycle Status</label>
+              <select name="status" class="form-control">
+                <option value="new">New (Unassigned)</option>
+                <option value="investigating">Investigating (Analysis Active)</option>
+                <option value="in_progress">In Progress (Containment Underway)</option>
+                <option value="resolved">Resolved (Mitigated)</option>
+                <option value="closed">Closed (Audited)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="incident-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="incident-modal-submit">Create Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ASSIGN RESPONDER MODAL -->
+  <div class="modal-overlay" id="assign-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Responder</h3>
+        <button class="modal-close" id="assign-modal-close">&times;</button>
+      </div>
+      <form id="assign-form">
+        <input type="hidden" id="assign-incident-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Responder Specialist</label>
+            <select id="responder-select" class="form-control" required>
+              <option value="">-- Choose Specialist --</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="assign-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Allocate Responder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RESOLVE INCIDENT MODAL -->
+  <div class="modal-overlay" id="resolve-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Resolve Security Incident</h3>
+        <button class="modal-close" id="resolve-modal-close">&times;</button>
+      </div>
+      <form id="resolve-form">
+        <input type="hidden" id="resolve-incident-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Root Cause Analysis & Actions Taken</label>
+            <textarea id="resolution-textarea" class="form-control" rows="4" placeholder="Blocked IP address on edge routers, rotated SSH certificates, and verified firewall rules." required></textarea>
+            <span class="form-error">Mitigation notes are required to resolve.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="resolve-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-success">Resolve Incident</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_incidents')) return;
+
+      loadIncidents();
+      loadUsersForAssignSelect();
+      setupModals();
+
+      window.addEventListener('newincident', () => loadIncidents());
+    });
+
+    async function loadUsersForAssignSelect() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      const select = document.getElementById('responder-select');
+      if (!select) return;
+
+      try {
+        const response = await API.get(`/users?organization=${orgId}`);
+        const users = response.data.items || [];
+        users.forEach(u => {
+          select.innerHTML += `<option value="${u._id}">${Utils.escapeHTML(u.firstName)} ${Utils.escapeHTML(u.lastName)} (${Utils.escapeHTML(u.role)})</option>`;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadIncidents() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/incidents?organization=${orgId}`);
+        if (response.success && response.data) {
+          const incidents = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('incidents-list');
+          tbody.innerHTML = '';
+
+          incidents.forEach(inc => {
+            let sevBadge = Utils.getSeverityBadgeClass(inc.severity);
+            let statusBadge = '';
+            if (inc.status === 'new') statusBadge = 'badge-critical';
+            else if (inc.status === 'investigating') statusBadge = 'badge-investigating';
+            else if (inc.status === 'in_progress') statusBadge = 'badge-high';
+            else if (inc.status === 'resolved') statusBadge = 'badge-resolved';
+            else statusBadge = 'badge-offline';
+
+            const assignedName = inc.assignedTo ? `${Utils.escapeHTML(inc.assignedTo.firstName || '')} ${Utils.escapeHTML(inc.assignedTo.lastName || '')}` : 'Unassigned';
+            const resolutionText = inc.resolution?.mitigationSteps || 'None documented';
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(inc.title)}</strong></td>
+                <td>${Utils.escapeHTML(inc.description)}</td>
+                <td><span class="badge ${sevBadge}">${inc.severity}</span></td>
+                <td><span class="badge ${statusBadge}">${inc.status}</span></td>
+                <td><span class="fw-semibold text-secondary">${assignedName}</span></td>
+                <td><span class="font-xs text-muted italic">${Utils.escapeHTML(resolutionText)}</span></td>
+                <td>${Utils.formatDate(inc.createdAt)}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn" onclick="openAssignModal('${inc._id}', '${inc.assignedTo?._id || ''}')" title="Allocate Responder"><i class="fa-solid fa-user-plus"></i></button>
+                    <button class="table-btn edit" onclick="editIncident('${inc._id}')" title="Modify Details"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn text-success" onclick="openResolveModal('${inc._id}')" title="Mitigate & Resolve"><i class="fa-solid fa-square-check"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check permissions
+          if (!Auth.hasPermission('respond_incidents')) {
+            document.getElementById('btn-add-incident').style.display = 'none';
+            document.querySelectorAll('.table-btn').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#incidents-table');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve incidents', 'error');
+      }
+    }
+
+    function setupModals() {
+      // Create/Edit Modal
+      const incModal = document.getElementById('incident-modal');
+      const addBtn = document.getElementById('btn-add-incident');
+      const incClose = document.getElementById('incident-modal-close');
+      const incCancel = document.getElementById('incident-modal-cancel');
+      const incForm = document.getElementById('incident-form');
+
+      const closeInc = () => {
+        incModal.classList.remove('active');
+        incForm.reset();
+        document.getElementById('incident-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => incModal.classList.add('active'));
+      if (incClose) incClose.addEventListener('click', closeInc);
+      if (incCancel) incCancel.addEventListener('click', closeInc);
+
+      Forms.bind(incForm, { title: ['required'], description: ['required'] }, async (formData) => {
+        const id = document.getElementById('incident-id').value;
+        const orgId = localStorage.getItem('currentOrgId') || '';
+
+        const payload = {
+          title: formData.get('title'),
+          description: formData.get('description'),
+          severity: formData.get('severity'),
+          status: formData.get('status'),
+          organization: orgId
+        };
+
+        let response;
+        if (id) {
+          response = await API.put(`/incidents/${id}`, payload);
+        } else {
+          response = await API.post('/incidents', payload);
+        }
+
+        if (response.success) {
+          closeInc();
+          Swal.fire('Success', id ? 'Incident updated successfully' : 'Incident ticket opened successfully', 'success');
+          await loadIncidents();
+          return true;
+        } else {
+          throw new Error(response.message || 'Operation failed');
+        }
+      });
+
+      // Assign Modal
+      const assignModal = document.getElementById('assign-modal');
+      const assignClose = document.getElementById('assign-modal-close');
+      const assignCancel = document.getElementById('assign-modal-cancel');
+      const assignForm = document.getElementById('assign-form');
+
+      const closeAssign = () => {
+        assignModal.classList.remove('active');
+        assignForm.reset();
+      };
+
+      if (assignClose) assignClose.addEventListener('click', closeAssign);
+      if (assignCancel) assignCancel.addEventListener('click', closeAssign);
+
+      assignForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('assign-incident-id').value;
+        const responderId = document.getElementById('responder-select').value;
+
+        try {
+          const response = await API.post(`/incidents/${id}/assign`, { userId: responderId });
+          if (response.success) {
+            closeAssign();
+            Swal.fire('Assigned', 'Incident responder updated successfully', 'success');
+            await loadIncidents();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Assignment failed', 'error');
+        }
+      });
+
+      // Resolve Modal
+      const resolveModal = document.getElementById('resolve-modal');
+      const resolveClose = document.getElementById('resolve-modal-close');
+      const resolveCancel = document.getElementById('resolve-modal-cancel');
+      const resolveForm = document.getElementById('resolve-form');
+
+      const closeResolve = () => {
+        resolveModal.classList.remove('active');
+        resolveForm.reset();
+      };
+
+      if (resolveClose) resolveClose.addEventListener('click', closeResolve);
+      if (resolveCancel) resolveCancel.addEventListener('click', closeResolve);
+
+ resolveForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('resolve-incident-id').value;
+  const notes = document.getElementById('resolution-textarea').value;
+
+  try {
+    // The backend expects 'resolutionStatus' and 'notes'
+    const response = await API.post(`/incidents/${id}/resolve`, { 
+      resolutionStatus: 'mitigated',  // One of: mitigated, contained, eradicated, recovered, accepted, false_positive
+      notes: notes                      // The mitigation steps
+    });
+    
+    if (response.success) {
+      closeResolve();
+      Swal.fire('Incident Resolved', 'Incident marked as resolved. Mitigation documented.', 'success');
+      await loadIncidents();
+    }
+  } catch (err) {
+    Swal.fire('Error', err.message || 'Failed to resolve incident', 'error');
+  }
+});
+    }
+
+    async function editIncident(id) {
+      try {
+        const response = await API.get(`/incidents/${id}`);
+        if (response.success && response.data) {
+          const inc = response.data;
+          
+          document.getElementById('incident-id').value = inc._id;
+          const form = document.getElementById('incident-form');
+          
+          Forms.populate(form, inc);
+
+          document.getElementById('incident-modal-title').textContent = 'Modify Incident Ticket';
+          document.getElementById('incident-modal').classList.add('active');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to fetch details', 'error');
+      }
+    }
+
+    function openAssignModal(incidentId, responderId) {
+      document.getElementById('assign-incident-id').value = incidentId;
+      document.getElementById('responder-select').value = responderId || '';
+      document.getElementById('assign-modal').classList.add('active');
+    }
+
+    function openResolveModal(incidentId) {
+      document.getElementById('resolve-incident-id').value = incidentId;
+      document.getElementById('resolve-modal').classList.add('active');
+    }
+  </script>
+</body>
+</html>

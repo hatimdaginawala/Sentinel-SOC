@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Enterprise Login</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100vw;
+      background-color: var(--bg-primary);
+    }
+    .login-box {
+      width: 100%;
+      max-width: 440px;
+    }
+    .login-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-lg);
+    }
+    .login-brand i {
+      color: var(--color-primary);
+    }
+    .form-error-summary {
+      background-color: rgba(197, 48, 48, 0.1);
+      color: var(--color-danger);
+      border: 1px solid rgba(197, 48, 48, 0.2);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: var(--font-sm);
+      margin-bottom: var(--spacing-md);
+      display: none;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>SentinelSOC</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header text-center">
+          <div class="card-title text-center w-full justify-center">
+            <i class="fa-solid fa-lock"></i> Operational Authentication
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="login-error-summary" class="form-error-summary"></div>
+          
+          <form id="login-form">
+            <div class="form-group">
+              <label class="form-label">Username or Email</label>
+              <div class="position-relative">
+                <input type="text" name="identifier" class="form-control" placeholder="Enter username or email" autocomplete="username" required>
+              </div>
+              <span class="form-error">Please enter a username or email</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+              <span class="form-error">Password is required</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full mt-3">
+              <i class="fa-solid fa-right-to-bracket"></i> Authenticate
+            </button>
+          </form>
+        </div>
+        <div class="card-footer justify-center">
+          <span class="text-secondary font-xs">Authorized security personnel only. All access is audited.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Redirect if already authenticated
+      if (localStorage.getItem('accessToken') && localStorage.getItem('currentUser')) {
+        window.location.href = '/pages/dashboard.html';
+        return;
+      }
+
+      const form = document.getElementById('login-form');
+      const config = {
+        identifier: ['required'],
+        password: ['required']
+      };
+
+      Forms.bind(form, config, async (formData) => {
+        const identifier = formData.get('identifier');
+        const password = formData.get('password');
+        
+        const res = await Auth.login(identifier, password);
+        if (res.success) {
+          // Success toast and redirect
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Authentication Successful',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          }).then(() => {
+            window.location.href = '/pages/dashboard.html';
+          });
+          return true;
+        } else {
+          throw new Error(res.message);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

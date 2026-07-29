@@ -16,9 +16,9 @@ async function syncTokens() {
     
     // Connect to MongoDB
     client = new MongoClient(MONGODB_URI, {
-      connectTimeoutMS: 5000,
-      socketTimeoutMS: 5000,
-      serverSelectionTimeoutMS: 5000
+      connectTimeoutMS: 3000,
+      socketTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 3000
     });
     
     await client.connect();

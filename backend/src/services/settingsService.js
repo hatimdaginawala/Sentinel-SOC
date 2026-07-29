@@ -390,7 +390,7 @@ class SettingsService {
       const response = await axios.post(webhookUrl, {
         text: 'Test message from SentinelSOC - Settings validation'
       }, {
-        timeout: 5000
+        timeout: 3000
       });
 
       return { valid: response.status === 200, message: 'Slack webhook is valid' };

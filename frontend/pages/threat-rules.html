@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Threat Rules</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-bug text-success"></i> Real-time Threat Correlation Rules</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-rule"><i class="fa-solid fa-plus"></i> Create Rule</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="rules-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Rule Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Severity</th>
+                    <th>Active Status</th>
+                    <th>Cooldown</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="rules-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- ADD/EDIT RULE MODAL -->
+  <div class="modal-overlay" id="rule-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="rule-modal-title">Create Correlation Rule</h3>
+        <button class="modal-close" id="rule-modal-close">&times;</button>
+      </div>
+      <form id="rule-form">
+        <input type="hidden" name="rule-id" id="rule-id">
+        <div class="modal-body">
+          
+          <div class="form-group">
+            <label class="form-label">Rule Name</label>
+            <input type="text" name="name" class="form-control" placeholder="SQL Injection Detection Trigger" required>
+            <span class="form-error">Rule name is required</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rule Description</label>
+            <input type="text" name="description" class="form-control" placeholder="Triggers an alert when signature matches SQL keywords" required>
+            <span class="form-error">Rule description is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Detection Type</label>
+              <select name="type" class="form-control">
+                <option value="signature">Signature Based</option>
+                <option value="behavioral">Behavioral Anomaly</option>
+                <option value="anomaly">Statistical Anomaly</option>
+                <option value="statistical">Statistical Model</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Event Category</label>
+              <select name="category" class="form-control">
+                <option value="authentication">Authentication</option>
+                <option value="network">Network Traffic</option>
+                <option value="system">System Audit</option>
+                <option value="application">Application Log</option>
+                <option value="database">Database</option>
+                <option value="web">Web Request</option>
+                <option value="malware">Malware Alert</option>
+                <option value="policy">Policy Audit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Threat Classification</label>
+              <select name="threatType" class="form-control">
+                <option value="brute_force">Brute Force Attack</option>
+                <option value="sql_injection">SQL Injection</option>
+                <option value="xss">Cross-Site Scripting (XSS)</option>
+                <option value="command_injection">OS Command Injection</option>
+                <option value="rce">Remote Code Execution (RCE)</option>
+                <option value="reverse_shell">Reverse Shell Spawned</option>
+                <option value="port_scan">Network Port Scanning</option>
+                <option value="malware_communication">C2 Communication</option>
+                <option value="dos_attack">DoS/DDoS Attack</option>
+                <option value="privilege_escalation">Privilege Escalation</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Alert Severity Output</label>
+              <select name="severity" class="form-control">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="info">Info</option>
+              </select>
+            </div>
+          </div>
+
+          <h4 class="mt-3 mb-2 font-xs uppercase fw-semibold" style="border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">Trigger Condition Parameters</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Log Field Key</label>
+              <input type="text" name="condField" class="form-control" placeholder="eventType" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Operator</label>
+              <select name="condOperator" class="form-control">
+                <option value="equals">Equals</option>
+                <option value="contains">Contains (Regex)</option>
+                <option value="greater_than">Greater Than (&gt;)</option>
+                <option value="less_than">Less Than (&lt;)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Match Value</label>
+              <input type="text" name="condValue" class="form-control" placeholder="Failed Login" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Frequency Threshold</label>
+              <input type="number" name="condThreshold" class="form-control" placeholder="5" value="1" min="1" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Time Window (seconds)</label>
+              <input type="number" name="condWindow" class="form-control" placeholder="60" value="0" min="0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Alert Cooldown (sec)</label>
+              <input type="number" name="cooldown" class="form-control" placeholder="300" value="300" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-row align-center mt-3">
+            <div class="form-group switch-group">
+              <label class="switch">
+                <input type="checkbox" name="enabled" checked>
+                <span class="switch-slider"></span>
+              </label>
+              <span class="form-label mb-0">Rule Active & Enabled</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Correlation Priority (1-10)</label>
+              <input type="number" name="priority" class="form-control" placeholder="5" value="5" min="1" max="10" required>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="rule-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="rule-modal-submit">Create Rule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_threat_rules')) return;
+
+      loadRules();
+      setupModal();
+    });
+
+    async function loadRules() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/threat-rules?organization=${orgId}`);
+        if (response.success && response.data) {
+          const rules = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('rules-list');
+          tbody.innerHTML = '';
+
+          rules.forEach(rule => {
+            let sevBadge = Utils.getSeverityBadgeClass(rule.severity);
+            let statusBadge = rule.enabled ? 'badge-online' : 'badge-offline';
+            let statusText = rule.enabled ? 'Enabled' : 'Disabled';
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(rule.name)}</strong></td>
+                <td>${Utils.escapeHTML(rule.description)}</td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(rule.type)}</span></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(rule.category)}</span></td>
+                <td><span class="badge ${sevBadge}">${rule.severity}</span></td>
+                <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                <td>${rule.cooldown || 0}s</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn edit" onclick="editRule('${rule._id}')" title="Modify Rule"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn delete" onclick="deleteRule('${rule._id}')" title="Remove Rule"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check permissions
+          if (!Auth.hasPermission('manage_threat_rules')) {
+            document.getElementById('btn-add-rule').style.display = 'none';
+            document.querySelectorAll('.table-btn').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#rules-table');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve threat rules', 'error');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('rule-modal');
+      const addBtn = document.getElementById('btn-add-rule');
+      const closeBtn = document.getElementById('rule-modal-close');
+      const cancelBtn = document.getElementById('rule-modal-cancel');
+      const form = document.getElementById('rule-form');
+
+      const openModal = (title = 'Create Correlation Rule') => {
+        document.getElementById('rule-modal-title').textContent = title;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('rule-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal());
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { name: ['required'], description: ['required'] }, async (formData) => {
+        const id = document.getElementById('rule-id').value;
+        const orgId = localStorage.getItem('currentOrgId') || '';
+
+        const payload = {
+          name: formData.get('name'),
+          description: formData.get('description'),
+          type: formData.get('type'),
+          category: formData.get('category'),
+          threatType: formData.get('threatType'),
+          severity: formData.get('severity'),
+          enabled: form.querySelector('[name="enabled"]').checked,
+          priority: parseInt(formData.get('priority')) || 5,
+          cooldown: parseInt(formData.get('cooldown')) || 300,
+          condition: {
+            field: formData.get('condField'),
+            operator: formData.get('condOperator'),
+            value: formData.get('condValue'),
+            threshold: parseInt(formData.get('condThreshold')) || 1,
+            window: parseInt(formData.get('condWindow')) || 0
+          },
+          organization: orgId
+        };
+
+        let response;
+        if (id) {
+          response = await API.put(`/threat-rules/${id}`, payload);
+        } else {
+          response = await API.post('/threat-rules', payload);
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'Rule updated successfully' : 'Rule created successfully', 'success');
+          await loadRules();
+          return true;
+        } else {
+          throw new Error(response.message || 'Operation failed');
+        }
+      });
+    }
+
+    async function editRule(id) {
+      try {
+        const response = await API.get(`/threat-rules/${id}`);
+        if (response.success && response.data) {
+          const rule = response.data;
+          
+          document.getElementById('rule-id').value = rule._id;
+          const form = document.getElementById('rule-form');
+          
+          Forms.populate(form, rule);
+
+          // Populate conditions
+          if (rule.condition) {
+            form.querySelector('[name="condField"]').value = rule.condition.field || '';
+            form.querySelector('[name="condOperator"]').value = rule.condition.operator || 'equals';
+            form.querySelector('[name="condValue"]').value = rule.condition.value || '';
+            form.querySelector('[name="condThreshold"]').value = rule.condition.threshold || 1;
+            form.querySelector('[name="condWindow"]').value = rule.condition.window || 0;
+          }
+
+          document.getElementById('rule-modal-title').textContent = 'Modify Correlation Rule';
+          document.getElementById('rule-modal').classList.add('active');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to fetch details', 'error');
+      }
+    }
+
+    async function deleteRule(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This detection rule will be deleted. Correlation engine will immediately stop checking for this threat signature.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Delete rule'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/threat-rules/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Rule has been removed.', 'success');
+            await loadRules();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Deletion failed', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

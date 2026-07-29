@@ -16,11 +16,11 @@ const config = require('./config');
 // Use Firewall configuration
 // In firewallSimulator.js, update the CONFIG section
 const CONFIG = {
-  API_URL: process.env.API_URL || 'http://localhost:5000/api/v1/logs/ingest',
+  API_URL: process.env.API_URL || 'http://localhost:3000/api/v1/logs/ingest',
   SOURCE_ID: process.env.PFSENSE_SOURCE_ID || process.env.FIREWALL_SOURCE_ID || '',
   AUTH_TOKEN: process.env.PFSENSE_AUTH_TOKEN || process.env.FIREWALL_AUTH_TOKEN || '',
   INTERVAL_MIN: 2000,
-  INTERVAL_MAX: 5000,
+  INTERVAL_MAX: 3000,
   RUN_FOREVER: true
 };
 
@@ -400,7 +400,7 @@ async function runSimulator() {
 
     } catch (error) {
       console.error(`❌ Error in simulation loop: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
   }
 }

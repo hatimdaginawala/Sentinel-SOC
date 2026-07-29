@@ -36,7 +36,7 @@ const incidentSchema = new mongoose.Schema({
     enum: ['malware', 'ransomware', 'phishing', 'data_breach', 'dos', 'insider_threat',
            'unauthorized_access', 'system_compromise', 'data_loss', 'policy_violation',
            'network_intrusion', 'web_attack', 'physical_security', 'other'],
-    required: true,
+    required: false,
     index: true
   },
   alerts: [{
@@ -647,7 +647,7 @@ incidentSchema.statics = {
    */
   async getStatistics(organizationId = null, timeRange = '30d') {
     const match = {};
-    if (organizationId) match.organization = mongoose.Types.ObjectId(organizationId);
+    if (organizationId) match.organization = new mongoose.Types.ObjectId(organizationId)
 
     // Set time range
     const now = new Date();

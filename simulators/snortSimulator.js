@@ -15,7 +15,7 @@ const config = require('./config');
 
 // Use Snort configuration
 const CONFIG = {
-  API_URL: process.env.API_URL || 'http://localhost:5000/api/v1/logs/ingest',
+  API_URL: process.env.API_URL || 'http://localhost:3000/api/v1/logs/ingest',
   SOURCE_ID: process.env.SNORT_SOURCE_ID || '',
   AUTH_TOKEN: process.env.SNORT_AUTH_TOKEN || '',
   INTERVAL_MIN: 3000,
@@ -426,7 +426,7 @@ async function runSimulator() {
 
     } catch (error) {
       console.error(`❌ Error in simulation loop: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
   }
 }

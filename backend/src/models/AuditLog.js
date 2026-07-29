@@ -377,7 +377,7 @@ auditLogSchema.statics = {
    */
   async getStatistics(organizationId = null, timeRange = '24h') {
     const match = {};
-    if (organizationId) match.organization = mongoose.Types.ObjectId(organizationId);
+    if (organizationId) match.organization = new mongoose.Types.ObjectId(organizationId);
 
     // Set time range
     const now = new Date();

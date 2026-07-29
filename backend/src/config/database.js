@@ -24,7 +24,7 @@ class Database {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 3000,
         socketTimeoutMS: 45000,
         family: 4
       };

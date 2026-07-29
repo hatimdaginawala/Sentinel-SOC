@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - SIEM Logs Analyzer</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .filter-panel {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+    }
+    .raw-log-block {
+      background: #0B0F19;
+      color: #38BDF8;
+      font-family: monospace;
+      font-size: var(--font-xs);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      max-height: 200px;
+      margin: 0;
+    }
+    .dt-details-row {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+    body.dark-theme .dt-details-row {
+      background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    .expand-toggle-btn {
+      color: var(--color-primary);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-file-waveform text-success"></i> SIEM Logs Search Engine</h1>
+        </div>
+
+        <!-- Advanced filter panel -->
+        <div class="filter-panel">
+          <form id="filter-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Severity Level</label>
+                <select name="severity" class="form-control">
+                  <option value="">-- All Severities --</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                  <option value="info">Info</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Event Category</label>
+                <select name="eventCategory" id="filter-category" class="form-control">
+                  <option value="">-- All Categories --</option>
+                  <!-- Populated from API -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Sensor Source</label>
+                <select name="logSource" id="filter-source" class="form-control">
+                  <option value="">-- All Log Sources --</option>
+                  <!-- Populated from API -->
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Source IP</label>
+                <input type="text" name="sourceIP" class="form-control" placeholder="192.168.1.100">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Target / Destination IP</label>
+                <input type="text" name="destinationIP" class="form-control" placeholder="10.0.0.1">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="administrator">
+              </div>
+            </div>
+
+            <div class="form-row align-center">
+              <div class="form-group">
+                <label class="form-label">Start Time</label>
+                <input type="datetime-local" name="startDate" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">End Time</label>
+                <input type="datetime-local" name="endDate" class="form-control">
+              </div>
+              <div class="form-group d-flex gap-sm mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i> Execute Query</button>
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()"><i class="fa-solid fa-arrows-rotate"></i> Reset</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-container">
+              <table id="logs-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Event Time</th>
+                    <th>Event Type</th>
+                    <th>Category</th>
+                    <th>Source IP</th>
+                    <th>Destination IP</th>
+                    <th>Username</th>
+                    <th>Severity</th>
+                    <th>Sensor Source</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_logs')) return;
+
+      loadFilters();
+      
+      // Bind form submission
+      document.getElementById('filter-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loadLogs();
+      });
+
+      loadLogs();
+    });
+
+    async function loadFilters() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+
+      // Populate log sources select
+      try {
+        const sourcesRes = await API.get(`/log-sources?organization=${orgId}`);
+        const sources = sourcesRes.data?.logSources || sourcesRes.data || [];
+        const selectSrc = document.getElementById('filter-source');
+        sources.forEach(src => {
+          selectSrc.innerHTML += `<option value="${src._id}">${Utils.escapeHTML(src.sourceName)}</option>`;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
+      // Populate categories select
+      try {
+        const categoriesRes = await API.get('/logs/categories');
+        if (categoriesRes.success && categoriesRes.data) {
+          const selectCat = document.getElementById('filter-category');
+          categoriesRes.data.forEach(cat => {
+            selectCat.innerHTML += `<option value="${cat}">${Utils.escapeHTML(cat)}</option>`;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadLogs() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      
+      const form = document.getElementById('filter-form');
+      const formData = new FormData(form);
+      
+      // Build query string
+      let queryStr = `organization=${orgId}`;
+      for (let [key, val] of formData.entries()) {
+        if (val) {
+          queryStr += `&${key}=${encodeURIComponent(val)}`;
+        }
+      }
+
+      try {
+        const response = await API.get(`/logs?${queryStr}&limit=100`);
+        if (response.success && response.data) {
+          const logs = response.data.items || [];
+
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('logs-list');
+          tbody.innerHTML = '';
+
+          logs.forEach(log => {
+            let sevBadge = Utils.getSeverityBadgeClass(log.severity);
+            
+            tbody.innerHTML += `
+              <tr data-raw='${JSON.stringify(log.raw || log)}'>
+                <td class="text-center expand-toggle-btn" onclick="toggleLogDetail(this)"><i class="fa-solid fa-angle-right"></i></td>
+                <td>${Utils.formatDate(log.eventTime)}</td>
+                <td><strong>${Utils.escapeHTML(log.eventType)}</strong></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(log.eventCategory)}</span></td>
+                <td>${Utils.escapeHTML(log.sourceIP || '-')}</td>
+                <td>${Utils.escapeHTML(log.destinationIP || '-')}</td>
+                <td>${Utils.escapeHTML(log.username || '-')}</td>
+                <td><span class="badge ${sevBadge}">${log.severity}</span></td>
+                <td>${Utils.escapeHTML(log.logSource?.sourceName || 'System')}</td>
+              </tr>
+            `;
+          });
+
+          // Custom DataTable instantiation (no auto columns sorting on the details column)
+          datatableInstance = Tables.init('#logs-table', {
+            columnDefs: [
+              { orderable: false, targets: 0 }
+            ],
+            order: [[1, 'desc']]
+          });
+        }
+      } catch (err) {
+        Swal.fire('Query Failed', err.message || 'Log search failed', 'error');
+      }
+    }
+
+    function toggleLogDetail(cell) {
+      const row = cell.closest('tr');
+      const tr = $(row);
+      const rowInstance = datatableInstance.row(tr);
+
+      const icon = cell.querySelector('i');
+
+      if (rowInstance.child.isShown()) {
+        // Close details
+        rowInstance.child.hide();
+        tr.removeClass('dt-details-row');
+        icon.className = 'fa-solid fa-angle-right';
+      } else {
+        // Open details
+        const rawData = JSON.parse(tr.attr('data-raw'));
+        const formattedJSON = JSON.stringify(rawData, null, 2);
+        
+        rowInstance.child(`
+          <div class="p-3">
+            <h5 class="mb-2 font-xs uppercase fw-bold">Raw Security Payload</h5>
+            <pre class="raw-log-block">${Utils.escapeHTML(formattedJSON)}</pre>
+          </div>
+        `, 'dt-details-row').show();
+        
+        tr.addClass('dt-details-row');
+        icon.className = 'fa-solid fa-angle-down';
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-form').reset();
+      loadLogs();
+    }
+  </script>
+</body>
+</html>

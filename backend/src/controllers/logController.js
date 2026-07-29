@@ -1,20 +1,37 @@
 const LogService = require('../services/logService');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
+const AutomationService = require('../services/automationService');
 
 class LogController {
   /**
    * Ingest a log from a log source (No authentication required)
    * POST /api/logs/ingest
    */
-  ingestLog = asyncHandler(async (req, res) => {
+   ingestLog = asyncHandler(async (req, res) => {
     const { sourceId, authToken, log } = req.body;
 
     if (!sourceId || !authToken || !log) {
       return ResponseHandler.badRequest(res, 'Missing required fields: sourceId, authToken, log');
     }
 
+    // Step 1: Validate and store the log
     const result = await LogService.ingestLog(sourceId, authToken, log);
+
+    // Step 2: Process through automation pipeline
+    // This runs asynchronously to not block the response
+    setImmediate(async () => {
+      try {
+        const automationResult = await AutomationService.processLog(result);
+        console.log('✅ Automation completed:', {
+          alerts: automationResult?.alerts?.length || 0,
+          incidents: automationResult?.incidents?.length || 0,
+          iocs: automationResult?.matchedIOCs?.length || 0
+        });
+      } catch (error) {
+        console.error('❌ Automation error:', error);
+      }
+    });
 
     ResponseHandler.created(res, result, 'Log ingested successfully');
   });

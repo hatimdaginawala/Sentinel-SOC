@@ -1,0 +1,79 @@
+/* Ultra-wide monitors */
+@media (min-width: 1920px) {
+  .content-wrapper {
+    max-width: 1800px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  .kpi-card:nth-last-child(-n+2) {
+    display: flex;
+  }
+}
+
+/* Laptops & standard monitors */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-full-width {
+    grid-column: span 1;
+  }
+}
+
+/* Tablets & Mobile */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 200px;
+  }
+  
+  .app-container {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "navbar"
+      "main";
+  }
+  
+  .sidebar {
+    position: fixed;
+    left: calc(var(--sidebar-width) * -1);
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100%;
+    transition: left var(--transition-speed) ease-in-out;
+  }
+  
+  .app-container.sidebar-open .sidebar {
+    left: 0;
+  }
+  
+  .sidebar-collapsed .sidebar {
+    left: calc(var(--sidebar-collapsed-width) * -1);
+  }
+  
+  .navbar-search {
+    display: none; /* Hide search bar on smaller devices */
+  }
+  
+  .row {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .col, .col-8, .col-6, .col-4, .col-3 {
+    width: 100% !important;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}

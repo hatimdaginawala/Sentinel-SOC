@@ -1,0 +1,188 @@
+/* Grid system for dashboard widgets */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* KPI Score Card styles */
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.kpi-title {
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.kpi-icon {
+  font-size: var(--font-lg);
+  color: var(--text-muted);
+}
+
+.kpi-value {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-xs);
+}
+
+.kpi-subtext {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Gauge visualization inside Threat and Risk cards */
+.metric-progress {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-primary);
+  border-radius: 3px;
+  margin-top: var(--spacing-sm);
+  overflow: hidden;
+}
+
+.metric-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease-out;
+}
+
+/* Specific theme classes based on scores */
+.kpi-card.threat-critical .metric-progress-bar { background-color: var(--color-danger); }
+.kpi-card.threat-high .metric-progress-bar { background-color: var(--color-warning); }
+.kpi-card.threat-medium .metric-progress-bar { background-color: #ECC94B; }
+.kpi-card.threat-low .metric-progress-bar { background-color: var(--color-primary); }
+
+/* Main dashboard sections grid */
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.dashboard-full-width {
+  grid-column: span 2;
+}
+
+/* Interactive threat list feed */
+.threat-feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.threat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--border-color);
+  font-size: var(--font-sm);
+  transition: transform var(--transition-speed);
+}
+
+.threat-item:hover {
+  transform: translateX(4px);
+}
+
+.threat-item.critical { border-left-color: var(--color-danger); }
+.threat-item.high { border-left-color: var(--color-warning); }
+.threat-item.medium { border-left-color: var(--color-info); }
+.threat-item.low { border-left-color: var(--color-primary); }
+
+.threat-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.threat-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.threat-meta {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.threat-time {
+  font-family: monospace;
+}
+
+/* Live Activity feed list */
+.live-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-xs);
+}
+
+.activity-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(47, 133, 90, 0.1);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-item.warning .activity-icon {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: var(--color-warning);
+}
+
+.activity-item.danger .activity-icon {
+  background-color: rgba(197, 48, 48, 0.1);
+  color: var(--color-danger);
+}
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-msg {
+  color: var(--text-primary);
+}
+
+.activity-time {
+  color: var(--text-muted);
+  font-size: 10px;
+}

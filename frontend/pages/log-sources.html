@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Log Sources</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-network-wired text-success"></i> Registered Log Sources</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-source"><i class="fa-solid fa-plus"></i> Configure Sensor Source</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="sources-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Source Name</th>
+                    <th>Linked Asset</th>
+                    <th>Source Type</th>
+                    <th>Protocol</th>
+                    <th>Status</th>
+                    <th>Auth Token</th>
+                    <th>Last Event Time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="sources-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="source-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="source-modal-title">Configure Sensor Source</h3>
+        <button class="modal-close" id="source-modal-close">&times;</button>
+      </div>
+      <form id="source-form">
+        <input type="hidden" name="source-id" id="source-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Source Display Name</label>
+            <input type="text" name="sourceName" class="form-control" placeholder="production-firewall-logs" required>
+            <span class="form-error">Source name is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Map to Asset</label>
+              <select name="asset" id="source-asset-select" class="form-control" required></select>
+              <span class="form-error">Please link to an inventory asset</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sensor / Source Type</label>
+              <select name="sourceType" class="form-control">
+                <option value="Windows">Windows Event Logs</option>
+                <option value="Linux">Linux Syslog</option>
+                <option value="Apache">Apache Web Server</option>
+                <option value="Nginx">Nginx Reverse Proxy</option>
+                <option value="pfSense">pfSense Firewall</option>
+                <option value="Suricata">Suricata IDS/IPS</option>
+                <option value="Snort">Snort Alert Engine</option>
+                <option value="Zeek">Zeek Network Monitoring</option>
+                <option value="Custom">Custom Agent / REST API</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ingestion Protocol</label>
+              <select name="protocol" class="form-control">
+                <option value="REST">REST API Client (POST)</option>
+                <option value="Syslog">RFC5424 Syslog Pipeline</option>
+                <option value="Agent">Operational Daemon Agent</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Initial Status</label>
+              <select name="status" class="form-control">
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+                <option value="Pending">Pending</option>
+                <option value="Error">Error</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label font-xs">Detailed Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Ingests core firewall flow events..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="source-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="source-modal-submit">Create Sensor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_assets')) return;
+
+      loadSources();
+      loadAssetsForSelect();
+      setupModal();
+    });
+
+    async function loadAssetsForSelect() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      const select = document.getElementById('source-asset-select');
+      if (!select) return;
+
+      try {
+        const response = await API.get(`/assets?organization=${orgId}`);
+        if (response.success && response.data) {
+          const assets =  response.data.items || [];
+          select.innerHTML = '<option value="">-- Choose Asset --</option>';
+          assets.forEach(a => {
+            select.innerHTML += `<option value="${a._id}">${Utils.escapeHTML(a.name)} (${Utils.escapeHTML(a.ipAddress)})</option>`;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load assets for select dropdown:', err);
+      }
+    }
+
+    async function loadSources() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/log-sources?organization=${orgId}`);
+        if (response.success && response.data) {
+          const sources = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('sources-list');
+          tbody.innerHTML = '';
+
+          sources.forEach(src => {
+            let statusBadge = '';
+            if (src.status === 'Online') statusBadge = 'badge-online';
+            else if (src.status === 'Offline') statusBadge = 'badge-offline';
+            else if (src.status === 'Error') statusBadge = 'badge-critical';
+            else statusBadge = 'badge-high';
+
+            const iconClass = Utils.getLogSourceIcon(src.sourceType);
+            const truncatedToken = src.authToken ? `${src.authToken.substring(0, 10)}...` : 'N/A';
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(src.sourceName)}</strong></td>
+                <td><a href="/pages/assets.html">${Utils.escapeHTML(src.asset?.name || 'Unassigned')}</a></td>
+                <td><i class="fa-solid ${iconClass} mr-1 text-muted"></i> ${Utils.escapeHTML(src.sourceType)}</td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(src.protocol || 'REST')}</span></td>
+                <td><span class="badge ${statusBadge}">${src.status}</span></td>
+                <td>
+                  <span class="font-xs text-muted" style="font-family:monospace;">${truncatedToken}</span>
+                  ${src.authToken ? `<button class="table-btn" onclick="copyToken('${src.authToken}')" title="Copy Token"><i class="fa-solid fa-copy"></i></button>` : ''}
+                </td>
+                <td>${src.lastEventTime ? Utils.formatDate(src.lastEventTime) : 'Never'}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn edit" onclick="editSource('${src._id}')" title="Modify Source"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn" onclick="regenerateToken('${src._id}')" title="Regenerate Security Token"><i class="fa-solid fa-key text-warning"></i></button>
+                    <button class="table-btn delete" onclick="deleteSource('${src._id}')" title="Delete Source"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check permissions
+          if (!Auth.hasPermission('manage_assets')) {
+            document.getElementById('btn-add-source').style.display = 'none';
+            document.querySelectorAll('.table-btn').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#sources-table');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve log sources', 'error');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('source-modal');
+      const addBtn = document.getElementById('btn-add-source');
+      const closeBtn = document.getElementById('source-modal-close');
+      const cancelBtn = document.getElementById('source-modal-cancel');
+      const form = document.getElementById('source-form');
+
+      const openModal = (title = 'Configure Sensor Source') => {
+        document.getElementById('source-modal-title').textContent = title;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('source-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal());
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { sourceName: ['required'], asset: ['required'] }, async (formData) => {
+        const id = document.getElementById('source-id').value;
+        const orgId = localStorage.getItem('currentOrgId') || '';
+
+        const payload = {
+          sourceName: formData.get('sourceName'),
+          asset: formData.get('asset'),
+          sourceType: formData.get('sourceType'),
+          protocol: formData.get('protocol'),
+          status: formData.get('status'),
+          description: formData.get('description'),
+          organization: orgId
+        };
+
+        let response;
+        if (id) {
+          response = await API.put(`/log-sources/${id}`, payload);
+        } else {
+          response = await API.post('/log-sources', payload);
+        }
+
+        if (response.success) {
+          closeModal();
+          
+          // Display the authToken to the analyst if it was created new
+          if (response.data && response.data.authToken) {
+            await Swal.fire({
+              title: 'Ingestion Credentials Generated',
+              icon: 'success',
+              html: `
+                <p>Ensure you save this authorization token now. You will need it to ingest logs.</p>
+                <textarea class="form-control" style="font-family: monospace; font-size:12px; margin-top: 10px;" rows="3" readonly>${response.data.authToken}</textarea>
+              `,
+              confirmButtonText: 'Acknowledge'
+            });
+          } else {
+            Swal.fire('Success', 'Log source updated successfully', 'success');
+          }
+
+          await loadSources();
+          return true;
+        } else {
+          throw new Error(response.message || 'Operation failed');
+        }
+      });
+    }
+
+    async function editSource(id) {
+      try {
+        const response = await API.get(`/log-sources/${id}`);
+        if (response.success && response.data) {
+          const src = response.data;
+          
+          document.getElementById('source-id').value = src._id;
+          const form = document.getElementById('source-form');
+          
+          Forms.populate(form, src);
+          if (src.asset) {
+            form.querySelector('[name="asset"]').value = typeof src.asset === 'object' ? src.asset._id : src.asset;
+          }
+
+          document.getElementById('source-modal-title').textContent = 'Modify Sensor Source';
+          document.getElementById('source-modal').classList.add('active');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to fetch details', 'error');
+      }
+    }
+
+    async function regenerateToken(id) {
+      const confirm = await Swal.fire({
+        title: 'Regenerate token?',
+        text: "The previous authentication token for this sensor will immediately cease functioning.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-warning)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Regenerate'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.post(`/log-sources/${id}/regenerate-token`);
+          if (response.success && response.data) {
+            await Swal.fire({
+              title: 'New Security Token Generated',
+              icon: 'success',
+              html: `
+                <p>Save this new authorization token. Update your collector daemon setup immediately.</p>
+                <textarea class="form-control" style="font-family: monospace; font-size:12px;" rows="3" readonly>${response.data.authToken}</textarea>
+              `,
+              confirmButtonText: 'Acknowledge'
+            });
+            await loadSources();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Regeneration failed', 'error');
+        }
+      }
+    }
+
+    async function deleteSource(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This sensor configuration will be removed. Ingested historical logs will remain.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Delete sensor'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/log-sources/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Log source has been removed.', 'success');
+            await loadSources();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Deletion failed', 'error');
+        }
+      }
+    }
+
+    function copyToken(token) {
+      navigator.clipboard.writeText(token).then(() => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Token copied to clipboard',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      });
+    }
+  </script>
+</body>
+</html>

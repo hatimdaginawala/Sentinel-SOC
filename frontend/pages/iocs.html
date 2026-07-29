@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Indicators of Compromise (IOCs)</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-database text-success"></i> Indicators of Compromise (IOCs)</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-ioc"><i class="fa-solid fa-plus"></i> Import Indicator</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="iocs-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Indicator / Value</th>
+                    <th>Type</th>
+                    <th>Threat Category</th>
+                    <th>Description</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="iocs-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- ADD/EDIT IOC MODAL -->
+  <div class="modal-overlay" id="ioc-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ioc-modal-title">Import Indicator</h3>
+        <button class="modal-close" id="ioc-modal-close">&times;</button>
+      </div>
+      <form id="ioc-form">
+        <input type="hidden" name="ioc-id" id="ioc-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Indicator Value (IP / Domain / Hash / URL)</label>
+            <input type="text" name="indicator" class="form-control" placeholder="185.120.21.4" required>
+            <span class="form-error">Indicator value is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Indicator Type</label>
+              <select name="type" class="form-control">
+                <option value="ip">IP Address</option>
+                <option value="domain">Domain Name</option>
+                <option value="file_hash">File Hash (MD5/SHA256)</option>
+                <option value="url">URL Link</option>
+                <option value="email">Email Sender</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Threat Category</label>
+              <select name="threatType" class="form-control">
+                <option value="malware">Malware C2</option>
+                <option value="phishing">Phishing Source</option>
+                <option value="botnet">Botnet Node</option>
+                <option value="ransomware">Ransomware Origin</option>
+                <option value="exploit">Known Exploit IP</option>
+                <option value="suspicious">Suspicious / Unknown</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label font-xs">Context / Description</label>
+            <input type="text" name="description" class="form-control" placeholder="Identified in Ransomware Campaign Dec 2024" required>
+            <span class="form-error">Description context is required</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Calculated Severity</label>
+              <select name="severity" class="form-control">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-control">
+                <option value="active">Active Block</option>
+                <option value="expired">Expired Intel</option>
+                <option value="whitelisted">Whitelisted</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="ioc-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="ioc-modal-submit">Import Indicator</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_iocs')) return;
+
+      loadIOCs();
+      setupModal();
+    });
+
+    async function loadIOCs() {
+      const orgId = localStorage.getItem('currentOrgId') || '';
+      try {
+        const response = await API.get(`/iocs?organization=${orgId}`);
+        if (response.success && response.data) {
+          const iocs = response.data.items || [];
+          
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('iocs-list');
+          tbody.innerHTML = '';
+
+          iocs.forEach(ioc => {
+            let statusBadge = '';
+            if (ioc.status === 'active') statusBadge = 'badge-critical';
+            else if (ioc.status === 'expired') statusBadge = 'badge-offline';
+            else statusBadge = 'badge-online'; // Whitelisted
+
+            let sevBadge = Utils.getSeverityBadgeClass(ioc.severity);
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong class="font-xs" style="font-family: monospace;">${Utils.escapeHTML(ioc.indicator)}</strong></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(ioc.type?.toUpperCase())}</span></td>
+                <td>${Utils.escapeHTML(ioc.threatType)}</td>
+                <td>${Utils.escapeHTML(ioc.description)}</td>
+                <td><span class="badge ${sevBadge}">${ioc.severity}</span></td>
+                <td><span class="badge ${statusBadge}">${ioc.status}</span></td>
+                <td>${Utils.formatDate(ioc.createdAt)}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn edit" onclick="editIOC('${ioc._id}')" title="Modify Indicator"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn delete" onclick="deleteIOC('${ioc._id}')" title="Delete Indicator"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check permissions
+          if (!Auth.hasPermission('manage_iocs')) {
+            document.getElementById('btn-add-ioc').style.display = 'none';
+            document.querySelectorAll('.table-btn').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#iocs-table');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to retrieve IOCs', 'error');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('ioc-modal');
+      const addBtn = document.getElementById('btn-add-ioc');
+      const closeBtn = document.getElementById('ioc-modal-close');
+      const cancelBtn = document.getElementById('ioc-modal-cancel');
+      const form = document.getElementById('ioc-form');
+
+      const openModal = (title = 'Import Indicator') => {
+        document.getElementById('ioc-modal-title').textContent = title;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('ioc-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal());
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { indicator: ['required'], description: ['required'] }, async (formData) => {
+        const id = document.getElementById('ioc-id').value;
+        const orgId = localStorage.getItem('currentOrgId') || '';
+
+        const payload = {
+          indicator: formData.get('indicator'),
+          type: formData.get('type'),
+          threatType: formData.get('threatType'),
+          description: formData.get('description'),
+          severity: formData.get('severity'),
+          status: formData.get('status'),
+          organization: orgId
+        };
+
+        let response;
+        if (id) {
+          response = await API.put(`/iocs/${id}`, payload);
+        } else {
+          response = await API.post('/iocs', payload);
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'Indicator updated successfully' : 'Indicator imported successfully', 'success');
+          await loadIOCs();
+          return true;
+        } else {
+          throw new Error(response.message || 'Operation failed');
+        }
+      });
+    }
+
+    async function editIOC(id) {
+      try {
+        const response = await API.get(`/iocs/${id}`);
+        if (response.success && response.data) {
+          const ioc = response.data;
+          
+          document.getElementById('ioc-id').value = ioc._id;
+          const form = document.getElementById('ioc-form');
+          
+          Forms.populate(form, ioc);
+
+          document.getElementById('ioc-modal-title').textContent = 'Modify Threat Indicator';
+          document.getElementById('ioc-modal').classList.add('active');
+        }
+      } catch (err) {
+        Swal.fire('Error', err.message || 'Failed to fetch details', 'error');
+      }
+    }
+
+    async function deleteIOC(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Removing this indicator will delete the whitelisting/blocking rules immediately.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Delete IOC'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/iocs/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Indicator has been removed.', 'success');
+            await loadIOCs();
+          }
+        } catch (err) {
+          Swal.fire('Error', err.message || 'Deletion failed', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -7,6 +7,23 @@ const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
 console.log('🔧 Setting up log routes...');
+
+// ============================================
+// PUBLIC ROUTES - DEFINED FIRST (BEFORE protect)
+// ============================================
+
+console.log('✅ Registering PUBLIC routes...');
+
+// Public test route
+router.get('/logs/public-test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'This endpoint is public!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Public ingestion endpoint
 router.post('/logs/ingest',
   [
     body('sourceId').isMongoId().withMessage('Invalid log source ID'),
@@ -17,19 +34,19 @@ router.post('/logs/ingest',
   sanitizeRequest,
   LogController.ingestLog
 );
-// Validation rules
-const ingestLogValidation = [
-  body('sourceId')
-    .isMongoId()
-    .withMessage('Invalid log source ID'),
-  body('authToken')
-    .isLength({ min: 1 })
-    .withMessage('Authentication token is required'),
-  body('log')
-    .isObject()
-    .withMessage('Log data must be an object')
-];
 
+console.log('✅ Public routes registered:');
+console.log('   GET  /logs/public-test');
+console.log('   POST /logs/ingest');
+
+// ============================================
+// PROTECTED ROUTES - DEFINED AFTER protect
+// ============================================
+
+console.log('🔒 Setting up protected routes...');
+router.use(protect);
+
+// Validation rules
 const getLogsValidation = [
   query('organization')
     .optional()
@@ -111,41 +128,27 @@ const cleanupValidation = [
     .withMessage('Retention days must be between 1 and 365')
 ];
 
-// Public ingestion endpoint (no authentication required)
-
-
-// All other routes require authentication
-router.use(protect);
-
-// Public (authenticated) routes
+// Protected routes
 router.get('/logs/categories', LogController.getEventCategories);
 router.get('/logs/severities', LogController.getSeverities);
 router.get('/logs/statuses', LogController.getStatuses);
-
-// Log management routes
-router.get('/logs/statistics',
-  LogController.getLogStatistics
-);
-
+router.get('/logs/statistics', LogController.getLogStatistics);
 router.get('/logs',
   getLogsValidation,
   validateRequest,
   LogController.getLogs
 );
-
 router.get('/logs/:id',
   logIdValidation,
   validateRequest,
   LogController.getLogById
 );
-
 router.get('/logs/organization/:organizationId',
   authorize(PERMISSIONS.VIEW_LOGS),
   organizationIdValidation,
   validateRequest,
   LogController.getLogsByOrganization
 );
-
 router.get('/logs/source/:logSourceId',
   authorize(PERMISSIONS.VIEW_LOGS),
   logSourceIdValidation,
@@ -160,7 +163,6 @@ router.delete('/logs/:id',
   validateRequest,
   LogController.deleteLog
 );
-
 router.post('/logs/cleanup',
   authorize(PERMISSIONS.MANAGE_LOGS),
   cleanupValidation,

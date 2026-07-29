@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Organizations</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-building text-success"></i> Managed Tenant Organizations</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-org"><i class="fa-solid fa-plus"></i> Add Organization</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="orgs-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Industry</th>
+                    <th>Size</th>
+                    <th>Status</th>
+                    <th>Plan</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orgs-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- VIEW-ONLY DETAIL MODAL -->
+  <div class="modal-overlay" id="org-view-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-building"></i> Organization Details</h3>
+        <button class="modal-close" id="org-view-modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="org-view-body">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="org-view-modal-close-btn">Close</button>
+        <button type="button" class="btn btn-primary" id="org-view-modal-edit-btn">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="org-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="org-modal-title">Create Organization</h3>
+        <button class="modal-close" id="org-modal-close">&times;</button>
+      </div>
+      <form id="org-form">
+        <input type="hidden" name="org-id" id="org-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Organization Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Acme Inc." minlength="2" maxlength="100" required>
+            <span class="form-error">Organization name is required (2-100 characters)</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Code Identifier</label>
+              <input type="text" name="code" id="org-code-input" class="form-control" placeholder="ACM"
+                     style="text-transform: uppercase;" minlength="2" maxlength="10"
+                     pattern="[A-Za-z0-9]+" title="Letters and numbers only, 2-10 characters" required>
+              <span class="form-error">2-10 character code (letters/numbers only) is required</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Industry Sector</label>
+              <select name="industry" class="form-control">
+                <option value="technology">Technology</option>
+                <option value="finance">Finance</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="government">Government</option>
+                <option value="education">Education</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="energy">Energy</option>
+                <option value="telecommunications">Telecommunications</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Size Class</label>
+              <select name="size" class="form-control">
+                <option value="small">Small (&lt; 50 users)</option>
+                <option value="medium">Medium (50 - 250)</option>
+                <option value="large">Large (250 - 1000)</option>
+                <option value="enterprise">Enterprise (1000+)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Subscription Plan</label>
+              <select name="plan" class="form-control">
+                <option value="free">Free Trial</option>
+                <option value="basic">Basic Tier</option>
+                <option value="professional">Professional Tier</option>
+                <option value="enterprise">Enterprise Dedicated</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Operational Status</label>
+            <select name="status" class="form-control">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="org-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="org-modal-submit">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+    let cachedOrgs = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_organizations')) return;
+
+      loadOrgs();
+      setupModal();
+      setupViewModal();
+
+      // Force the code field to uppercase as the user types (CSS text-transform
+      // only changes *display*, not the actual value sent to the server).
+      const codeInput = document.getElementById('org-code-input');
+      codeInput.addEventListener('input', () => {
+        const cursor = codeInput.selectionStart;
+        codeInput.value = codeInput.value.toUpperCase();
+        codeInput.setSelectionRange(cursor, cursor);
+      });
+    });
+
+    // Builds a readable message out of a backend error payload.
+    // Falls back gracefully if `errors` isn't present.
+    function formatApiError(err) {
+      const payload = err.payload || err; // depending on how API.js throws
+      const baseMessage = payload.message || err.message || 'Something went wrong';
+      const fieldErrors = payload.errors;
+
+      if (Array.isArray(fieldErrors) && fieldErrors.length) {
+        const lines = fieldErrors.map(fe => {
+          const field = fe.param || fe.field || fe.path || '';
+          const msg = fe.msg || fe.message || JSON.stringify(fe);
+          return field ? `${field}: ${msg}` : msg;
+        });
+        return `${baseMessage}<br><br><ul style="text-align:left; margin:0; padding-left:18px;">${
+          lines.map(l => `<li>${Utils.escapeHTML(l)}</li>`).join('')
+        }</ul>`;
+      }
+      return Utils.escapeHTML(baseMessage);
+    }
+
+    function showApiError(err, title = 'Error') {
+      Swal.fire({
+        title,
+        html: formatApiError(err),
+        icon: 'error'
+      });
+    }
+
+    async function loadOrgs() {
+      try {
+        const response = await API.get('/organizations');
+        if (response.success && response.data) {
+          const orgs = response.data.items || [];
+          cachedOrgs = orgs;
+
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('orgs-list');
+          tbody.innerHTML = '';
+
+          if (orgs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No organizations found. Click "Add Organization" to create one.</td></tr>`;
+          }
+
+          orgs.forEach(org => {
+            let statusBadge = '';
+            if (org.status === 'active') statusBadge = 'badge-online';
+            else if (org.status === 'inactive') statusBadge = 'badge-offline';
+            else statusBadge = 'badge-high';
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(org.name)}</strong></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(org.code)}</span></td>
+                <td>${Utils.escapeHTML(org.industry)}</td>
+                <td>${Utils.escapeHTML(org.size)}</td>
+                <td><span class="badge ${statusBadge}">${org.status}</span></td>
+                <td><span class="badge badge-medium">${org.subscription?.plan || 'Free'}</span></td>
+                <td>${Utils.formatDate(org.createdAt)}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn view" onclick="viewOrg('${org._id}')" title="View Organization"><i class="fa-solid fa-eye"></i></button>
+                    <button class="table-btn edit" onclick="editOrg('${org._id}')" title="Edit Organization"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn delete" onclick="deleteOrg('${org._id}')" title="Delete Organization"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          // Check manage permissions
+          if (!Auth.hasPermission('manage_organizations')) {
+            document.getElementById('btn-add-org').style.display = 'none';
+            document.querySelectorAll('.table-btn.edit, .table-btn.delete').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#orgs-table');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to load organizations');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('org-modal');
+      const addBtn = document.getElementById('btn-add-org');
+      const closeBtn = document.getElementById('org-modal-close');
+      const cancelBtn = document.getElementById('org-modal-cancel');
+      const form = document.getElementById('org-form');
+
+      const openModal = (title = 'Create Organization') => {
+        document.getElementById('org-modal-title').textContent = title;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('org-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal());
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { name: ['required'], code: ['required'] }, async (formData) => {
+        const id = document.getElementById('org-id').value;
+        const rawCode = (formData.get('code') || '').trim().toUpperCase();
+
+        const payload = {
+          name: (formData.get('name') || '').trim(),
+          code: rawCode,
+          industry: formData.get('industry'),
+          size: formData.get('size'),
+          status: formData.get('status'),
+          subscription: {
+            plan: formData.get('plan')
+          }
+        };
+
+        let response;
+        try {
+          if (id) {
+            response = await API.put(`/organizations/${id}`, payload);
+          } else {
+            response = await API.post('/organizations', payload);
+          }
+        } catch (err) {
+          // Surface the real validation errors instead of a generic message
+          showApiError(err, id ? 'Update failed' : 'Creation failed');
+          return false; // tells Forms.bind not to close the modal
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'Organization updated' : 'Organization created', 'success');
+          await loadOrgs();
+          return true;
+        } else {
+          showApiError(response, id ? 'Update failed' : 'Creation failed');
+          return false;
+        }
+      });
+    }
+
+    function setupViewModal() {
+      const viewModal = document.getElementById('org-view-modal');
+      const closeBtn = document.getElementById('org-view-modal-close');
+      const closeBtn2 = document.getElementById('org-view-modal-close-btn');
+      const editBtn = document.getElementById('org-view-modal-edit-btn');
+
+      const closeViewModal = () => viewModal.classList.remove('active');
+
+      closeBtn.addEventListener('click', closeViewModal);
+      closeBtn2.addEventListener('click', closeViewModal);
+
+      editBtn.addEventListener('click', () => {
+        const id = editBtn.dataset.orgId;
+        closeViewModal();
+        if (id) editOrg(id);
+      });
+
+      if (!Auth.hasPermission('manage_organizations')) {
+        editBtn.style.display = 'none';
+      }
+    }
+
+    async function viewOrg(id) {
+      try {
+        const response = await API.get(`/organizations/${id}`);
+        if (response.success && response.data) {
+          const org = response.data;
+          document.getElementById('org-view-modal-edit-btn').dataset.orgId = org._id;
+
+          const body = document.getElementById('org-view-body');
+          body.innerHTML = `
+            <div class="form-row">
+              <div><strong>Name:</strong> ${Utils.escapeHTML(org.name)}</div>
+              <div><strong>Code:</strong> ${Utils.escapeHTML(org.code)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Industry:</strong> ${Utils.escapeHTML(org.industry || 'N/A')}</div>
+              <div><strong>Size:</strong> ${Utils.escapeHTML(org.size || 'N/A')}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Status:</strong> ${Utils.escapeHTML(org.status)}</div>
+              <div><strong>Plan:</strong> ${Utils.escapeHTML(org.subscription?.plan || 'free')}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Website:</strong> ${org.website ? Utils.escapeHTML(org.website) : 'N/A'}</div>
+              <div><strong>Created:</strong> ${Utils.formatDate(org.createdAt)}</div>
+            </div>
+            ${org.description ? `<div style="margin-top:10px;"><strong>Description:</strong><br>${Utils.escapeHTML(org.description)}</div>` : ''}
+            ${org.address && (org.address.city || org.address.country) ? `
+              <div style="margin-top:10px;">
+                <strong>Location:</strong>
+                ${Utils.escapeHTML([org.address.city, org.address.country].filter(Boolean).join(', '))}
+              </div>` : ''}
+            ${org.createdBy ? `<div style="margin-top:10px;"><strong>Created By:</strong> ${Utils.escapeHTML(org.createdBy.email || org.createdBy.username || 'N/A')}</div>` : ''}
+          `;
+
+          document.getElementById('org-view-modal').classList.add('active');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch organization details');
+      }
+    }
+
+    async function editOrg(id) {
+      try {
+        const response = await API.get(`/organizations/${id}`);
+        if (response.success && response.data) {
+          const org = response.data;
+
+          document.getElementById('org-id').value = org._id;
+          const form = document.getElementById('org-form');
+
+          // Populate normal fields
+          Forms.populate(form, org);
+
+          // Populate nested plan
+          if (org.subscription && org.subscription.plan) {
+            form.querySelector('[name="plan"]').value = org.subscription.plan;
+          }
+
+          document.getElementById('org-modal-title').textContent = 'Modify Organization';
+          document.getElementById('org-modal').classList.add('active');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch organization details');
+      }
+    }
+
+    async function deleteOrg(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This organization and all associated logs, assets, and users will be soft-deleted.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/organizations/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Organization has been removed.', 'success');
+            await loadOrgs();
+          } else {
+            showApiError(response, 'Deletion failed');
+          }
+        } catch (err) {
+          // This is where "org has N users/assets assigned" surfaces —
+          // that's the backend correctly refusing to orphan data, not a bug.
+          showApiError(err, 'Deletion failed');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

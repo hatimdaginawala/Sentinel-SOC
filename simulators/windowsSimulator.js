@@ -4,23 +4,15 @@
  * Sends logs to SentinelSOC ingestion endpoint
  */
 
+require('dotenv').config();
+
 const axios = require('axios');
 const { faker } = require('@faker-js/faker');
 const crypto = require('crypto');
-// Add this at the very top of each simulator file
-require('dotenv').config();
 
-// Rest of the code...
-// Configuration
+// Load configuration
+const config = require('./config');
 
-const CONFIG = {
-  API_URL: process.env.API_URL || 'http://localhost:5000/api/v1/logs/ingest',
-  SOURCE_ID: process.env.WINDOWS_SOURCE_ID || '',
-  AUTH_TOKEN: process.env.WINDOWS_AUTH_TOKEN || '',
-  INTERVAL_MIN: 2000,
-  INTERVAL_MAX: 5000,
-  RUN_FOREVER: true
-};
 // Windows Event Types
 const WINDOWS_EVENTS = {
   SECURITY: {
@@ -73,12 +65,12 @@ const HOSTNAMES = [
   'APP-SRV-01', 'APP-SRV-02', 'DB-SRV-01'
 ];
 
-// Common IP addresses
-const IPS = [
-  '192.168.1.10', '192.168.1.11', '192.168.1.12', '192.168.1.13',
-  '10.0.0.10', '10.0.0.11', '10.0.0.12', '10.0.0.13',
-  '172.16.0.10', '172.16.0.11', '172.16.0.12'
-];
+// Common IP addresses for different organizations
+const ORG_IPS = {
+  acme: ['192.168.1.10', '192.168.1.11', '192.168.1.12', '192.168.1.13'],
+  gfi: ['10.0.0.10', '10.0.0.11', '10.0.0.12', '10.0.0.13'],
+  hcs: ['172.16.0.10', '172.16.0.11', '172.16.0.12', '172.16.0.13']
+};
 
 // Common processes
 const PROCESSES = [
@@ -96,10 +88,11 @@ function randomItem(arr) {
 }
 
 /**
- * Generate random IP address
+ * Generate random IP address for an organization
  */
-function randomIP() {
-  return `${Math.floor(Math.random() * 254) + 1}.${Math.floor(Math.random() * 254) + 1}.${Math.floor(Math.random() * 254) + 1}.${Math.floor(Math.random() * 254) + 1}`;
+function randomIP(org) {
+  const ips = ORG_IPS[org] || ['192.168.1.100', '192.168.1.101'];
+  return randomItem(ips);
 }
 
 /**
@@ -112,7 +105,7 @@ function randomPort() {
 /**
  * Generate a Windows Event Log
  */
-function generateWindowsEvent() {
+function generateWindowsEvent(org) {
   const eventType = Math.random() > 0.3 ? 'SECURITY' : (Math.random() > 0.5 ? 'SYSTEM' : 'APPLICATION');
   const events = WINDOWS_EVENTS[eventType];
   const eventIds = Object.keys(events);
@@ -121,8 +114,8 @@ function generateWindowsEvent() {
   
   const username = Math.random() > 0.3 ? randomItem(USERS) : randomItem(['SYSTEM', 'NETWORK SERVICE']);
   const hostname = randomItem(HOSTNAMES);
-  const sourceIP = randomIP();
-  const destIP = randomIP();
+  const sourceIP = randomIP(org);
+  const destIP = randomIP(org);
   const processName = randomItem(PROCESSES);
   
   // Determine severity based on event ID
@@ -178,29 +171,29 @@ function generateWindowsEvent() {
     status: eventId === '4625' ? 'failure' : (eventId === '4740' ? 'locked' : 'success')
   };
 
-  return log;
+  return { log, organization: org };
 }
 
 /**
  * Generate realistic Windows log patterns with variations
  */
-function generatePatternedEvent() {
+function generatePatternedEvent(org) {
   const patterns = [
     // Pattern 1: Multiple failed logins from same IP
     () => {
-      const ip = randomIP();
+      const ip = randomIP(org);
       const events = [];
       const count = Math.floor(Math.random() * 5) + 2;
       for (let i = 0; i < count; i++) {
-        const event = generateWindowsEvent();
-        event.eventId = '4625';
-        event.eventName = 'Failed Login';
-        event.sourceIP = ip;
-        event.message = `[Security] Failed Login - User: ${randomItem(USERS)} - Source IP: ${ip} - Attempt ${i+1}/${count}`;
-        event.severity = 'high';
-        events.push(event);
+        const { log } = generateWindowsEvent(org);
+        log.eventId = '4625';
+        log.eventName = 'Failed Login';
+        log.sourceIP = ip;
+        log.message = `[Security] Failed Login - User: ${randomItem(USERS)} - Source IP: ${ip} - Attempt ${i+1}/${count}`;
+        log.severity = 'high';
+        events.push(log);
       }
-      return events;
+      return { events, organization: org };
     },
     
     // Pattern 2: Account lockout sequence
@@ -209,34 +202,34 @@ function generatePatternedEvent() {
       const events = [];
       const count = Math.floor(Math.random() * 3) + 1;
       for (let i = 0; i < count; i++) {
-        const event = generateWindowsEvent();
-        event.eventId = '4625';
-        event.eventName = 'Failed Login';
-        event.username = user;
-        event.message = `[Security] Failed Login - User: ${user} - Source IP: ${randomIP()}`;
-        event.severity = 'high';
-        events.push(event);
+        const { log } = generateWindowsEvent(org);
+        log.eventId = '4625';
+        log.eventName = 'Failed Login';
+        log.username = user;
+        log.message = `[Security] Failed Login - User: ${user} - Source IP: ${randomIP(org)}`;
+        log.severity = 'high';
+        events.push(log);
       }
       // Add lockout event
-      const lockout = generateWindowsEvent();
-      lockout.eventId = '4740';
-      lockout.eventName = 'Account Locked';
-      lockout.username = user;
-      lockout.message = `[Security] Account Locked - User: ${user}`;
-      lockout.severity = 'critical';
-      events.push(lockout);
-      return events;
+      const { log: lockoutLog } = generateWindowsEvent(org);
+      lockoutLog.eventId = '4740';
+      lockoutLog.eventName = 'Account Locked';
+      lockoutLog.username = user;
+      lockoutLog.message = `[Security] Account Locked - User: ${user}`;
+      lockoutLog.severity = 'critical';
+      events.push(lockoutLog);
+      return { events, organization: org };
     },
     
     // Pattern 3: Successful admin login
     () => {
-      const event = generateWindowsEvent();
-      event.eventId = '4624';
-      event.eventName = 'Successful Login';
-      event.username = randomItem(['Administrator', 'John.Doe', 'Jane.Smith']);
-      event.message = `[Security] Successful Login - User: ${event.username} - Source IP: ${randomIP()}`;
-      event.severity = 'low';
-      return [event];
+      const { log } = generateWindowsEvent(org);
+      log.eventId = '4624';
+      log.eventName = 'Successful Login';
+      log.username = randomItem(['Administrator', 'John.Doe', 'Jane.Smith']);
+      log.message = `[Security] Successful Login - User: ${log.username} - Source IP: ${randomIP(org)}`;
+      log.severity = 'low';
+      return { events: [log], organization: org };
     }
   ];
 
@@ -247,24 +240,26 @@ function generatePatternedEvent() {
 /**
  * Send logs to SentinelSOC
  */
-async function sendLogs(logs) {
+async function sendLogs(logs, sourceId, authToken) {
   try {
-    const payload = {
-      sourceId: CONFIG.SOURCE_ID,
-      authToken: CONFIG.AUTH_TOKEN,
-      log: Array.isArray(logs) ? logs[0] : logs
-    };
+    // Send each log individually
+    for (const log of logs) {
+      const payload = {
+        sourceId: sourceId,
+        authToken: authToken,
+        log: log
+      };
 
-    const response = await axios.post(CONFIG.API_URL, payload, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      timeout: 10000
-    });
+      const response = await axios.post(config.DEFAULT_API_URL, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
 
-    const logCount = Array.isArray(logs) ? logs.length : 1;
-    console.log(`✅ Sent ${logCount} Windows event(s) - Status: ${response.status}`);
-    return response.data;
+      console.log(`✅ Sent 1 Windows event(s) - Status: ${response.status}`);
+    }
+    return true;
   } catch (error) {
     if (error.response) {
       console.error(`❌ Server responded with error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
@@ -273,7 +268,7 @@ async function sendLogs(logs) {
     } else {
       console.error(`❌ Error sending logs: ${error.message}`);
     }
-    return null;
+    return false;
   }
 }
 
@@ -281,45 +276,49 @@ async function sendLogs(logs) {
  * Main simulation loop
  */
 async function runSimulator() {
-  console.log('🪟 Windows Event Log Simulator');
-  console.log(`📡 API URL: ${CONFIG.API_URL}`);
-  console.log(`🆔 Source ID: ${CONFIG.SOURCE_ID}`);
-  console.log('🔑 Auth Token: ' + (CONFIG.AUTH_TOKEN ? '***' : 'MISSING!'));
-  console.log('⏱️  Interval: ' + CONFIG.INTERVAL_MIN + '-' + CONFIG.INTERVAL_MAX + 'ms');
+  console.log('🪟 Windows Event Log Simulator (Multi-Organization)');
+  console.log(`📡 API URL: ${config.DEFAULT_API_URL}`);
+  console.log('⏱️  Interval: 2000-3000ms');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-  // Validate configuration
-  if (!CONFIG.SOURCE_ID || !CONFIG.AUTH_TOKEN) {
-    console.error('❌ ERROR: SOURCE_ID and AUTH_TOKEN must be set in environment variables or config');
-    console.log('\n💡 To fix this, set the following environment variables:');
-    console.log('  export SOURCE_ID=your_log_source_id');
-    console.log('  export AUTH_TOKEN=your_authentication_token');
-    console.log('\nOr create the log source via the API and copy the token.');
-    process.exit(1);
-  }
 
   let eventCount = 0;
   let patternCount = 0;
 
-  while (CONFIG.RUN_FOREVER) {
+  while (true) {
     try {
+      // Get random organization for this event
+      const org = config.getRandomOrganization();
+      
+      // Get the Windows source for this organization
+      const source = config.getRandomSourceForOrg(org, 'windows');
+      
+      if (!source) {
+        console.log(`⚠️ No Windows source found for organization: ${org}`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        continue;
+      }
+
       // Randomly generate patterns (30% chance) or single events
-      let logs;
+      let result;
+      let isPattern = false;
+      
       if (Math.random() < 0.3) {
-        logs = generatePatternedEvent();
+        result = generatePatternedEvent(org);
+        isPattern = true;
         patternCount++;
-        console.log(`🎯 Pattern ${patternCount} - Generated ${logs.length} correlated events`);
+        console.log(`🎯 Pattern ${patternCount} - Generated ${result.events.length} correlated events for ${org}`);
       } else {
-        logs = generateWindowsEvent();
+        const { log } = generateWindowsEvent(org);
+        result = { events: [log], organization: org };
         eventCount++;
-        console.log(`📋 Event ${eventCount} - ${logs.eventId}: ${logs.eventName} - ${logs.hostname}`);
+        console.log(`📋 Event ${eventCount} - ${log.eventId}: ${log.eventName} - ${log.hostname} (${org})`);
       }
 
       // Send logs
-      await sendLogs(logs);
+      await sendLogs(result.events, source.sourceId, source.authToken);
 
-      // Random interval between 2-5 seconds
-      const interval = Math.floor(Math.random() * (CONFIG.INTERVAL_MAX - CONFIG.INTERVAL_MIN + 1)) + CONFIG.INTERVAL_MIN;
+      // Random interval between 2-3 seconds
+      const interval = Math.floor(Math.random() * 1000) + 2000;
       await new Promise(resolve => setTimeout(resolve, interval));
 
     } catch (error) {
@@ -334,7 +333,6 @@ async function runSimulator() {
  */
 function handleShutdown() {
   console.log('\n🛑 Shutting down Windows simulator...');
-  CONFIG.RUN_FOREVER = false;
   process.exit(0);
 }
 
@@ -350,4 +348,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { runSimulator, generateWindowsEvent, sendLogs };
+module.exports = { runSimulator };
