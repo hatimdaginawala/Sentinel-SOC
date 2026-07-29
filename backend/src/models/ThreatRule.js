@@ -159,13 +159,13 @@ const threatRuleSchema = new mongoose.Schema({
 });
 
 // Indexes for performance
-threatRuleSchema.index({ organization: 1, enabled: 1 });
-threatRuleSchema.index({ organization: 1, type: 1 });
-threatRuleSchema.index({ organization: 1, severity: 1 });
-threatRuleSchema.index({ organization: 1, category: 1 });
-threatRuleSchema.index({ threatType: 1, organization: 1 });
-threatRuleSchema.index({ priority: -1, organization: 1 });
-threatRuleSchema.index({ tags: 1 });
+// threatRuleSchema.index({ organization: 1, enabled: 1 });
+// threatRuleSchema.index({ organization: 1, type: 1 });
+// threatRuleSchema.index({ organization: 1, severity: 1 });
+// threatRuleSchema.index({ organization: 1, category: 1 });
+// threatRuleSchema.index({ threatType: 1, organization: 1 });
+// threatRuleSchema.index({ priority: -1, organization: 1 });
+// threatRuleSchema.index({ tags: 1 });
 
 // Pre-save middleware
 threatRuleSchema.pre('save', function(next) {

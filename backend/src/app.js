@@ -29,6 +29,7 @@ const alertRoutes = require('./routes/alertRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
 const iocRoutes = require('./routes/iocRoutes');
 const threatRuleRoutes = require('./routes/threatRuleRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 // Initialize express app
 const app = express();
@@ -144,6 +145,7 @@ app.use(`${API_PREFIX}/iocs`, iocRoutes);
 // Threat rule management routes
 app.use(`${API_PREFIX}/threat-rules`, threatRuleRoutes);
 
+app.use(`${API_PREFIX}/reports`, reportRoutes);
 // Logging routes
 app.use(`${API_PREFIX}`, logRoutes);
 app.use(`${API_PREFIX}`, logSourceRoutes);
@@ -213,6 +215,7 @@ async function startServer() {
       console.log(`   GET  ${API_PREFIX}/alerts`);
       console.log(`   GET  ${API_PREFIX}/incidents`);
       console.log(`   GET  ${API_PREFIX}/threat-rules`);
+      console.log(`   GET  ${API_PREFIX}/reports`);
       console.log(`   GET  ${API_PREFIX}/logs`);
       console.log(`   GET  ${API_PREFIX}/iocs`);
     });
