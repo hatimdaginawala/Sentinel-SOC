@@ -30,6 +30,7 @@ const incidentRoutes = require('./routes/incidentRoutes');
 const iocRoutes = require('./routes/iocRoutes');
 const threatRuleRoutes = require('./routes/threatRuleRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const auditLogRoutes = require('./routes/auditLogRoutes');
 
 // Initialize express app
 const app = express();
@@ -144,8 +145,10 @@ app.use(`${API_PREFIX}/iocs`, iocRoutes);
 
 // Threat rule management routes
 app.use(`${API_PREFIX}/threat-rules`, threatRuleRoutes);
-
+// Report management routes
 app.use(`${API_PREFIX}/reports`, reportRoutes);
+// Audit log routes
+app.use(`${API_PREFIX}/audit-logs`, auditLogRoutes);
 // Logging routes
 app.use(`${API_PREFIX}`, logRoutes);
 app.use(`${API_PREFIX}`, logSourceRoutes);
@@ -170,6 +173,8 @@ app.get('/', (req, res) => {
       incidents: `${API_PREFIX}/incidents`,
       iocs: `${API_PREFIX}/iocs`,
       threatRules: `${API_PREFIX}/threat-rules`,
+      reports: `${API_PREFIX}/reports`,
+      auditLogs: `${API_PREFIX}/audit-logs`,
       logSources: `${API_PREFIX}/log-sources`,
       logs: `${API_PREFIX}/logs`
     }
@@ -216,6 +221,7 @@ async function startServer() {
       console.log(`   GET  ${API_PREFIX}/incidents`);
       console.log(`   GET  ${API_PREFIX}/threat-rules`);
       console.log(`   GET  ${API_PREFIX}/reports`);
+      console.log(`   GET  ${API_PREFIX}/audit-logs`);
       console.log(`   GET  ${API_PREFIX}/logs`);
       console.log(`   GET  ${API_PREFIX}/iocs`);
     });
