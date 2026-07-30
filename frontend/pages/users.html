@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Users</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/users.html" class="sidebar-link active">
+            <i class="fa-solid fa-users"></i>
+            <span class="nav-text">Users</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-users text-success"></i> System Users</h1>
+          <button class="btn btn-primary btn-sm" id="btn-add-user"><i class="fa-solid fa-plus"></i> Add User</button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="users-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Organization</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- VIEW-ONLY DETAIL MODAL -->
+  <div class="modal-overlay" id="user-view-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user"></i> User Details</h3>
+        <button class="modal-close" id="user-view-modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="user-view-body">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="user-view-modal-close-btn">Close</button>
+        <button type="button" class="btn btn-primary" id="user-view-modal-edit-btn">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="user-modal-title">Create User</h3>
+        <button class="modal-close" id="user-modal-close">&times;</button>
+      </div>
+      <form id="user-form">
+        <input type="hidden" name="user-id" id="user-id">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" name="firstName" class="form-control" placeholder="Jane" minlength="1" maxlength="50" required>
+              <span class="form-error">First name is required</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" name="lastName" class="form-control" placeholder="Doe" minlength="1" maxlength="50" required>
+              <span class="form-error">Last name is required</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" name="username" class="form-control" placeholder="janedoe"
+                     minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+"
+                     title="Letters, numbers, underscores only" required>
+              <span class="form-error">3-30 chars, letters/numbers/underscores only</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" placeholder="jane@company.com" required>
+              <span class="form-error">A valid email is required</span>
+            </div>
+          </div>
+
+          <!-- Password: create only. Updates go through the reset-password action instead. -->
+          <div class="form-group" id="user-password-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" id="user-password-input" class="form-control"
+                   placeholder="Min 8 chars, upper/lower/number/symbol" minlength="8">
+            <span class="form-error">Must be 8+ chars with upper, lower, number, and symbol</span>
+            <small class="text-muted d-block mt-1">Leave blank when editing — use "Reset Password" from the table instead.</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+  <label class="form-label">Role</label>
+  <select name="role" class="form-control" required>
+    <option value="super_admin">Super Admin</option>
+    <option value="security_admin">Security Admin</option>
+    <option value="soc_analyst" selected>SOC Analyst</option>
+    <option value="incident_responder">Incident Responder</option>
+    <option value="auditor">Auditor</option>
+  </select>
+</div>
+            <div class="form-group">
+              <label class="form-label">Organization</label>
+              <select name="organization" id="user-org-select" class="form-control" required></select>
+              <span class="form-error">Please assign an organization</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="user-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="user-modal-submit">Save User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <script>
+    let datatableInstance = null;
+    let cachedUsers = [];
+    let cachedOrgs = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_users')) return;
+
+      loadOrgsForSelect();
+      loadUsers();
+      setupModal();
+      setupViewModal();
+    });
+
+    // Same error-surfacing helper used on the Organizations page —
+    // shows the real field-level validation errors, not just "Validation failed".
+    function formatApiError(err) {
+      const payload = err.payload || err;
+      const baseMessage = payload.message || err.message || 'Something went wrong';
+      const fieldErrors = payload.errors;
+
+      if (Array.isArray(fieldErrors) && fieldErrors.length) {
+        const lines = fieldErrors.map(fe => {
+          const field = fe.param || fe.field || fe.path || '';
+          const msg = fe.msg || fe.message || JSON.stringify(fe);
+          return field ? `${field}: ${msg}` : msg;
+        });
+        return `${baseMessage}<br><br><ul style="text-align:left; margin:0; padding-left:18px;">${
+          lines.map(l => `<li>${Utils.escapeHTML(l)}</li>`).join('')
+        }</ul>`;
+      }
+      return Utils.escapeHTML(baseMessage);
+    }
+
+    function showApiError(err, title = 'Error') {
+      Swal.fire({ title, html: formatApiError(err), icon: 'error' });
+    }
+
+    async function loadOrgsForSelect() {
+      const select = document.getElementById('user-org-select');
+      try {
+        // /organizations/active returns ResponseHandler.success (bare array),
+        // NOT ResponseHandler.paginated — so no .items unwrap needed here.
+        const response = await API.get('/organizations/active');
+        if (response.success && response.data) {
+          cachedOrgs = response.data;
+          select.innerHTML = '<option value="">-- Select Organization --</option>';
+          cachedOrgs.forEach(org => {
+            select.innerHTML += `<option value="${org._id}">${Utils.escapeHTML(org.name)} (${Utils.escapeHTML(org.code)})</option>`;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load organizations for select:', err);
+      }
+    }
+
+    function orgNameById(id) {
+      if (!id) return 'N/A';
+      const orgId = typeof id === 'object' ? id._id : id;
+      const org = cachedOrgs.find(o => o._id === orgId);
+      if (org) return org.name;
+      // Fallback if the user record came back populated with the org object
+      if (typeof id === 'object' && id.name) return id.name;
+      return 'N/A';
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await API.get('/users');
+        if (response.success && response.data) {
+          const users = response.data.items || []; // paginated -> data.items
+          cachedUsers = users;
+
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('users-list');
+          tbody.innerHTML = '';
+
+          if (users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No users found. Click "Add User" to create one.</td></tr>`;
+          }
+
+          users.forEach(user => {
+            let statusBadge = '';
+            if (user.status === 'active') statusBadge = 'badge-online';
+            else if (user.status === 'inactive') statusBadge = 'badge-offline';
+            else if (user.status === 'locked') statusBadge = 'badge-critical';
+            else statusBadge = 'badge-high';
+
+            const orgLabel = user.organization && user.organization.name
+              ? user.organization.name
+              : orgNameById(user.organization);
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(user.firstName)} ${Utils.escapeHTML(user.lastName)}</strong></td>
+                <td>${Utils.escapeHTML(user.username)}</td>
+                <td>${Utils.escapeHTML(user.email)}</td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(user.role)}</span></td>
+                <td>${Utils.escapeHTML(orgLabel)}</td>
+                <td><span class="badge ${statusBadge}">${user.status}</span></td>
+                <td>${user.lastLogin ? Utils.formatDate(user.lastLogin) : 'Never'}</td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn view" onclick="viewUser('${user._id}')" title="View User"><i class="fa-solid fa-eye"></i></button>
+                    <button class="table-btn edit" onclick="editUser('${user._id}')" title="Edit User"><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn" onclick="resetUserPassword('${user._id}')" title="Reset Password"><i class="fa-solid fa-key text-warning"></i></button>
+                    <button class="table-btn delete" onclick="deleteUser('${user._id}')" title="Deactivate User"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          if (!Auth.hasPermission('manage_users')) {
+            document.getElementById('btn-add-user').style.display = 'none';
+            document.querySelectorAll('.table-btn.edit, .table-btn.delete, .table-btn[title="Reset Password"]')
+              .forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#users-table');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to load users');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('user-modal');
+      const addBtn = document.getElementById('btn-add-user');
+      const closeBtn = document.getElementById('user-modal-close');
+      const cancelBtn = document.getElementById('user-modal-cancel');
+      const form = document.getElementById('user-form');
+      const passwordGroup = document.getElementById('user-password-group');
+      const passwordInput = document.getElementById('user-password-input');
+
+      const openModal = (title = 'Create User', isEdit = false) => {
+        document.getElementById('user-modal-title').textContent = title;
+        // Password only applies on create; the backend's update route
+        // doesn't accept it, so hide + don't require it when editing.
+        passwordGroup.style.display = isEdit ? 'none' : '';
+        passwordInput.required = !isEdit;
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('user-id').value = '';
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal('Create User', false));
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { firstName: ['required'], lastName: ['required'], username: ['required'], email: ['required'] }, async (formData) => {
+        const id = document.getElementById('user-id').value;
+
+        const payload = {
+          firstName: (formData.get('firstName') || '').trim(),
+          lastName: (formData.get('lastName') || '').trim(),
+          username: (formData.get('username') || '').trim(),
+          email: (formData.get('email') || '').trim(),
+          role: formData.get('role'),
+          organization: formData.get('organization'),
+          status: formData.get('status')
+        };
+
+        if (!id) {
+          // Create only: password is required and accepted by the backend here
+          payload.password = formData.get('password');
+        }
+
+        let response;
+        try {
+          if (id) {
+            response = await API.put(`/users/${id}`, payload);
+          } else {
+            response = await API.post('/users', payload);
+          }
+        } catch (err) {
+          showApiError(err, id ? 'Update failed' : 'Creation failed');
+          return false;
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'User updated' : 'User created', 'success');
+          await loadUsers();
+          return true;
+        } else {
+          showApiError(response, id ? 'Update failed' : 'Creation failed');
+          return false;
+        }
+      });
+
+      // Expose openModal for editUser() below
+      window.__openUserModal = openModal;
+    }
+
+    function setupViewModal() {
+      const viewModal = document.getElementById('user-view-modal');
+      const closeBtn = document.getElementById('user-view-modal-close');
+      const closeBtn2 = document.getElementById('user-view-modal-close-btn');
+      const editBtn = document.getElementById('user-view-modal-edit-btn');
+
+      const closeViewModal = () => viewModal.classList.remove('active');
+
+      closeBtn.addEventListener('click', closeViewModal);
+      closeBtn2.addEventListener('click', closeViewModal);
+
+      editBtn.addEventListener('click', () => {
+        const id = editBtn.dataset.userId;
+        closeViewModal();
+        if (id) editUser(id);
+      });
+
+      if (!Auth.hasPermission('manage_users')) {
+        editBtn.style.display = 'none';
+      }
+    }
+
+    async function viewUser(id) {
+      try {
+        const response = await API.get(`/users/${id}`);
+        if (response.success && response.data) {
+          const user = response.data;
+          document.getElementById('user-view-modal-edit-btn').dataset.userId = user._id;
+
+          const orgLabel = user.organization && user.organization.name
+            ? `${user.organization.name}${user.organization.code ? ' (' + user.organization.code + ')' : ''}`
+            : orgNameById(user.organization);
+
+          const body = document.getElementById('user-view-body');
+          body.innerHTML = `
+            <div class="form-row">
+              <div><strong>Name:</strong> ${Utils.escapeHTML(user.firstName)} ${Utils.escapeHTML(user.lastName)}</div>
+              <div><strong>Username:</strong> ${Utils.escapeHTML(user.username)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Email:</strong> ${Utils.escapeHTML(user.email)}</div>
+              <div><strong>Role:</strong> ${Utils.escapeHTML(user.role)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Organization:</strong> ${Utils.escapeHTML(orgLabel)}</div>
+              <div><strong>Status:</strong> ${Utils.escapeHTML(user.status)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Last Login:</strong> ${user.lastLogin ? Utils.formatDate(user.lastLogin) : 'Never'}</div>
+              <div><strong>Created:</strong> ${Utils.formatDate(user.createdAt)}</div>
+            </div>
+            ${user.createdBy ? `<div style="margin-top:10px;"><strong>Created By:</strong> ${Utils.escapeHTML(user.createdBy.email || user.createdBy.username || 'N/A')}</div>` : ''}
+          `;
+
+          document.getElementById('user-view-modal').classList.add('active');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch user details');
+      }
+    }
+
+    async function editUser(id) {
+      try {
+        const response = await API.get(`/users/${id}`);
+        if (response.success && response.data) {
+          const user = response.data;
+
+          document.getElementById('user-id').value = user._id;
+          const form = document.getElementById('user-form');
+
+          Forms.populate(form, user);
+
+          const orgId = typeof user.organization === 'object' ? user.organization._id : user.organization;
+          const orgSelect = form.querySelector('[name="organization"]');
+          if (orgSelect && orgId) orgSelect.value = orgId;
+
+          window.__openUserModal('Modify User', true);
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch user details');
+      }
+    }
+
+    async function resetUserPassword(id) {
+      const { value: formValues, isConfirmed } = await Swal.fire({
+        title: 'Reset Password',
+        html: `
+          <p style="text-align:left; margin-bottom:10px;">Enter a new password for this user (8+ chars, upper/lower/number/symbol).</p>
+          <input type="password" id="swal-new-password" class="swal2-input" placeholder="New password">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Reset',
+        confirmButtonColor: 'var(--color-warning)',
+        preConfirm: () => {
+          const val = document.getElementById('swal-new-password').value;
+          if (!val || val.length < 8) {
+            Swal.showValidationMessage('Password must be at least 8 characters');
+            return false;
+          }
+          return { newPassword: val };
+        }
+      });
+
+      if (!isConfirmed || !formValues) return;
+
+      try {
+        const response = await API.post(`/users/${id}/reset-password`, formValues);
+        if (response.success) {
+          Swal.fire('Success', 'Password has been reset', 'success');
+        } else {
+          showApiError(response, 'Reset failed');
+        }
+      } catch (err) {
+        showApiError(err, 'Reset failed');
+      }
+    }
+
+    async function deleteUser(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This user will be deactivated (soft-deleted). Their historical records remain intact.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, deactivate!'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/users/${id}`);
+          if (response.success) {
+            Swal.fire('Deactivated!', 'User has been deactivated.', 'success');
+            await loadUsers();
+          } else {
+            showApiError(response, 'Deactivation failed');
+          }
+        } catch (err) {
+          showApiError(err, 'Deactivation failed');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
