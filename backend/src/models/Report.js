@@ -77,13 +77,16 @@ const reportSchema = new mongoose.Schema({
     }
   },
   data: {
-    summary: {
-      total: { type: Number, default: 0 },
-      critical: { type: Number, default: 0 },
-      high: { type: Number, default: 0 },
-      medium: { type: Number, default: 0 },
-      low: { type: Number, default: 0 },
-      info: { type: Number, default: 0 },
+  summary: {
+    total: { type: Number, default: 0 },
+    alerts: { type: Number, default: 0 },    // add
+    incidents: { type: Number, default: 0 }, // add
+    logs: { type: Number, default: 0 },      // add
+    critical: { type: Number, default: 0 },
+    high: { type: Number, default: 0 },
+    medium: { type: Number, default: 0 },
+    low: { type: Number, default: 0 },
+    info: { type: Number, default: 0 },
       byStatus: {
         active: { type: Number, default: 0 },
         investigating: { type: Number, default: 0 },
@@ -92,6 +95,8 @@ const reportSchema = new mongoose.Schema({
         suppressed: { type: Number, default: 0 }
       }
     },
+     alerts: { type: mongoose.Schema.Types.Mixed, default: [] },
+  incidents: { type: mongoose.Schema.Types.Mixed, default: [] },
     categories: [{
       name: { type: String },
       count: { type: Number }

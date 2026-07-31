@@ -14,36 +14,38 @@ const auditLogSchema = new mongoose.Schema({
     index: true
   },
   action: {
-    type: String,
-    required: true,
-    enum: [
-      // Authentication
-      'login', 'logout', 'login_failed', 'password_changed', 'password_reset',
-      // User Management
-      'user_created', 'user_updated', 'user_deleted', 'user_activated', 'user_deactivated', 'user_locked',
-      // Role Management
-      'role_created', 'role_updated', 'role_deleted', 'role_assigned', 'role_revoked',
-      // Organization Management
-      'org_created', 'org_updated', 'org_deleted',
-      // Asset Management
-      'asset_created', 'asset_updated', 'asset_deleted', 'asset_activated', 'asset_decommissioned',
-      // Log Management
-      'log_ingested', 'log_deleted', 'log_exported',
-      // Alert Management
-      'alert_created', 'alert_updated', 'alert_assigned', 'alert_resolved', 'alert_closed', 'alert_escalated',
-      // Incident Management
-      'incident_created', 'incident_updated', 'incident_assigned', 'incident_resolved', 'incident_closed', 'incident_escalated',
-      // IOC Management
-      'ioc_created', 'ioc_updated', 'ioc_deleted', 'ioc_linked',
-      // Threat Rule Management
-      'rule_created', 'rule_updated', 'rule_deleted', 'rule_enabled', 'rule_disabled', 'rule_triggered',
-      // Report Management
-      'report_created', 'report_generated', 'report_downloaded', 'report_deleted', 'report_scheduled',
-      // System
-      'system_configured', 'settings_updated', 'backup_created', 'restore_performed'
-    ],
-    index: true
-  },
+  type: String,
+  required: true,
+  enum: [
+    // Authentication
+    'login', 'logout', 'login_failed', 'password_changed', 'password_reset',
+    // User Management
+    'user_created', 'user_updated', 'user_deleted', 'user_activated', 'user_deactivated', 'user_locked',
+    // Role Management
+    'role_created', 'role_updated', 'role_deleted', 'role_assigned', 'role_revoked',
+    // Organization Management
+    'org_created', 'org_updated', 'org_deleted',
+    // Asset Management
+    'asset_created', 'asset_updated', 'asset_deleted', 'asset_activated', 'asset_decommissioned',
+    // Log Management
+    'log_ingested', 'log_deleted', 'log_exported',
+    // Alert Management
+    'alert_created', 'alert_updated', 'alert_assigned', 'alert_resolved', 'alert_closed', 'alert_escalated',
+    // Incident Management
+    'incident_created', 'incident_updated', 'incident_assigned', 'incident_resolved', 'incident_closed', 'incident_escalated',
+    // IOC Management
+    'ioc_created', 'ioc_updated', 'ioc_deleted', 'ioc_linked',
+    // Threat Rule Management
+    'rule_created', 'rule_updated', 'rule_deleted', 'rule_enabled', 'rule_disabled', 'rule_triggered',
+    // Report Management
+    'report_created', 'report_generated', 'report_downloaded', 'report_deleted', 'report_scheduled',
+    // System
+    'system_configured', 'settings_updated', 'backup_created', 'restore_performed',
+    // Generic read access — every GET request that doesn't match a more specific action above
+    'view'
+  ],
+  index: true
+},
   resource: {
     type: String,
     required: true,
@@ -132,19 +134,19 @@ const auditLogSchema = new mongoose.Schema({
 });
 
 // Indexes for performance
-auditLogSchema.index({ organization: 1, createdAt: -1 });
-auditLogSchema.index({ organization: 1, action: 1 });
-auditLogSchema.index({ organization: 1, resource: 1 });
-auditLogSchema.index({ organization: 1, user: 1 });
-auditLogSchema.index({ organization: 1, severity: 1 });
-auditLogSchema.index({ organization: 1, status: 1 });
-auditLogSchema.index({ ipAddress: 1, createdAt: -1 });
-auditLogSchema.index({ resourceId: 1, resource: 1 });
+// auditLogSchema.index({ organization: 1, createdAt: -1 });
+// auditLogSchema.index({ organization: 1, action: 1 });
+// auditLogSchema.index({ organization: 1, resource: 1 });
+// auditLogSchema.index({ organization: 1, user: 1 });
+// auditLogSchema.index({ organization: 1, severity: 1 });
+// auditLogSchema.index({ organization: 1, status: 1 });
+// auditLogSchema.index({ ipAddress: 1, createdAt: -1 });
+// auditLogSchema.index({ resourceId: 1, resource: 1 });
 
-// Compound indexes for common queries
-auditLogSchema.index({ organization: 1, createdAt: -1, severity: 1 });
-auditLogSchema.index({ organization: 1, user: 1, createdAt: -1 });
-auditLogSchema.index({ organization: 1, action: 1, createdAt: -1 });
+// // Compound indexes for common queries
+// auditLogSchema.index({ organization: 1, createdAt: -1, severity: 1 });
+// auditLogSchema.index({ organization: 1, user: 1, createdAt: -1 });
+// auditLogSchema.index({ organization: 1, action: 1, createdAt: -1 });
 
 // TTL index for automatic cleanup (retention period)
 auditLogSchema.index({ createdAt: 1 }, { 
@@ -238,7 +240,8 @@ auditLogSchema.methods = {
       'system_configured': 'System Configured',
       'settings_updated': 'Settings Updated',
       'backup_created': 'Backup Created',
-      'restore_performed': 'Restore Performed'
+      'restore_performed': 'Restore Performed',
+      'view': 'Viewed'
     };
 
     const resourceLabels = {
@@ -568,7 +571,8 @@ auditLogSchema.statics = {
       'ioc_created', 'ioc_updated', 'ioc_deleted', 'ioc_linked',
       'rule_created', 'rule_updated', 'rule_deleted', 'rule_enabled', 'rule_disabled', 'rule_triggered',
       'report_created', 'report_generated', 'report_downloaded', 'report_deleted', 'report_scheduled',
-      'system_configured', 'settings_updated', 'backup_created', 'restore_performed'
+      'system_configured', 'settings_updated', 'backup_created', 'restore_performed',
+          'view' 
     ].map(action => ({
       value: action,
       label: action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())

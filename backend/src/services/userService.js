@@ -4,6 +4,7 @@ const { HTTP_STATUS, ROLES } = require('../config/constants');
 const logger = require('../config/logger');
 const PasswordUtils = require('../utils/passwordUtils');
 const TokenUtils = require('../utils/tokenUtils');
+const Role = require('../models/Role');
 
 class UserService {
   /**
@@ -290,67 +291,49 @@ class UserService {
     }
   }
 
-  /**
-   * Authenticate user
-   */
-// In services/userService.js, replace the authenticateUser method with this:
-
-/**
- * Authenticate user
- */
 async authenticateUser(identifier, password) {
   try {
     console.log(`🔐 Attempting login for: ${identifier}`);
-    
-    // Find user by email or username - EXPLICITLY select password field
+
     const user = await User.findOne({
       $or: [
         { email: identifier.toLowerCase() },
         { username: identifier.toLowerCase() }
       ]
     }).select('+password +refreshToken +passwordResetToken +passwordResetExpires');
-    
+
     if (!user) {
       console.log(`❌ User not found: ${identifier}`);
       throw new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED, 'INVALID_CREDENTIALS');
     }
 
     console.log(`✅ User found: ${user.email}`);
-    console.log(`🔑 Has password field: ${!!user.password}`);
-    console.log(`🔑 Password length: ${user.password ? user.password.length : 0}`);
-    console.log(`🔑 Password starts with $2b$: ${user.password ? user.password.startsWith('$2b$') : false}`);
 
-    // Check if user is locked
     if (user.isLocked()) {
       throw new AppError('Account is locked', HTTP_STATUS.UNAUTHORIZED, 'ACCOUNT_LOCKED');
     }
 
-    // Check if user is active
     if (user.status !== 'active') {
       throw new AppError('Account is inactive', HTTP_STATUS.UNAUTHORIZED, 'ACCOUNT_INACTIVE');
     }
 
-    // Compare password
     if (!user.comparePassword) {
       console.error('❌ comparePassword method not found on user object');
       throw new AppError('Authentication error', HTTP_STATUS.INTERNAL_SERVER_ERROR, 'AUTH_ERROR');
     }
-    
+
     const isPasswordValid = await user.comparePassword(password);
     console.log(`✅ Password valid: ${isPasswordValid}`);
-    
+
     if (!isPasswordValid) {
       await user.incrementLoginAttempts();
       throw new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED, 'INVALID_CREDENTIALS');
     }
 
-    // Reset login attempts on successful login
     await user.resetLoginAttempts();
-    
-    // Update last login
     await user.updateLastLogin();
 
-    // Generate tokens
+    // Generate tokens FIRST — everything below depends on these existing.
     const payload = {
       id: user._id,
       email: user.email,
@@ -366,10 +349,20 @@ async authenticateUser(identifier, password) {
     user.refreshToken = refreshToken;
     await user.save();
 
+    // Attach real permissions from the Role collection (or full access for super_admin)
+    // so the frontend's Auth.hasPermission() has accurate, server-sourced data instead
+    // of relying solely on its own hardcoded ROLE_PERMISSIONS fallback map.
+    const roleDoc = user.role === 'super_admin'
+      ? null
+      : await Role.findOne({ name: user.role, status: 'active' }).select('permissions');
+    const permissions = user.role === 'super_admin'
+      ? Object.values(require('../config/constants').PERMISSIONS)
+      : (roleDoc ? roleDoc.permissions : []);
+
     logger.info(`User authenticated: ${user.email}`);
 
     return {
-      user: user.toJSON(),
+      user: { ...user.toJSON(), permissions },
       accessToken,
       refreshToken
     };

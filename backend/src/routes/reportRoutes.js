@@ -154,9 +154,7 @@ router.get('/reports/:id',
 // Admin only routes
 router.post('/reports',
   authorize(PERMISSIONS.MANAGE_REPORTS),
-  createReportValidation,
-  validateRequest,
-  sanitizeRequest,
+
   ReportController.createReport
 );
 

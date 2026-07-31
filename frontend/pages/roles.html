@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Roles</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/alerts.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+ <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+  <script src="/assets/js/sidebar.js"></script>
+<script src="/assets/js/navbar.js"></script>
+<script src="/assets/js/nav-permissions.js"></script>
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="/pages/dashboard.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/organizations.html" class="sidebar-link">
+            <i class="fa-solid fa-building"></i>
+            <span class="nav-text">Organizations</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/users.html" class="sidebar-link">
+            <i class="fa-solid fa-users"></i>
+            <span class="nav-text">Users</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/roles.html" class="sidebar-link active">
+            <i class="fa-solid fa-user-shield"></i>
+            <span class="nav-text">Roles</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/assets.html" class="sidebar-link">
+            <i class="fa-solid fa-server"></i>
+            <span class="nav-text">Assets</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/log-sources.html" class="sidebar-link">
+            <i class="fa-solid fa-network-wired"></i>
+            <span class="nav-text">Log Sources</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/logs.html" class="sidebar-link">
+            <i class="fa-solid fa-file-waveform"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/threat-rules.html" class="sidebar-link">
+            <i class="fa-solid fa-bug"></i>
+            <span class="nav-text">Threat Rules</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/alerts.html" class="sidebar-link">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="nav-text">Alerts</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/incidents.html" class="sidebar-link">
+            <i class="fa-solid fa-ticket"></i>
+            <span class="nav-text">Incidents</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/iocs.html" class="sidebar-link">
+            <i class="fa-solid fa-database"></i>
+            <span class="nav-text">IOCs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/reports.html" class="sidebar-link">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/audit-logs.html" class="sidebar-link">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="nav-text">Audit Logs</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a href="/pages/settings.html" class="sidebar-link">
+            <i class="fa-solid fa-sliders"></i>
+            <span class="nav-text">Settings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-regular fa-moon"></i>
+        </button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
+        </button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item">
+              <i class="fa-regular fa-user"></i> My Profile
+            </a>
+            <a href="/pages/settings.html" class="profile-dropdown-item">
+              <i class="fa-solid fa-sliders"></i> System Settings
+            </a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-user-shield text-success"></i> Roles &amp; Permissions</h1>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" id="btn-init-roles" title="Create/refresh the 5 built-in system roles">
+              <i class="fa-solid fa-rotate"></i> Initialize System Roles
+            </button>
+            <button class="btn btn-primary btn-sm" id="btn-add-role"><i class="fa-solid fa-plus"></i> Add Role</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-container">
+              <table id="roles-table" class="enterprise-table display w-full">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Display Name</th>
+                    <th>Type</th>
+                    <th>Permissions</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="roles-list">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS DRAWER OVERLAY -->
+  <div class="notifications-drawer" id="notifications-drawer">
+    <div class="notifications-drawer-header">
+      <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
+      <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
+    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
+  </div>
+
+  <!-- VIEW-ONLY DETAIL MODAL -->
+  <div class="modal-overlay" id="role-view-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user-shield"></i> Role Details</h3>
+        <button class="modal-close" id="role-view-modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="role-view-body">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="role-view-modal-close-btn">Close</button>
+        <button type="button" class="btn btn-primary" id="role-view-modal-edit-btn">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT MODAL OVERLAY -->
+  <div class="modal-overlay" id="role-modal">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="role-modal-title">Create Role</h3>
+        <button class="modal-close" id="role-modal-close">&times;</button>
+      </div>
+      <form id="role-form">
+        <input type="hidden" name="role-id" id="role-id">
+        <div class="modal-body">
+          <div id="role-system-lock-banner" class="alert-box" style="display:none; margin-bottom:14px;">
+            <i class="fa-solid fa-lock"></i>
+            This is a built-in system role and cannot be modified or deleted.
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Role Name</label>
+              <!-- Must be one of the fixed ROLES enum values — the backend rejects anything else -->
+              <select name="name" id="role-name-select" class="form-control" required>
+                <option value="super_admin">super_admin</option>
+                <option value="security_admin">security_admin</option>
+                <option value="soc_analyst">soc_analyst</option>
+                <option value="incident_responder">incident_responder</option>
+                <option value="auditor">auditor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Display Name</label>
+              <input type="text" name="displayName" class="form-control" placeholder="Security Administrator" minlength="2" maxlength="50" required>
+              <span class="form-error">2-50 characters required</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="2" maxlength="500" placeholder="What this role is for..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Priority (0-100)</label>
+              <input type="number" name="priority" class="form-control" min="0" max="100" value="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-control">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Permissions</label>
+            <div id="role-permissions-container" class="permissions-grid">
+              <!-- Populated dynamically from /roles/permissions/categories -->
+              <p class="text-muted">Loading permissions...</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="role-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="role-modal-submit">Save Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/nav-permissions.js"></script>
+  <script src="/assets/js/socket.js"></script>
+  <script src="/assets/js/notifications.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
+
+  <style>
+    .permissions-grid {
+      max-height: 260px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color, #333);
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .permissions-category {
+      margin-bottom: 10px;
+    }
+    .permissions-category-title {
+      font-size: var(--font-xs, 11px);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary, #999);
+      margin-bottom: 6px;
+    }
+    .permission-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+    }
+    .permission-checkbox-row label {
+      font-size: var(--font-sm, 13px);
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+    let datatableInstance = null;
+    let allPermissions = []; // [{ key, label, category }]
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.enforcePermission('view_users')) return; // roles live under user management
+
+      loadPermissionsIntoForm();
+      loadRoles();
+      setupModal();
+      setupViewModal();
+      setupInitButton();
+    });
+
+    function formatApiError(err) {
+      const payload = err.payload || err;
+      const baseMessage = payload.message || err.message || 'Something went wrong';
+      const fieldErrors = payload.errors;
+
+      if (Array.isArray(fieldErrors) && fieldErrors.length) {
+        const lines = fieldErrors.map(fe => {
+          const field = fe.param || fe.field || fe.path || '';
+          const msg = fe.msg || fe.message || JSON.stringify(fe);
+          return field ? `${field}: ${msg}` : msg;
+        });
+        return `${baseMessage}<br><br><ul style="text-align:left; margin:0; padding-left:18px;">${
+          lines.map(l => `<li>${Utils.escapeHTML(l)}</li>`).join('')
+        }</ul>`;
+      }
+      return Utils.escapeHTML(baseMessage);
+    }
+
+    function showApiError(err, title = 'Error') {
+      Swal.fire({ title, html: formatApiError(err), icon: 'error' });
+    }
+
+    async function loadPermissionsIntoForm() {
+      const container = document.getElementById('role-permissions-container');
+      try {
+        const response = await API.get('/roles/permissions/categories');
+        if (response.success && response.data) {
+          const grouped = response.data; // { category: [{key,label,category}, ...] }
+          allPermissions = Object.values(grouped).flat();
+
+          container.innerHTML = '';
+          Object.entries(grouped).forEach(([category, perms]) => {
+            const block = document.createElement('div');
+            block.className = 'permissions-category';
+            block.innerHTML = `
+              <div class="permissions-category-title">${Utils.escapeHTML(category)}</div>
+              ${perms.map(p => `
+                <div class="permission-checkbox-row">
+                  <input type="checkbox" name="permissions" value="${p.key}" id="perm-${p.key}">
+                  <label for="perm-${p.key}">${Utils.escapeHTML(p.label)}</label>
+                </div>
+              `).join('')}
+            `;
+            container.appendChild(block);
+          });
+        }
+      } catch (err) {
+        container.innerHTML = '<p class="text-muted">Failed to load permissions list.</p>';
+        console.error('Failed to load permissions:', err);
+      }
+    }
+
+    function getCheckedPermissions() {
+      return Array.from(document.querySelectorAll('#role-permissions-container input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
+    }
+
+    function setCheckedPermissions(permissions = []) {
+      const set = new Set(permissions);
+      document.querySelectorAll('#role-permissions-container input[type="checkbox"]').forEach(cb => {
+        cb.checked = set.has(cb.value);
+      });
+    }
+
+    async function loadRoles() {
+      try {
+        const response = await API.get('/roles');
+        if (response.success && response.data) {
+          const roles = response.data.items || []; // paginated -> data.items
+
+          if (datatableInstance) {
+            datatableInstance.destroy();
+          }
+
+          const tbody = document.getElementById('roles-list');
+          tbody.innerHTML = '';
+
+          if (roles.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No roles found. Click "Initialize System Roles" to create the built-in set.</td></tr>`;
+          }
+
+          roles.forEach(role => {
+            const statusBadge = role.status === 'active' ? 'badge-online' : 'badge-offline';
+            const typeBadge = role.isSystem
+              ? `<span class="badge badge-info"><i class="fa-solid fa-lock"></i> System</span>`
+              : `<span class="badge badge-medium">Custom</span>`;
+            const permCount = Array.isArray(role.permissions) ? role.permissions.length : 0;
+
+            const editDisabled = role.isSystem;
+
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${Utils.escapeHTML(role.name)}</strong></td>
+                <td>${Utils.escapeHTML(role.displayName)}</td>
+                <td>${typeBadge}</td>
+                <td><span class="badge badge-info">${permCount} permission${permCount === 1 ? '' : 's'}</span></td>
+                <td>${role.priority ?? 0}</td>
+                <td><span class="badge ${statusBadge}">${role.status}</span></td>
+                <td>
+                  <div class="table-actions-cell">
+                    <button class="table-btn view" onclick="viewRole('${role._id}')" title="View Role"><i class="fa-solid fa-eye"></i></button>
+                    <button class="table-btn edit" onclick="editRole('${role._id}')" title="${editDisabled ? 'System roles cannot be modified' : 'Edit Role'}" ${editDisabled ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}><i class="fa-solid fa-pen"></i></button>
+                    <button class="table-btn delete" onclick="deleteRole('${role._id}')" title="${editDisabled ? 'System roles cannot be deleted' : 'Delete Role'}" ${editDisabled ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          if (!Auth.hasPermission('manage_users')) {
+            document.getElementById('btn-add-role').style.display = 'none';
+            document.getElementById('btn-init-roles').style.display = 'none';
+            document.querySelectorAll('.table-btn.edit, .table-btn.delete').forEach(btn => btn.style.display = 'none');
+          }
+
+          datatableInstance = Tables.init('#roles-table');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to load roles');
+      }
+    }
+
+    function setupModal() {
+      const modal = document.getElementById('role-modal');
+      const addBtn = document.getElementById('btn-add-role');
+      const closeBtn = document.getElementById('role-modal-close');
+      const cancelBtn = document.getElementById('role-modal-cancel');
+      const form = document.getElementById('role-form');
+      const nameSelect = document.getElementById('role-name-select');
+      const lockBanner = document.getElementById('role-system-lock-banner');
+      const submitBtn = document.getElementById('role-modal-submit');
+
+      const openModal = (title = 'Create Role', isSystem = false) => {
+        document.getElementById('role-modal-title').textContent = title;
+        lockBanner.style.display = isSystem ? '' : 'none';
+        nameSelect.disabled = isSystem;
+        submitBtn.style.display = isSystem ? 'none' : '';
+        modal.classList.add('active');
+      };
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+        document.getElementById('role-id').value = '';
+        nameSelect.disabled = false;
+        submitBtn.style.display = '';
+        setCheckedPermissions([]);
+      };
+
+      if (addBtn) addBtn.addEventListener('click', () => openModal('Create Role', false));
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      Forms.bind(form, { displayName: ['required'] }, async (formData) => {
+        const id = document.getElementById('role-id').value;
+
+        const payload = {
+          name: formData.get('name'),
+          displayName: (formData.get('displayName') || '').trim(),
+          description: (formData.get('description') || '').trim(),
+          priority: parseInt(formData.get('priority'), 10) || 0,
+          status: formData.get('status'),
+          permissions: getCheckedPermissions()
+        };
+
+        let response;
+        try {
+          if (id) {
+            response = await API.put(`/roles/${id}`, payload);
+          } else {
+            response = await API.post('/roles', payload);
+          }
+        } catch (err) {
+          showApiError(err, id ? 'Update failed' : 'Creation failed');
+          return false;
+        }
+
+        if (response.success) {
+          closeModal();
+          Swal.fire('Success', id ? 'Role updated' : 'Role created', 'success');
+          await loadRoles();
+          return true;
+        } else {
+          showApiError(response, id ? 'Update failed' : 'Creation failed');
+          return false;
+        }
+      });
+
+      window.__openRoleModal = openModal;
+    }
+
+    function setupViewModal() {
+      const viewModal = document.getElementById('role-view-modal');
+      const closeBtn = document.getElementById('role-view-modal-close');
+      const closeBtn2 = document.getElementById('role-view-modal-close-btn');
+      const editBtn = document.getElementById('role-view-modal-edit-btn');
+
+      const closeViewModal = () => viewModal.classList.remove('active');
+
+      closeBtn.addEventListener('click', closeViewModal);
+      closeBtn2.addEventListener('click', closeViewModal);
+
+      editBtn.addEventListener('click', () => {
+        const id = editBtn.dataset.roleId;
+        const isSystem = editBtn.dataset.isSystem === 'true';
+        closeViewModal();
+        if (id && !isSystem) editRole(id);
+      });
+
+      if (!Auth.hasPermission('manage_users')) {
+        editBtn.style.display = 'none';
+      }
+    }
+
+    async function viewRole(id) {
+      try {
+        const response = await API.get(`/roles/${id}`);
+        if (response.success && response.data) {
+          const role = response.data;
+          const editBtn = document.getElementById('role-view-modal-edit-btn');
+          editBtn.dataset.roleId = role._id;
+          editBtn.dataset.isSystem = role.isSystem;
+          editBtn.style.display = (Auth.hasPermission('manage_users') && !role.isSystem) ? '' : 'none';
+
+          const permList = (role.permissions || []).map(p => `<span class="badge badge-info" style="margin:2px;">${Utils.escapeHTML(p)}</span>`).join(' ') || '<span class="text-muted">None assigned</span>';
+
+          const body = document.getElementById('role-view-body');
+          body.innerHTML = `
+            <div class="form-row">
+              <div><strong>Name:</strong> ${Utils.escapeHTML(role.name)}</div>
+              <div><strong>Display Name:</strong> ${Utils.escapeHTML(role.displayName)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Type:</strong> ${role.isSystem ? 'System (locked)' : 'Custom'}</div>
+              <div><strong>Status:</strong> ${Utils.escapeHTML(role.status)}</div>
+            </div>
+            <div class="form-row">
+              <div><strong>Priority:</strong> ${role.priority ?? 0}</div>
+              <div><strong>Created:</strong> ${Utils.formatDate(role.createdAt)}</div>
+            </div>
+            ${role.description ? `<div style="margin-top:10px;"><strong>Description:</strong><br>${Utils.escapeHTML(role.description)}</div>` : ''}
+            <div style="margin-top:12px;">
+              <strong>Permissions (${(role.permissions || []).length}):</strong><br>
+              <div style="margin-top:6px;">${permList}</div>
+            </div>
+          `;
+
+          document.getElementById('role-view-modal').classList.add('active');
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch role details');
+      }
+    }
+
+    async function editRole(id) {
+      try {
+        const response = await API.get(`/roles/${id}`);
+        if (response.success && response.data) {
+          const role = response.data;
+
+          if (role.isSystem) {
+            Swal.fire('Locked', 'System roles cannot be modified.', 'info');
+            return;
+          }
+
+          document.getElementById('role-id').value = role._id;
+          const form = document.getElementById('role-form');
+          Forms.populate(form, role);
+          setCheckedPermissions(role.permissions || []);
+
+          window.__openRoleModal('Modify Role', false);
+        }
+      } catch (err) {
+        showApiError(err, 'Failed to fetch role details');
+      }
+    }
+
+    async function deleteRole(id) {
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This role will be deactivated. If any users currently hold this role, deletion will be blocked.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          const response = await API.delete(`/roles/${id}`);
+          if (response.success) {
+            Swal.fire('Deleted!', 'Role has been removed.', 'success');
+            await loadRoles();
+          } else {
+            showApiError(response, 'Deletion failed');
+          }
+        } catch (err) {
+          // Surfaces ROLE_IN_USE / SYSTEM_ROLE_IMMUTABLE with the real message
+          showApiError(err, 'Deletion failed');
+        }
+      }
+    }
+
+    function setupInitButton() {
+      const btn = document.getElementById('btn-init-roles');
+      btn.addEventListener('click', async () => {
+        const confirm = await Swal.fire({
+          title: 'Initialize system roles?',
+          text: 'This creates (or refreshes) the 5 built-in roles with their default permission sets.',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Initialize'
+        });
+        if (!confirm.isConfirmed) return;
+
+        try {
+          const response = await API.post('/roles/initialize');
+          if (response.success) {
+            Swal.fire('Done', response.message || 'System roles initialized', 'success');
+            await loadRoles();
+          } else {
+            showApiError(response, 'Initialization failed');
+          }
+        } catch (err) {
+          // Requires CONFIGURE_SYSTEM permission — most non-super-admins will see 403 here
+          showApiError(err, 'Initialization failed');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

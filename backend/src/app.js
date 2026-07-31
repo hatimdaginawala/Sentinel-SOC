@@ -145,7 +145,7 @@ console.log('🔧 Mounting protected routes...');
 app.use(`${API_PREFIX}/users`, userRoutes);
 
 // Role management routes
-app.use(`${API_PREFIX}/roles`, roleRoutes);
+app.use(`${API_PREFIX}`, roleRoutes);
 
 // Organization management routes
 app.use(`${API_PREFIX}/organizations`, organizationRoutes);

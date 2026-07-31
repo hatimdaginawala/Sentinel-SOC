@@ -6,31 +6,28 @@ const AuditLogService = require('../services/auditLogService');
  */
 function auditMiddleware() {
   return async (req, res, next) => {
-    // Skip audit for certain paths
     const skipPaths = ['/health', '/api/v1/logs/ingest', '/api/v1/auth/login', '/api/v1/auth/refresh'];
     if (skipPaths.some(path => req.path.startsWith(path))) {
       return next();
     }
 
-    // Only log authenticated requests
-    if (!req.user) {
-      return next();
-    }
-
-    // Store original send
+    // Always wrap res.send — do NOT bail out here based on req.user.
+    // At this point in the middleware chain, `protect` (which sets req.user)
+    // usually hasn't run yet, since it's attached per-router further down
+    // the stack. Checking req.user here means it's always undefined and
+    // this middleware silently no-ops on every request.
     const originalSend = res.send;
-    
-    // Override send method
+
     res.send = function(data) {
-      // Only log successful requests (2xx status codes)
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        // Determine action and resource
+      // Check req.user HERE instead — by the time res.send() is actually
+      // called (from inside the controller), protect has already run and
+      // req.user is populated.
+      if (req.user && res.statusCode >= 200 && res.statusCode < 300) {
         const action = determineAction(req, res);
         const resource = determineResource(req);
         const resourceId = getResourceId(req);
         const resourceName = getResourceName(req, data);
-        
-        // Build audit log data
+
         const auditData = {
           organization: req.user.organization,
           user: req.user._id,
@@ -51,16 +48,15 @@ function auditMiddleware() {
           }
         };
 
-        // Log asynchronously
         setImmediate(() => {
           AuditLogService.createAuditLog(auditData)
             .catch(err => console.error('❌ Audit log error:', err.message));
         });
       }
-      
+
       return originalSend.call(this, data);
     };
-    
+
     next();
   };
 }

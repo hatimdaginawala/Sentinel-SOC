@@ -140,29 +140,27 @@ class ReportService {
   /**
    * Delete report
    */
-  async deleteReport(reportId, deletedBy) {
-    try {
-      const report = await Report.findById(reportId);
-
-      if (!report) {
-        throw new AppError('Report not found', HTTP_STATUS.NOT_FOUND, 'REPORT_NOT_FOUND');
-      }
-
-      // Delete file if exists
-      if (report.filePath && fs.existsSync(report.filePath)) {
-        fs.unlinkSync(report.filePath);
-      }
-
-      await report.remove();
-
-      logger.info(`Report deleted: ${reportId} by ${deletedBy}`);
-
-      return { success: true, message: 'Report deleted successfully' };
-    } catch (error) {
-      logger.error('Error deleting report:', error);
-      throw error;
+async deleteReport(reportId, deletedBy) {
+  try {
+    const report = await Report.findById(reportId);
+    if (!report) {
+      throw new AppError('Report not found', HTTP_STATUS.NOT_FOUND, 'REPORT_NOT_FOUND');
     }
+
+    if (report.filePath && fs.existsSync(report.filePath)) {
+      fs.unlinkSync(report.filePath);
+    }
+
+    await report.deleteOne();   // instance method, Mongoose 5+ through 8
+
+    logger.info(`Report deleted: ${reportId} by ${deletedBy}`);
+
+    return { success: true, message: 'Report deleted successfully' };
+  } catch (error) {
+    logger.error('Error deleting report:', error);
+    throw error;
   }
+}
 
   /**
    * Generate report data

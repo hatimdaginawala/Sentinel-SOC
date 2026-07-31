@@ -21,8 +21,11 @@
   <link rel="stylesheet" href="/assets/css/forms.css">
   <link rel="stylesheet" href="/assets/css/tables.css">
   <link rel="stylesheet" href="/assets/css/dark-mode.css">
-  <link rel="stylesheet" href="/assets/css/responsive.css">
+ <link rel="stylesheet" href="/assets/css/responsive.css">
   <link rel="stylesheet" href="/assets/css/utilities.css">
+  <script src="/assets/js/sidebar.js"></script>
+<script src="/assets/js/navbar.js"></script>
+<script src="/assets/js/nav-permissions.js"></script>
   
   <style>
     @media print {
@@ -72,6 +75,12 @@
           <a href="/pages/users.html" class="sidebar-link">
             <i class="fa-solid fa-users"></i>
             <span class="nav-text">Users</span>
+          </a>
+        </li>
+                <li class="sidebar-item">
+          <a href="/pages/roles.html" class="sidebar-link">
+            <i class="fa-solid fa-user-shield"></i>
+            <span class="nav-text">Roles</span>
           </a>
         </li>
         <li class="sidebar-item">
@@ -521,69 +530,76 @@
       if (viewCancel) viewCancel.addEventListener('click', closeView);
     }
 
-    async function viewReport(id) {
-      try {
-        const response = await API.get(`/reports/${id}`);
-        if (response.success && response.data) {
-          const rep = response.data;
+async function viewReport(id) {
+  try {
+    const response = await API.get(`/reports/${id}`);
+    if (response.success && response.data) {
+      const rep = response.data;
 
-          document.getElementById('view-title').textContent = rep.title;
-          document.getElementById('view-desc').textContent = rep.description || '';
-          document.getElementById('view-type').textContent = rep.type.toUpperCase();
-          document.getElementById('view-date').textContent = Utils.formatDate(rep.createdAt);
+      document.getElementById('view-title').textContent = rep.title;
+      document.getElementById('view-desc').textContent = rep.description || '';
+      document.getElementById('view-type').textContent = rep.type.toUpperCase();
+      document.getElementById('view-date').textContent = Utils.formatDate(rep.createdAt);
 
-          const data = rep.data || {};
-          const summary = data.summary || { total: 0, logs: 0, alerts: 0, incidents: 0, critical: 0 };
-          
-          document.getElementById('view-stat-logs').textContent = summary.logs.toLocaleString();
-          document.getElementById('view-stat-alerts').textContent = summary.alerts.toLocaleString();
-          document.getElementById('view-stat-incidents').textContent = summary.incidents.toLocaleString();
-          document.getElementById('view-stat-critical').textContent = summary.critical.toLocaleString();
+      const data = rep.data || {};
+      // Defensive: only 'daily'/'weekly'/'monthly' currently produce this exact shape.
+      // Other types (executive/incident/risk/compliance) have their own structure —
+      // fall back to zeros rather than crashing until those get dedicated views.
+      const summary = data.summary || {};
+      const logsCount = summary.logs ?? 0;
+      const alertsCount = summary.alerts ?? 0;
+      const incidentsCount = summary.incidents ?? 0;
+      const criticalCount = summary.critical ?? 0;
 
-          // Render Alerts list
-          const alertBody = document.getElementById('view-alerts-list');
-          alertBody.innerHTML = '';
-          const alertsList = data.alerts || [];
-          if (alertsList.length === 0) {
-            alertBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No alerts logged in time scope</td></tr>`;
-          } else {
-            alertsList.forEach(a => {
-              alertBody.innerHTML += `
-                <tr>
-                  <td><strong>${Utils.escapeHTML(a.title)}</strong></td>
-                  <td>${Utils.escapeHTML(a.category || 'Threat')}</td>
-                  <td><span class="badge ${Utils.getSeverityBadgeClass(a.severity)}">${a.severity}</span></td>
-                  <td>${Utils.formatDate(a.createdAt)}</td>
-                </tr>
-              `;
-            });
-          }
+      document.getElementById('view-stat-logs').textContent = logsCount.toLocaleString();
+      document.getElementById('view-stat-alerts').textContent = alertsCount.toLocaleString();
+      document.getElementById('view-stat-incidents').textContent = incidentsCount.toLocaleString();
+      document.getElementById('view-stat-critical').textContent = criticalCount.toLocaleString();
 
-          // Render Incidents list
-          const incBody = document.getElementById('view-incidents-list');
-          incBody.innerHTML = '';
-          const incList = data.incidents || [];
-          if (incList.length === 0) {
-            incBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No incidents logged in time scope</td></tr>`;
-          } else {
-            incList.forEach(inc => {
-              incBody.innerHTML += `
-                <tr>
-                  <td><strong>${Utils.escapeHTML(inc.title)}</strong></td>
-                  <td><span class="badge ${Utils.getSeverityBadgeClass(inc.severity)}">${inc.severity}</span></td>
-                  <td>${inc.status}</td>
-                  <td>${Utils.formatDate(inc.createdAt)}</td>
-                </tr>
-              `;
-            });
-          }
-
-          document.getElementById('view-report-modal').classList.add('active');
-        }
-      } catch (err) {
-        Swal.fire('Error', err.message || 'Failed to view report details', 'error');
+      // Render Alerts list
+      const alertBody = document.getElementById('view-alerts-list');
+      alertBody.innerHTML = '';
+      const alertsList = Array.isArray(data.alerts) ? data.alerts : [];
+      if (alertsList.length === 0) {
+        alertBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No alerts logged in time scope</td></tr>`;
+      } else {
+        alertsList.forEach(a => {
+          alertBody.innerHTML += `
+            <tr>
+              <td><strong>${Utils.escapeHTML(a.title)}</strong></td>
+              <td>${Utils.escapeHTML(a.category || 'Threat')}</td>
+              <td><span class="badge ${Utils.getSeverityBadgeClass(a.severity)}">${a.severity}</span></td>
+              <td>${Utils.formatDate(a.createdAt)}</td>
+            </tr>
+          `;
+        });
       }
+
+      // Render Incidents list
+      const incBody = document.getElementById('view-incidents-list');
+      incBody.innerHTML = '';
+      const incList = Array.isArray(data.incidents) ? data.incidents : [];
+      if (incList.length === 0) {
+        incBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No incidents logged in time scope</td></tr>`;
+      } else {
+        incList.forEach(inc => {
+          incBody.innerHTML += `
+            <tr>
+              <td><strong>${Utils.escapeHTML(inc.title)}</strong></td>
+              <td><span class="badge ${Utils.getSeverityBadgeClass(inc.severity)}">${inc.severity}</span></td>
+              <td>${inc.status}</td>
+              <td>${Utils.formatDate(inc.createdAt)}</td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById('view-report-modal').classList.add('active');
     }
+  } catch (err) {
+    Swal.fire('Error', err.message || 'Failed to view report details', 'error');
+  }
+}
 
     async function deleteReport(id) {
       const confirm = await Swal.fire({

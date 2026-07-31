@@ -150,17 +150,22 @@ const Auth = {
   /**
    * Check if user has permission
    */
-  hasPermission(permission) {
-    const user = this.getCurrentUser();
-    if (!user || !user.role) return false;
-    
-    // Super admin can do everything
-    if (user.role === this.ROLES.SUPER_ADMIN) return true;
+hasPermission(permission) {
+  const user = this.getCurrentUser();
+  if (!user || !user.role) return false;
 
-    const allowedPermissions = this.ROLE_PERMISSIONS[user.role] || [];
-    return allowedPermissions.includes(permission) || allowedPermissions.includes('*');
-  },
+  if (user.role === this.ROLES.SUPER_ADMIN) return true;
 
+  // Prefer permissions the server actually computed from the Role collection —
+  // this is the source of truth the backend's authorize() middleware also uses.
+  if (Array.isArray(user.permissions)) {
+    return user.permissions.includes(permission) || user.permissions.includes('*');
+  }
+
+  // Fallback for sessions cached before this change shipped.
+  const allowedPermissions = this.ROLE_PERMISSIONS[user.role] || [];
+  return allowedPermissions.includes(permission) || allowedPermissions.includes('*');
+},
   /**
    * Enforce permission, redirect to 403 page if not authorized
    */

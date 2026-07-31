@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { AppError } = require('./errorHandler');
 const { HTTP_STATUS } = require('../config/constants');
 const logger = require('../config/logger');
+const Role = require('../models/Role'); 
 
 /**
  * Protect routes - verify JWT token
@@ -25,8 +26,7 @@ const protect = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Get user with password field selected (needed for some operations)
+
       const user = await User.findById(decoded.id)
         .select('+password')
         .populate('organization', 'name code');
@@ -53,6 +53,19 @@ const protect = async (req, res, next) => {
           HTTP_STATUS.UNAUTHORIZED,
           'ACCOUNT_LOCKED'
         );
+      }
+
+      // Attach the permission set for this user's role so authorize()
+      // has something real to check. Without this, every non-super-admin
+      // is denied every permission-gated route regardless of their role.
+      if (user.role === 'super_admin') {
+        // Bypassed explicitly in authorize() anyway, but keep this
+        // consistent in case anything else reads req.user.permissions directly.
+        const { PERMISSIONS } = require('../config/constants');
+        user.permissions = Object.values(PERMISSIONS);
+      } else {
+        const roleDoc = await Role.findOne({ name: user.role, status: 'active' }).select('permissions');
+        user.permissions = roleDoc ? roleDoc.permissions : [];
       }
 
       req.user = user;
