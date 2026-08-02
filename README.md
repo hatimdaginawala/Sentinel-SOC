@@ -637,7 +637,7 @@ node src/seed.js
 
 ### Creating Custom Log Sources
 
-
+```bash
 # Login
 curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -655,7 +655,7 @@ curl -X POST http://localhost:3000/api/v1/log-sources \
     "protocol": "REST",
     "status": "Online"
   }'
-
+```
 
 ### Running Tests
 
@@ -794,7 +794,7 @@ npm run format
 
 
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Node.js Community
 - MongoDB Team
@@ -803,15 +803,15 @@ npm run format
 
 
 
-## 📞 Support
+## Support
 
 For support, email hfdaginawala@gmail.com or create an issue in the repository.
 
 
 
-## 🏷️ Tags
+## Tags
 
 `soc` `siem` `security` `monitoring` `incident-response` `threat-detection` `nodejs` `mongodb` `express` `cybersecurity` `enterprise`
 
 
-**Made with ❤️ for the cybersecurity community**
+
