@@ -502,6 +502,7 @@ POST /api/v1/logs/ingest
 
 
 ### Request Format
+```bash
 
 {
   "sourceId": "6a6848b0c15e297a26a2716f",
@@ -516,8 +517,7 @@ POST /api/v1/logs/ingest
     "eventTime": "2026-07-28T06:30:00.000Z"
   }
 }
-
-
+```
 ### Log Normalization
 
 Incoming logs are automatically normalized to the standard Log schema:
