@@ -1,20 +1,44 @@
+/* ============================================
+   NIGHT OPS (dark theme) — the console's default state
+   ============================================ */
 body.dark-theme {
-  --bg-primary: #111827;
-  --bg-secondary: #1F2937;
-  --card-bg: #1F2937;
-  
-  --sidebar-bg: #0F172A;
-  --sidebar-hover: #1E293B;
-  --sidebar-text: #F3F4F6;
-  --sidebar-active-bg: #111827;
-  --sidebar-border: #374151;
-  
-  --border-color: #374151;
-  
-  --text-primary: #F3F4F6;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
-  
+  --bg-primary: #0A0E14;
+  --bg-secondary: #10151D;
+  --card-bg: #131922;
+  --bg-elevated: #1A2029;
+
+  --sidebar-bg: #0B0F16;
+  --sidebar-hover: #161D27;
+  --sidebar-text: #E7ECF2;
+  --sidebar-active-bg: #10151D;
+  --sidebar-border: #1E2530;
+
+  --border-color: #232B37;
+  --border-subtle: #1A212B;
+
+  --color-primary: #22D3C7;
+  --color-primary-hover: #1BB6AC;
+  --color-primary-rgb: 34, 211, 199;
+
+  --color-success: #35C97C;
+  --color-success-rgb: 53, 201, 124;
+  --color-warning: #F5A93F;
+  --color-warning-rgb: 245, 169, 63;
+  --color-danger: #F04B5E;
+  --color-danger-rgb: 240, 75, 94;
+  --color-info: #5B8DEF;
+  --color-info-rgb: 91, 141, 239;
+  --color-medium: #E8C24C;
+  --color-medium-rgb: 232, 194, 76;
+
+  --text-primary: #E7ECF2;
+  --text-secondary: #93A1B3;
+  --text-muted: #5B6B7F;
+  --text-on-primary: #06110F;
+
+  --scrollbar-track: #0A0E14;
+  --scrollbar-thumb: #2A3441;
+
   color-scheme: dark;
 }
 
@@ -22,9 +46,9 @@ body.dark-theme {
 body.dark-theme select,
 body.dark-theme input,
 body.dark-theme textarea {
-  background-color: #111827;
-  color: #F3F4F6;
-  border-color: #374151;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 body.dark-theme select:focus,
@@ -35,8 +59,10 @@ body.dark-theme textarea:focus {
 
 /* Dark mode SweetAlert dialog overrides */
 body.dark-theme .swal2-popup {
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--card-bg) !important;
   color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg) !important;
 }
 
 body.dark-theme .swal2-title,
@@ -47,4 +73,9 @@ body.dark-theme .swal2-html-container {
 
 body.dark-theme .swal2-actions button {
   border-radius: var(--radius-md) !important;
+}
+
+body.dark-theme .swal2-confirm {
+  background-color: var(--color-primary) !important;
+  color: var(--text-on-primary) !important;
 }

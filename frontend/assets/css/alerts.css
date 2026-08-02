@@ -3,100 +3,103 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 3px 9px;
   font-size: var(--font-xs);
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 12px;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
 
 /* Severity levels */
 .badge-critical {
-  background-color: rgba(197, 48, 48, 0.1);
+  background-color: rgba(var(--color-danger-rgb), 0.14);
   color: var(--color-danger);
-  border: 1px solid rgba(197, 48, 48, 0.2);
+  border: 1px solid rgba(var(--color-danger-rgb), 0.3);
 }
 
 .badge-high {
-  background-color: rgba(237, 137, 54, 0.1);
+  background-color: rgba(var(--color-warning-rgb), 0.14);
   color: var(--color-warning);
-  border: 1px solid rgba(237, 137, 54, 0.2);
+  border: 1px solid rgba(var(--color-warning-rgb), 0.3);
 }
 
 .badge-medium {
-  background-color: rgba(236, 201, 75, 0.1);
-  color: #D69E2E;
-  border: 1px solid rgba(236, 201, 75, 0.2);
+  background-color: rgba(var(--color-medium-rgb), 0.14);
+  color: var(--color-medium);
+  border: 1px solid rgba(var(--color-medium-rgb), 0.3);
 }
 
 .badge-low {
-  background-color: rgba(47, 133, 90, 0.1);
-  color: var(--color-primary);
-  border: 1px solid rgba(47, 133, 90, 0.2);
+  background-color: rgba(var(--color-success-rgb), 0.14);
+  color: var(--color-success);
+  border: 1px solid rgba(var(--color-success-rgb), 0.3);
 }
 
 .badge-info {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: rgba(var(--color-info-rgb), 0.14);
   color: var(--color-info);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(var(--color-info-rgb), 0.3);
 }
 
 /* General States */
 .badge-online, .badge-active, .badge-open {
-  background-color: rgba(46, 125, 50, 0.1);
+  background-color: rgba(var(--color-success-rgb), 0.14);
   color: var(--color-success);
-  border: 1px solid rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(var(--color-success-rgb), 0.3);
 }
 
 .badge-offline, .badge-inactive, .badge-closed {
-  background-color: rgba(107, 114, 128, 0.1);
+  background-color: rgba(147, 161, 179, 0.14);
   color: var(--text-secondary);
-  border: 1px solid rgba(107, 114, 128, 0.2);
+  border: 1px solid rgba(147, 161, 179, 0.3);
 }
 
 .badge-investigating {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: rgba(var(--color-info-rgb), 0.14);
   color: var(--color-info);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(var(--color-info-rgb), 0.3);
 }
 
 .badge-resolved {
-  background-color: rgba(46, 125, 50, 0.1);
+  background-color: rgba(var(--color-success-rgb), 0.14);
   color: var(--color-success);
-  border: 1px solid rgba(46, 125, 50, 0.2);
+  border: 1px solid rgba(var(--color-success-rgb), 0.3);
 }
 
 .badge-suppressed {
-  background-color: rgba(156, 163, 175, 0.1);
+  background-color: rgba(147, 161, 179, 0.14);
   color: var(--text-muted);
-  border: 1px solid rgba(156, 163, 175, 0.2);
+  border: 1px solid rgba(147, 161, 179, 0.3);
 }
 
 .badge-escalated {
-  background-color: rgba(197, 48, 48, 0.1);
+  background-color: rgba(var(--color-danger-rgb), 0.14);
   color: var(--color-danger);
-  border: 1px solid rgba(197, 48, 48, 0.2);
+  border: 1px solid rgba(var(--color-danger-rgb), 0.3);
+  animation: badge-critical-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes badge-critical-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0); }
+  50% { box-shadow: 0 0 0 3px rgba(var(--color-danger-rgb), 0.12); }
 }
 
 /* Toast alert styling */
 .toast-notification {
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--card-bg) !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border-color) !important;
   box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius-md) !important;
 }
 
-body.dark-theme .swal2-popup {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
+.swal2-popup {
+  border-radius: var(--radius-lg) !important;
 }
 
-body.dark-theme .swal2-title,
-body.dark-theme .swal2-html-container {
-  color: var(--text-primary) !important;
-}
 body.dark-theme .swal2-validation-message {
-  background-color: var(--bg-primary) !important;
+  background-color: var(--bg-elevated) !important;
   color: var(--color-danger) !important;
 }

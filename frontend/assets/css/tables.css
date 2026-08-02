@@ -2,9 +2,9 @@
 .table-container {
   width: 100%;
   overflow-x: auto;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
+  background-color: var(--card-bg);
 }
 
 table.enterprise-table {
@@ -16,14 +16,14 @@ table.enterprise-table {
 }
 
 table.enterprise-table th {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-elevated);
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -31,24 +31,24 @@ table.enterprise-table th {
 
 table.enterprise-table td {
   padding: var(--spacing-sm) var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
   white-space: nowrap;
 }
 
-table.enterprise-table tbody tr:hover {
-  background-color: rgba(47, 133, 90, 0.02);
+table.enterprise-table tbody tr {
+  transition: background-color var(--transition-speed);
 }
 
-body.dark-theme table.enterprise-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+table.enterprise-table tbody tr:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
 }
 
 /* DataTables Overrides & Customizations */
 .dataTables_wrapper {
   padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -62,9 +62,10 @@ body.dark-theme table.enterprise-table tbody tr:hover {
 .dt-button {
   padding: var(--spacing-xs) var(--spacing-sm) !important;
   font-size: var(--font-xs) !important;
+  font-weight: 600 !important;
   border-radius: var(--radius-sm) !important;
   border: 1px solid var(--border-color) !important;
-  background: var(--bg-primary) !important;
+  background: var(--bg-elevated) !important;
   color: var(--text-primary) !important;
   cursor: pointer;
   transition: all var(--transition-speed);
@@ -72,6 +73,7 @@ body.dark-theme table.enterprise-table tbody tr:hover {
 
 .dt-button:hover {
   background: var(--border-color) !important;
+  border-color: var(--color-primary) !important;
 }
 
 .dataTables_length, .dataTables_filter {
@@ -83,7 +85,7 @@ body.dark-theme table.enterprise-table tbody tr:hover {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-elevated);
   color: var(--text-primary);
   outline: none;
   font-size: var(--font-sm);
@@ -108,7 +110,7 @@ body.dark-theme table.enterprise-table tbody tr:hover {
   margin: 0 2px !important;
   border-radius: var(--radius-sm) !important;
   border: 1px solid var(--border-color) !important;
-  background: var(--bg-primary) !important;
+  background: var(--bg-elevated) !important;
   color: var(--text-primary) !important;
   font-size: var(--font-xs) !important;
   cursor: pointer;
@@ -145,8 +147,12 @@ body.dark-theme table.enterprise-table tbody tr:hover {
 }
 
 .table-btn:hover {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-elevated);
   color: var(--text-primary);
+}
+
+.table-btn.view:hover {
+  color: var(--color-primary);
 }
 
 .table-btn.edit:hover {

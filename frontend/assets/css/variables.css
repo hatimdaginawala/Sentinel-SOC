@@ -1,66 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Fonts */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  
-  /* Layout sizes */
-  --sidebar-width: 250px;
-  --sidebar-collapsed-width: 70px;
-  --navbar-height: 60px;
+  /* ============================================
+     FONTS
+     Manrope: UI/display face — clean geometric grotesque
+     JetBrains Mono: technical data — IDs, IPs, hashes, timestamps
+     ============================================ */
+  --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  --sidebar-width: 264px;
+  --sidebar-collapsed-width: 72px;
+  --navbar-height: 64px;
   --transition-speed: 0.2s;
-  
-  /* Spacing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ============================================
+     SPACING
+     ============================================ */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
-  /* Font Sizes */
+  --spacing-2xl: 3rem;
+
+  /* ============================================
+     FONT SIZES
+     ============================================ */
   --font-xs: 0.75rem;
   --font-sm: 0.875rem;
   --font-md: 1rem;
   --font-lg: 1.125rem;
   --font-xl: 1.25rem;
   --font-2xl: 1.5rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
-  /* Border Radius */
+  --font-3xl: 2rem;
+  --font-4xl: 2.5rem;
+
+  /* ============================================
+     RADIUS
+     ============================================ */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  
-  /* Default Theme Colors (Light Theme) */
-  --bg-primary: #F5F6F8;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ============================================
+     SHADOWS
+     ============================================ */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 10px -2px rgba(0, 0, 0, 0.16), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 16px 32px -8px rgba(0, 0, 0, 0.28), 0 4px 10px -4px rgba(0, 0, 0, 0.16);
+  --shadow-glow-primary: 0 0 0 3px rgba(var(--color-primary-rgb), 0.14), 0 6px 18px -4px rgba(var(--color-primary-rgb), 0.35);
+  --shadow-glow-danger: 0 0 0 3px rgba(var(--color-danger-rgb), 0.14), 0 6px 18px -4px rgba(var(--color-danger-rgb), 0.35);
+
+  /* ============================================
+     DAY OPS (light theme) — default tokens
+     Sidebar intentionally stays dark in both themes,
+     matching a real console's "always-on" instrument panel.
+     ============================================ */
+  --bg-primary: #F4F6F9;
   --bg-secondary: #FFFFFF;
   --card-bg: #FFFFFF;
-  
-  /* Sidebar Specific (Always dark/professional or themed) */
-  --sidebar-bg: #1F2937;
-  --sidebar-hover: #374151;
-  --sidebar-text: #F3F4F6;
-  --sidebar-active-bg: #111827;
-  --sidebar-border: #374151;
-  
-  /* Borders */
-  --border-color: #E5E7EB;
-  
-  /* Brand/Status Colors */
-  --color-primary: #2F855A;
-  --color-primary-hover: #225E3A;
-  --color-success: #2E7D32;
-  --color-warning: #ED8936;
-  --color-danger: #C53030;
-  --color-info: #2563EB;
-  
-  /* Text Colors */
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
-  --text-on-primary: #FFFFFF;
+  --bg-elevated: #EDF1F5;
+
+  --sidebar-bg: #0F172A;
+  --sidebar-hover: #1B2740;
+  --sidebar-text: #E7ECF2;
+  --sidebar-active-bg: #0B1220;
+  --sidebar-border: #223047;
+
+  --border-color: #DDE3EA;
+  --border-subtle: #E7ECF1;
+
+  --color-primary: #0FA99B;
+  --color-primary-hover: #0C8B80;
+  --color-primary-rgb: 15, 169, 155;
+
+  --color-success: #1E9E5A;
+  --color-success-rgb: 30, 158, 90;
+  --color-warning: #E08A2B;
+  --color-warning-rgb: 224, 138, 43;
+  --color-danger: #D6394B;
+  --color-danger-rgb: 214, 57, 75;
+  --color-info: #3B6FD6;
+  --color-info-rgb: 59, 111, 214;
+  --color-medium: #C99A24;
+  --color-medium-rgb: 201, 154, 36;
+
+  --text-primary: #121722;
+  --text-secondary: #5B6779;
+  --text-muted: #93A0B0;
+  --text-on-primary: #06110F;
+
+  --scrollbar-track: #F4F6F9;
+  --scrollbar-thumb: #C7D0DA;
 }

@@ -1,12 +1,12 @@
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: box-shadow var(--transition-speed);
+  transition: box-shadow var(--transition-speed) var(--ease-out), transform var(--transition-speed) var(--ease-out);
 }
 
 .card:hover {
@@ -25,7 +25,7 @@
 .card-title {
   margin: 0;
   font-size: var(--font-md);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@
 .card-footer {
   padding: var(--spacing-md) var(--spacing-lg);
   border-top: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-elevated);
   display: flex;
   justify-content: flex-end;
 }
@@ -92,5 +92,23 @@
 .info-value {
   color: var(--text-primary);
   font-weight: 600;
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
+
+/* Additive: signal-rail accent for cards that need a severity/status
+   read at a glance (e.g. a report summary or an incident detail card).
+   Usage: <div class="card card-accent-critical"> — opt-in, nothing
+   existing depends on these. */
+.card-accent-critical,
+.card-accent-high,
+.card-accent-medium,
+.card-accent-low,
+.card-accent-info {
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+.card-accent-critical { border-left-color: var(--color-danger); box-shadow: -1px 0 0 var(--color-danger); }
+.card-accent-high { border-left-color: var(--color-warning); box-shadow: -1px 0 0 var(--color-warning); }
+.card-accent-medium { border-left-color: var(--color-medium); box-shadow: -1px 0 0 var(--color-medium); }
+.card-accent-low { border-left-color: var(--color-success); box-shadow: -1px 0 0 var(--color-success); }
+.card-accent-info { border-left-color: var(--color-info); box-shadow: -1px 0 0 var(--color-info); }

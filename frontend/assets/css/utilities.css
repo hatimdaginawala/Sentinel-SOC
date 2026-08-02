@@ -51,3 +51,14 @@
 
 /* Scroll Lockout */
 .no-scroll { overflow: hidden; }
+
+/* ============================================
+   Additive utilities — new, nothing existing depends on these
+   ============================================ */
+.font-mono { font-family: var(--font-mono); }
+.text-primary-accent { color: var(--color-primary); }
+.rounded-full { border-radius: 999px; }
+.mt-5 { margin-top: var(--spacing-2xl); }
+.mb-5 { margin-bottom: var(--spacing-2xl); }
+.gap-2xl { gap: var(--spacing-2xl); }
+.shadow-glow { box-shadow: var(--shadow-glow-primary); }
