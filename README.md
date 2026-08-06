@@ -502,6 +502,7 @@ POST /api/v1/logs/ingest
 
 
 ### Request Format
+```bash
 
 {
   "sourceId": "6a6848b0c15e297a26a2716f",
@@ -516,8 +517,7 @@ POST /api/v1/logs/ingest
     "eventTime": "2026-07-28T06:30:00.000Z"
   }
 }
-
-
+```
 ### Log Normalization
 
 Incoming logs are automatically normalized to the standard Log schema:
@@ -637,7 +637,7 @@ node src/seed.js
 
 ### Creating Custom Log Sources
 
-
+```bash
 # Login
 curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -655,7 +655,7 @@ curl -X POST http://localhost:3000/api/v1/log-sources \
     "protocol": "REST",
     "status": "Online"
   }'
-
+```
 
 ### Running Tests
 
@@ -794,7 +794,7 @@ npm run format
 
 
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Node.js Community
 - MongoDB Team
@@ -803,15 +803,15 @@ npm run format
 
 
 
-## 📞 Support
+## Support
 
 For support, email hfdaginawala@gmail.com or create an issue in the repository.
 
 
 
-## 🏷️ Tags
+## Tags
 
 `soc` `siem` `security` `monitoring` `incident-response` `threat-detection` `nodejs` `mongodb` `express` `cybersecurity` `enterprise`
 
 
-**Made with ❤️ for the cybersecurity community**
+
