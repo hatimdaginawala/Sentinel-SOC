@@ -69,7 +69,7 @@ class SchedulerService {
       })
     );
 
-    logger.info('✅ Scheduler initialized with 5 jobs');
+    logger.info(' Scheduler initialized with 5 jobs');
     return this.jobs;
   }
 
@@ -124,7 +124,7 @@ class SchedulerService {
       await AuditLog.deleteMany({ createdAt: { $lt: cutoffDate } });
     }
     
-    logger.info('✅ Cleaned up old data');
+    logger.info(' Cleaned up old data');
   }
 
   /**
@@ -180,7 +180,7 @@ class SchedulerService {
     // Fetch external threat feeds
     // Update IOCs
     // Update threat rules
-    logger.info('✅ Updated threat intelligence');
+    logger.info(' Updated threat intelligence');
   }
 
   /**
@@ -190,7 +190,7 @@ class SchedulerService {
     for (const job of this.jobs) {
       job.stop();
     }
-    logger.info('🛑 All scheduled jobs stopped');
+    logger.info(' All scheduled jobs stopped');
   }
 }
 

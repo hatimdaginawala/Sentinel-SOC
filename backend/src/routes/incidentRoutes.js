@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS, SEVERITY, INCIDENT_STATUS } = require('../config/constants');
 
-console.log('🔧 Setting up incident routes...');
+console.log(' Setting up incident routes...');
 
 // Validation rules
 const createIncidentValidation = [
@@ -399,6 +399,6 @@ router.delete('/incidents/:id',
   IncidentController.deleteIncident
 );
 
-console.log('✅ Incident routes configured');
+console.log(' Incident routes configured');
 
 module.exports = router;

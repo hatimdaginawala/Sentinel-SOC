@@ -257,7 +257,7 @@ async function sendLogs(logs, sourceId, authToken) {
         timeout: 10000
       });
 
-      console.log(`✅ Sent 1 Windows event(s) - Status: ${response.status}`);
+      console.log(` Sent 1 Windows event(s) - Status: ${response.status}`);
     }
     return true;
   } catch (error) {

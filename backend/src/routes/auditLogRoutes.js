@@ -7,7 +7,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up audit log routes...');
+console.log(' Setting up audit log routes...');
 
 // Validation rules
 const auditLogIdValidation = [
@@ -66,6 +66,6 @@ router.post('/audit-logs/cleanup',
   AuditLogController.cleanupOldLogs
 );
 
-console.log('✅ Audit log routes configured');
+console.log(' Audit log routes configured');
 
 module.exports = router;

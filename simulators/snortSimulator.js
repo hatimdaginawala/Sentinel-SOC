@@ -341,7 +341,7 @@ async function sendAlerts(alerts) {
     });
 
     const alertCount = Array.isArray(alerts) ? alerts.length : 1;
-    console.log(`✅ Sent ${alertCount} Snort alert(s) - Status: ${response.status}`);
+    console.log(` Sent ${alertCount} Snort alert(s) - Status: ${response.status}`);
     return response.data;
   } catch (error) {
     if (error.response) {

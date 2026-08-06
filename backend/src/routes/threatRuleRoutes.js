@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS, SEVERITY, RULE_TYPES } = require('../config/constants');
 
-console.log('🔧 Setting up threat rule routes...');
+console.log(' Setting up threat rule routes...');
 
 // Validation rules
 const createRuleValidation = [
@@ -296,6 +296,6 @@ router.post('/threat-rules/:id/clone',
   ThreatRuleController.cloneRule
 );
 
-console.log('✅ Threat rule routes configured');
+console.log(' Threat rule routes configured');
 
 module.exports = router;

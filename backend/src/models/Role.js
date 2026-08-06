@@ -303,7 +303,7 @@ roleSchema.statics = {
           
           await role.save();
           createdRoles.push(role);
-          console.log(`✅ System role created: ${name}`);
+          console.log(` System role created: ${name}`);
         } else {
           // Update existing system role if needed
           if (existingRole.isSystem) {
@@ -312,12 +312,12 @@ roleSchema.statics = {
             existingRole.permissions = definition.permissions;
             existingRole.priority = definition.priority;
             await existingRole.save();
-            console.log(`✅ System role updated: ${name}`);
+            console.log(` System role updated: ${name}`);
           }
           createdRoles.push(existingRole);
         }
       } catch (error) {
-        console.error(`❌ Error creating system role ${name}:`, error);
+        console.error(` Error creating system role ${name}:`, error);
       }
     }
 

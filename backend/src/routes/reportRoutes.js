@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS, REPORT_TYPES, REPORT_FORMATS, SEVERITY } = require('../config/constants');
 
-console.log('🔧 Setting up report routes...');
+console.log(' Setting up report routes...');
 
 // Validation rules
 const createReportValidation = [
@@ -195,6 +195,6 @@ router.post('/reports/:id/unschedule',
   ReportController.unscheduleReport
 );
 
-console.log('✅ Report routes configured');
+console.log(' Report routes configured');
 
 module.exports = router;

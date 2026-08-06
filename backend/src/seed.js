@@ -1388,13 +1388,13 @@ const seedData = {
  */
 async function seedDatabase() {
   try {
-    console.log('🌱 Starting database seed...');
+    console.log(' Starting database seed...');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     // Get MongoDB URI
     let mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sentinel_soc';
     
-    console.log(`📡 Connecting to MongoDB at: ${mongoURI}`);
+    console.log(` Connecting to MongoDB at: ${mongoURI}`);
     
     // Connect with IPv4 preference
     await mongoose.connect(mongoURI, {
@@ -1403,10 +1403,10 @@ async function seedDatabase() {
       family: 4
     });
     
-    console.log('✅ Connected to MongoDB');
+    console.log(' Connected to MongoDB');
 
     // Clear existing data (comment out if you want to keep existing data)
-    console.log('🗑️ Clearing existing data...');
+    console.log(' Clearing existing data...');
     await Organization.deleteMany({});
     await User.deleteMany({});
     await Asset.deleteMany({});
@@ -1419,25 +1419,25 @@ async function seedDatabase() {
     await Report.deleteMany({});
     await AuditLog.deleteMany({});
     await Settings.deleteMany({});
-    console.log('✅ Data cleared');
+    console.log(' Data cleared');
 
     // Seed Organizations
-    console.log('\n📋 Seeding Organizations...');
+    console.log('\n Seeding Organizations...');
     const createdOrgs = [];
     for (const orgData of seedData.organizations) {
       const org = new Organization(orgData);
       await org.save();
       createdOrgs.push(org);
-      console.log(`  ✅ Created: ${org.name} (${org.code})`);
+      console.log(`  Created: ${org.name} (${org.code})`);
     }
 
     // Seed Users
-    console.log('\n👤 Seeding Users...');
+    console.log('\n Seeding Users...');
     const createdUsers = [];
     for (const userData of seedData.users) {
       const org = createdOrgs.find(o => o.name === userData.organizationName);
       if (!org) {
-        console.log(`  ⚠️ Organization not found for ${userData.email}, skipping...`);
+        console.log(`  Organization not found for ${userData.email}, skipping...`);
         continue;
       }
 
@@ -1448,7 +1448,7 @@ async function seedDatabase() {
       });
       await user.save();
       createdUsers.push(user);
-      console.log(`  ✅ Created: ${user.email} (${user.role}) - ${org.name}`);
+      console.log(`  Created: ${user.email} (${user.role}) - ${org.name}`);
     }
 
     // Update superadmin to be createdBy for other users
@@ -1463,12 +1463,12 @@ async function seedDatabase() {
     }
 
     // Seed Assets
-    console.log('\n💻 Seeding Assets...');
+    console.log('\n Seeding Assets...');
     const createdAssets = [];
     for (const assetData of seedData.assets) {
       const org = createdOrgs.find(o => o.name === assetData.organizationName);
       if (!org) {
-        console.log(`  ⚠️ Organization not found for ${assetData.name}, skipping...`);
+        console.log(`  Organization not found for ${assetData.name}, skipping...`);
         continue;
       }
 
@@ -1479,16 +1479,16 @@ async function seedDatabase() {
       });
       await asset.save();
       createdAssets.push(asset);
-      console.log(`  ✅ Created: ${asset.name} (${asset.type}) - ${org.name}`);
+      console.log(`  Created: ${asset.name} (${asset.type}) - ${org.name}`);
     }
 
     // Seed Log Sources
-    console.log('\n📡 Seeding Log Sources...');
+    console.log('\n Seeding Log Sources...');
     const createdSources = [];
     for (const sourceData of seedData.logSources) {
       const org = createdOrgs.find(o => o.name === sourceData.organizationName);
       if (!org) {
-        console.log(`  ⚠️ Organization not found for ${sourceData.sourceName}, skipping...`);
+        console.log(`  Organization not found for ${sourceData.sourceName}, skipping...`);
         continue;
       }
 
@@ -1498,7 +1498,7 @@ async function seedDatabase() {
       );
       
       if (!asset) {
-        console.log(`  ⚠️ Asset not found for ${sourceData.assetHostname}, skipping...`);
+        console.log(`  Asset not found for ${sourceData.assetHostname}, skipping...`);
         continue;
       }
 
@@ -1511,11 +1511,11 @@ async function seedDatabase() {
       });
       await source.save();
       createdSources.push(source);
-      console.log(`  ✅ Created: ${source.sourceName} (${source.sourceType}) - ${org.name}`);
+      console.log(`  Created: ${source.sourceName} (${source.sourceType}) - ${org.name}`);
     }
 
     // Seed Logs
-    console.log('\n📝 Seeding Logs...');
+    console.log('\n Seeding Logs...');
     const createdLogs = [];
     for (const logData of seedData.logs) {
       const org = createdOrgs[0]; // Acme Corporation
@@ -1526,7 +1526,7 @@ async function seedDatabase() {
       );
 
       if (!source) {
-        console.log(`  ⚠️ Source not found for ${logData.sourceType}, skipping...`);
+        console.log(`  Source not found for ${logData.sourceType}, skipping...`);
         continue;
       }
 
@@ -1543,11 +1543,11 @@ async function seedDatabase() {
       });
       await log.save();
       createdLogs.push(log);
-      console.log(`  ✅ Created: ${log.eventType} - ${log.sourceType}`);
+      console.log(`  Created: ${log.eventType} - ${log.sourceType}`);
     }
 
     // Seed Alerts
-    console.log('\n🚨 Seeding Alerts...');
+    console.log('\n Seeding Alerts...');
     const createdAlerts = [];
     for (const alertData of seedData.alerts) {
       const org = createdOrgs[0];
@@ -1568,11 +1568,11 @@ async function seedDatabase() {
       });
       await alert.save();
       createdAlerts.push(alert);
-      console.log(`  ✅ Created: ${alert.title} (${alert.severity})`);
+      console.log(`  Created: ${alert.title} (${alert.severity})`);
     }
 
     // Seed Incidents
-    console.log('\n📋 Seeding Incidents...');
+    console.log('\n Seeding Incidents...');
     const createdIncidents = [];
     for (const incidentData of seedData.incidents) {
       const org = createdOrgs[0];
@@ -1590,11 +1590,11 @@ async function seedDatabase() {
       });
       await incident.save();
       createdIncidents.push(incident);
-      console.log(`  ✅ Created: ${incident.title} (${incident.severity})`);
+      console.log(`  Created: ${incident.title} (${incident.severity})`);
     }
 
     // Seed IOCs
-    console.log('\n🔍 Seeding IOCs...');
+    console.log('\n Seeding IOCs...');
     const createdIOCs = [];
     for (const iocData of seedData.iocs) {
       const org = createdOrgs[0];
@@ -1607,11 +1607,11 @@ async function seedDatabase() {
       });
       await ioc.save();
       createdIOCs.push(ioc);
-      console.log(`  ✅ Created: ${ioc.indicator} (${ioc.type})`);
+      console.log(`  Created: ${ioc.indicator} (${ioc.type})`);
     }
 
     // Seed Threat Rules
-    console.log('\n📏 Seeding Threat Rules...');
+    console.log('\n Seeding Threat Rules...');
     for (const ruleData of seedData.threatRules) {
       const org = createdOrgs[0];
       
@@ -1621,11 +1621,11 @@ async function seedDatabase() {
         createdBy: superadmin?._id
       });
       await rule.save();
-      console.log(`  ✅ Created: ${rule.name} (${rule.type})`);
+      console.log(`  Created: ${rule.name} (${rule.type})`);
     }
 
     // Seed Reports
-    console.log('\n📊 Seeding Reports...');
+    console.log('\n Seeding Reports...');
     for (const reportData of seedData.reports) {
       const org = createdOrgs[0];
       
@@ -1637,11 +1637,11 @@ async function seedDatabase() {
         generatedAt: new Date()
       });
       await report.save();
-      console.log(`  ✅ Created: ${report.title} (${report.type})`);
+      console.log(`  Created: ${report.title} (${report.type})`);
     }
 
     // Seed Audit Logs
-    console.log('\n📝 Seeding Audit Logs...');
+    console.log('\n Seeding Audit Logs...');
     for (const auditLogData of seedData.auditLogs) {
       const org = createdOrgs[0];
       const user = createdUsers[0];
@@ -1653,27 +1653,27 @@ async function seedDatabase() {
         performedBy: user?._id
       });
       await auditLog.save();
-      console.log(`  ✅ Created: ${auditLog.action} - ${auditLog.resource}`);
+      console.log(`  Created: ${auditLog.action} - ${auditLog.resource}`);
     }
 
     // Print summary
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ Database seeding completed successfully!');
-    console.log(`📊 Summary:`);
-    console.log(`  📋 Organizations: ${createdOrgs.length}`);
-    console.log(`  👤 Users: ${createdUsers.length}`);
-    console.log(`  💻 Assets: ${createdAssets.length}`);
-    console.log(`  📡 Log Sources: ${createdSources.length}`);
-    console.log(`  📝 Logs: ${createdLogs.length}`);
-    console.log(`  🚨 Alerts: ${createdAlerts.length}`);
-    console.log(`  📋 Incidents: ${createdIncidents.length}`);
-    console.log(`  🔍 IOCs: ${createdIOCs.length}`);
-    console.log(`  📏 Threat Rules: ${seedData.threatRules.length}`);
-    console.log(`  📊 Reports: ${seedData.reports.length}`);
-    console.log(`  📝 Audit Logs: ${seedData.auditLogs.length}`);
+    console.log(' Database seeding completed successfully!');
+    console.log(` Summary:`);
+    console.log(`  Organizations: ${createdOrgs.length}`);
+    console.log(`  Users: ${createdUsers.length}`);
+    console.log(`  Assets: ${createdAssets.length}`);
+    console.log(`  Log Sources: ${createdSources.length}`);
+    console.log(`  Logs: ${createdLogs.length}`);
+    console.log(`  Alerts: ${createdAlerts.length}`);
+    console.log(`  Incidents: ${createdIncidents.length}`);
+    console.log(`  IOCs: ${createdIOCs.length}`);
+    console.log(`  Threat Rules: ${seedData.threatRules.length}`);
+    console.log(`  Reports: ${seedData.reports.length}`);
+    console.log(`  Audit Logs: ${seedData.auditLogs.length}`);
 
     // Print authentication details for simulators
-    console.log('\n🔑 Log Source Authentication Tokens for Simulators:');
+    console.log('\n Log Source Authentication Tokens for Simulators:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     for (const source of createdSources) {
       if (['Windows', 'Linux', 'Apache', 'Nginx', 'Suricata', 'Snort', 'pfSense'].includes(source.sourceType)) {
@@ -1685,7 +1685,7 @@ async function seedDatabase() {
     }
 
     // Print login credentials
-    console.log('\n🔐 Login Credentials:');
+    console.log('\n Login Credentials:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('Super Admin: superadmin@sentinel-soc.com / SuperAdmin@2024!');
     console.log('Security Admin: securityadmin@acme.com / Security@2024!');
@@ -1695,10 +1695,10 @@ async function seedDatabase() {
 
     // Close connection
     await mongoose.disconnect();
-    console.log('\n🔌 Disconnected from MongoDB');
+    console.log('\n Disconnected from MongoDB');
 
   } catch (error) {
-    console.error('❌ Error seeding database:', error.message);
+    console.error(' Error seeding database:', error.message);
     console.error(error.stack);
     process.exit(1);
   }

@@ -22,7 +22,7 @@ async function syncTokens() {
     });
     
     await client.connect();
-    console.log('✅ Connected to MongoDB');
+    console.log(' Connected to MongoDB');
     
     const db = client.db(DB_NAME);
     const collection = db.collection('logsources');
@@ -59,7 +59,7 @@ async function syncTokens() {
           name: source.sourceName
         };
         
-        console.log(`✅ Updated ${source.sourceName} (${source.sourceType})`);
+        console.log(` Updated ${source.sourceName} (${source.sourceType})`);
         console.log(`   ID: ${source._id}`);
         console.log(`   Token: ${token}`);
       } else {
@@ -93,7 +93,7 @@ async function syncTokens() {
               name: altSource.sourceName
             };
             
-            console.log(`   ✅ Found and updated: ${altSource.sourceName}`);
+            console.log(`    Found and updated: ${altSource.sourceName}`);
             console.log(`   ID: ${altSource._id}`);
             console.log(`   Token: ${token}`);
           }
@@ -124,7 +124,7 @@ async function syncTokens() {
         name: source.sourceName
       };
       
-      console.log(`✅ Fixed ${source.sourceName} (${source.sourceType})`);
+      console.log(` Fixed ${source.sourceName} (${source.sourceType})`);
       console.log(`   ID: ${source._id}`);
       console.log(`   Token: ${token}`);
     }
@@ -154,7 +154,7 @@ async function syncTokens() {
       }
 
       fs.writeFileSync(envPath, envContent);
-      console.log('\n✅ .env file updated successfully!');
+      console.log('\n .env file updated successfully!');
       
       console.log('\n📋 Updated tokens:');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

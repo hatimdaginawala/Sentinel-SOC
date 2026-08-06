@@ -50,7 +50,7 @@ function auditMiddleware() {
 
         setImmediate(() => {
           AuditLogService.createAuditLog(auditData)
-            .catch(err => console.error('❌ Audit log error:', err.message));
+            .catch(err => console.error(' Audit log error:', err.message));
         });
       }
 

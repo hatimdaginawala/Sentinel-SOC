@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('📦 organizationRoutes.js is being loaded!');
+console.log('organizationRoutes.js is being loaded!');
 
 // Test routes (no authentication required)
 router.get('/test', (req, res) => {
@@ -171,6 +171,6 @@ router.delete('/:id/permanent',
   OrganizationController.hardDeleteOrganization
 );
 
-console.log('✅ Organization routes configured');
+console.log(' Organization routes configured');
 
 module.exports = router;

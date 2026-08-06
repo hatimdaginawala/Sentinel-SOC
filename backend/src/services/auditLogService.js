@@ -11,7 +11,7 @@ class AuditLogService {
     try {
       // Validate required fields
       if (!logData.organization || !logData.user || !logData.action || !logData.resource) {
-        console.warn('⚠️ Audit log missing required fields:', {
+        console.warn(' Audit log missing required fields:', {
           organization: !!logData.organization,
           user: !!logData.user,
           action: !!logData.action,
@@ -41,11 +41,11 @@ class AuditLogService {
       await auditLog.save();
 
       // Console log for visibility
-      console.log(`📝 AUDIT: ${logData.action} | ${logData.resource} | ${logData.resourceName || 'N/A'}`);
+      console.log(` AUDIT: ${logData.action} | ${logData.resource} | ${logData.resourceName || 'N/A'}`);
 
       return auditLog;
     } catch (error) {
-      console.error('❌ Error creating audit log:', error.message);
+      console.error(' Error creating audit log:', error.message);
       return null;
     }
   }
@@ -363,7 +363,7 @@ class AuditLogService {
         createdAt: { $lt: cutoffDate }
       });
 
-      console.log(`🧹 Cleaned up ${result.deletedCount} old audit logs`);
+      console.log(` Cleaned up ${result.deletedCount} old audit logs`);
       
       return {
         deletedCount: result.deletedCount,

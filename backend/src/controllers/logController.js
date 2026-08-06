@@ -23,13 +23,13 @@ class LogController {
     setImmediate(async () => {
       try {
         const automationResult = await AutomationService.processLog(result);
-        console.log('✅ Automation completed:', {
+        console.log(' Automation completed:', {
           alerts: automationResult?.alerts?.length || 0,
           incidents: automationResult?.incidents?.length || 0,
           iocs: automationResult?.matchedIOCs?.length || 0
         });
       } catch (error) {
-        console.error('❌ Automation error:', error);
+        console.error(' Automation error:', error);
       }
     });
 

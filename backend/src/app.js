@@ -36,7 +36,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 // Import audit middleware
 const audit = require('./middleware/audit');
 
-console.log('🚀 Starting SentinelSOC server...');
+console.log(' Starting SentinelSOC server...');
 
 // Initialize express app
 const app = express();
@@ -125,21 +125,21 @@ const API_PREFIX = process.env.API_PREFIX || '/api/v1';
 // ============================================
 // MOUNT AUTH ROUTES FIRST (NO AUDIT)
 // ============================================
-console.log('🔧 Mounting auth routes...');
+console.log(' Mounting auth routes...');
 app.use(`${API_PREFIX}/auth`, userRoutes);
 
 // ============================================
 // APPLY AUDIT MIDDLEWARE HERE
 // All routes after this point will be audited
 // ============================================
-console.log('🔍 Applying audit middleware...');
+console.log(' Applying audit middleware...');
 app.use(audit());
-console.log('✅ Audit middleware applied');
+console.log(' Audit middleware applied');
 
 // ============================================
 // MOUNT ALL OTHER ROUTES (WILL BE AUDITED)
 // ============================================
-console.log('🔧 Mounting protected routes...');
+console.log(' Mounting protected routes...');
 
 // User management routes
 app.use(`${API_PREFIX}/users`, userRoutes);
@@ -180,7 +180,7 @@ app.use(`${API_PREFIX}`, auditLogRoutes);
 // Settings routes
 app.use(`${API_PREFIX}`, settingsRoutes);
 
-console.log('✅ All routes mounted');
+console.log(' All routes mounted');
 
 // Root route
 app.get('/', (req, res) => {
@@ -222,28 +222,28 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    console.log('🔗 Connecting to MongoDB...');
+    console.log(' Connecting to MongoDB...');
     await database.connect();
-    console.log('✅ MongoDB connected');
+    console.log(' MongoDB connected');
     
     // Initialize system roles
     try {
-      console.log('🎯 Initializing system roles...');
+      console.log(' Initializing system roles...');
       const RoleService = require('./services/roleService');
       await RoleService.initializeSystemRoles();
-      console.log('✅ System roles initialized');
+      console.log(' System roles initialized');
     } catch (roleError) {
-      console.warn('⚠️ Role initialization failed:', roleError.message);
+      console.warn(' Role initialization failed:', roleError.message);
     }
     
     // Start server
     server.listen(PORT, () => {
-      console.log(`\n🚀 SentinelSOC server running on port ${PORT}`);
-      console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔗 API URL: http://localhost:${PORT}${API_PREFIX}`);
-      console.log(`💚 Health check: http://localhost:${PORT}/health`);
+      console.log(`\n SentinelSOC server running on port ${PORT}`);
+      console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(` API URL: http://localhost:${PORT}${API_PREFIX}`);
+      console.log(` Health check: http://localhost:${PORT}/health`);
       
-      console.log('\n📋 Available API Endpoints:');
+      console.log('\n Available API Endpoints:');
       console.log(`   POST ${API_PREFIX}/auth/login (NO AUDIT)`);
       console.log(`   POST ${API_PREFIX}/auth/refresh (NO AUDIT)`);
       console.log(`   GET  ${API_PREFIX}/organizations (AUDITED)`);
@@ -258,16 +258,16 @@ async function startServer() {
       console.log(`   GET  ${API_PREFIX}/logs (AUDITED)`);
       console.log(`   GET  ${API_PREFIX}/iocs (AUDITED)`);
       console.log(`   GET  ${API_PREFIX}/settings (AUDITED)`);
-      console.log('\n✅ Server is ready!');
+      console.log('\n Server is ready!');
     });
 
     // Graceful shutdown
     const shutdown = async () => {
-      console.log('🔄 Received shutdown signal');
+      console.log(' Received shutdown signal');
       server.close(async () => {
-        console.log('📴 HTTP server closed');
+        console.log(' HTTP server closed');
         await database.disconnect();
-        console.log('👋 Shutdown complete');
+        console.log(' Shutdown complete');
         process.exit(0);
       });
     };
@@ -276,7 +276,7 @@ async function startServer() {
     process.on('SIGINT', shutdown);
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error(' Failed to start server:', error);
     console.error(error.stack);
     process.exit(1);
   }
@@ -284,19 +284,19 @@ async function startServer() {
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (error) => {
-  console.error('❌ Unhandled Rejection:', error);
+  console.error(' Unhandled Rejection:', error);
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error(' Uncaught Exception:', error);
   process.exit(1);
 });
 
 // Start the server
 if (require.main === module) {
-  console.log('🏁 Starting server...');
+  console.log(' Starting server...');
   startServer();
 }
 

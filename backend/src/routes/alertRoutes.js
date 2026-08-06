@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS, SEVERITY, ALERT_STATUS } = require('../config/constants');
 
-console.log('🔧 Setting up alert routes...');
+console.log(' Setting up alert routes...');
 
 // Validation rules
 const createAlertFromLogValidation = [
@@ -281,6 +281,6 @@ router.delete('/alerts/:id',
   AlertController.deleteAlert
 );
 
-console.log('✅ Alert routes configured');
+console.log(' Alert routes configured');
 
 module.exports = router;

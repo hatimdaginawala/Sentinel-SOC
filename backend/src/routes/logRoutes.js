@@ -6,13 +6,13 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up log routes...');
+console.log(' Setting up log routes...');
 
 // ============================================
 // PUBLIC ROUTES - DEFINED FIRST (BEFORE protect)
 // ============================================
 
-console.log('✅ Registering PUBLIC routes...');
+console.log(' Registering PUBLIC routes...');
 
 // Public test route
 router.get('/logs/public-test', (req, res) => {
@@ -35,7 +35,7 @@ router.post('/logs/ingest',
   LogController.ingestLog
 );
 
-console.log('✅ Public routes registered:');
+console.log(' Public routes registered:');
 console.log('   GET  /logs/public-test');
 console.log('   POST /logs/ingest');
 
@@ -43,7 +43,7 @@ console.log('   POST /logs/ingest');
 // PROTECTED ROUTES - DEFINED AFTER protect
 // ============================================
 
-console.log('🔒 Setting up protected routes...');
+console.log('Setting up protected routes...');
 router.use(protect);
 
 // Validation rules
@@ -171,6 +171,6 @@ router.post('/logs/cleanup',
   LogController.deleteOldLogs
 );
 
-console.log('✅ Log routes configured');
+console.log(' Log routes configured');
 
 module.exports = router;

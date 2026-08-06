@@ -32,27 +32,27 @@ class Database {
       await mongoose.connect(mongoURI, options);
       
       this.isConnected = true;
-      logger.info('✅ MongoDB connected successfully');
+      logger.info(' MongoDB connected successfully');
 
       // Handle connection events
       mongoose.connection.on('error', (error) => {
-        logger.error('❌ MongoDB connection error:', error);
+        logger.error(' MongoDB connection error:', error);
         this.isConnected = false;
       });
 
       mongoose.connection.on('disconnected', () => {
-        logger.warn('⚠️ MongoDB disconnected');
+        logger.warn(' MongoDB disconnected');
         this.isConnected = false;
       });
 
       mongoose.connection.on('reconnected', () => {
-        logger.info('🔄 MongoDB reconnected');
+        logger.info(' MongoDB reconnected');
         this.isConnected = true;
       });
 
       return mongoose.connection;
     } catch (error) {
-      logger.error('❌ Failed to connect to MongoDB:', error.message);
+      logger.error(' Failed to connect to MongoDB:', error.message);
       throw error;
     }
   }
@@ -64,9 +64,9 @@ class Database {
     try {
       await mongoose.disconnect();
       this.isConnected = false;
-      logger.info('📴 MongoDB disconnected successfully');
+      logger.info(' MongoDB disconnected successfully');
     } catch (error) {
-      logger.error('❌ Error disconnecting from MongoDB:', error.message);
+      logger.error(' Error disconnecting from MongoDB:', error.message);
       throw error;
     }
   }

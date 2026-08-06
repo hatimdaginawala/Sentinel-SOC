@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up settings routes...');
+console.log(' Setting up settings routes...');
 
 // Validation rules
 const updateSettingsValidation = [
@@ -369,6 +369,6 @@ router.get('/settings/feature/:featurePath',
   SettingsController.isFeatureEnabled
 );
 
-console.log('✅ Settings routes configured');
+console.log(' Settings routes configured');
 
 module.exports = router;

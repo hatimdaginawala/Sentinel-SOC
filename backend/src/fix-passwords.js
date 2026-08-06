@@ -9,13 +9,13 @@ const LOGIN_CREDENTIALS = {
 
 async function testSimpleAudit() {
   try {
-    console.log('🔍 Simple Audit Test\n');
+    console.log(' Simple Audit Test\n');
 
     // Login
     console.log('1. Logging in...');
     const loginRes = await axios.post(`${API_BASE}/auth/login`, LOGIN_CREDENTIALS);
     const token = loginRes.data.data.accessToken;
-    console.log('✅ Login successful\n');
+    console.log(' Login successful\n');
 
     const headers = { 
       Authorization: `Bearer ${token}`,
@@ -25,7 +25,7 @@ async function testSimpleAudit() {
     // Get organization
     const orgRes = await axios.get(`${API_BASE}/organizations`, { headers });
     const orgId = orgRes.data.data.items[0]._id;
-    console.log(`✅ Organization: ${orgId}\n`);
+    console.log(` Organization: ${orgId}\n`);
 
     // Create a test asset
     const timestamp = Date.now();
@@ -38,7 +38,7 @@ async function testSimpleAudit() {
       ipAddress: '192.168.1.99',
       status: 'active'
     }, { headers });
-    console.log(`✅ Asset created: ${assetRes.data.data._id}\n`);
+    console.log(` Asset created: ${assetRes.data.data._id}\n`);
 
     // Create a test incident
     console.log('3. Creating incident...');
@@ -50,7 +50,7 @@ async function testSimpleAudit() {
       category: 'unauthorized_access',
       status: 'new'
     }, { headers });
-    console.log(`✅ Incident created: ${incidentRes.data.data._id}\n`);
+    console.log(` Incident created: ${incidentRes.data.data._id}\n`);
 
     // Wait a moment for async logging
     console.log('4. Waiting for audit logs...');
@@ -60,19 +60,19 @@ async function testSimpleAudit() {
     console.log('5. Checking audit logs...');
     const auditRes = await axios.get(`${API_BASE}/audit-logs?limit=20`, { headers });
     
-    console.log(`📊 Found ${auditRes.data.data.items.length} audit logs\n`);
+    console.log(` Found ${auditRes.data.data.items.length} audit logs\n`);
     
     // Find recent logs
     const recentLogs = auditRes.data.data.items.slice(0, 10);
-    console.log('📝 Recent audit logs:');
+    console.log(' Recent audit logs:');
     recentLogs.forEach((log, i) => {
       console.log(`  ${i+1}. ${log.createdAt} | ${log.action} | ${log.resource} | ${log.resourceName || 'N/A'}`);
     });
 
-    console.log('\n✅ Test complete!');
+    console.log('\n Test complete!');
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error(' Error:', error.message);
     if (error.response) {
       console.error('Status:', error.response.status);
       console.error('Data:', error.response.data);

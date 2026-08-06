@@ -14,7 +14,7 @@ async function setupSimulators() {
     console.log('🔐 Logging in...');
     const loginRes = await axios.post(`${API_BASE_URL}/auth/login`, LOGIN_CREDENTIALS);
     const token = loginRes.data.data.accessToken;
-    console.log('✅ Login successful');
+    console.log(' Login successful');
 
     // Get organizations
     console.log('\n📋 Getting organizations...');
@@ -23,7 +23,7 @@ async function setupSimulators() {
     });
     
     const organizations = orgRes.data.data.items || [];
-    console.log(`✅ Found ${organizations.length} organizations`);
+    console.log(` Found ${organizations.length} organizations`);
 
     // Get assets
     console.log('\n💻 Getting assets...');
@@ -32,7 +32,7 @@ async function setupSimulators() {
     });
     
     const assets = assetRes.data.data.items || [];
-    console.log(`✅ Found ${assets.length} assets`);
+    console.log(` Found ${assets.length} assets`);
 
     // Create log sources for each organization and type
     const sourceTypes = ['Windows', 'Linux', 'Apache', 'Nginx', 'Suricata', 'Snort', 'pfSense'];
@@ -58,7 +58,7 @@ async function setupSimulators() {
         }, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        console.log(`  ✅ Created asset: ${newAsset.data.data.name}`);
+        console.log(`   Created asset: ${newAsset.data.data.name}`);
       }
 
       // Create sources for each type
@@ -106,7 +106,7 @@ async function setupSimulators() {
             token: source.authenticationToken
           };
           
-          console.log(`    ✅ ${type} created: ${source._id}`);
+          console.log(`     ${type} created: ${source._id}`);
         } catch (error) {
           console.log(`    ❌ Failed to create ${type}: ${error.message}`);
         }
@@ -132,7 +132,7 @@ async function setupSimulators() {
     }
 
     fs.writeFileSync(envFilePath, envContent);
-    console.log('\n✅ .env file created successfully!');
+    console.log('\n .env file created successfully!');
     console.log(`📁 Location: ${envFilePath}`);
     console.log('\n📋 Environment file contents:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

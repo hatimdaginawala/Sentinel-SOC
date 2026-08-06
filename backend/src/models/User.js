@@ -127,24 +127,24 @@ userSchema.methods = {
   // Compare password
  async comparePassword(candidatePassword) {
     try {
-      console.log(`🔐 Comparing password for: ${this.email}`);
-      console.log(`📝 Candidate password provided: ${!!candidatePassword}`);
-      console.log(`🔑 Stored password hash: ${this.password ? this.password.substring(0, 20) + '...' : 'MISSING'}`);
+      console.log(` Comparing password for: ${this.email}`);
+      console.log(` Candidate password provided: ${!!candidatePassword}`);
+      console.log(` Stored password hash: ${this.password ? this.password.substring(0, 20) + '...' : 'MISSING'}`);
       
       if (!this.password) {
-        console.error('❌ Password field is missing for user:', this.email);
+        console.error(' Password field is missing for user:', this.email);
         return false;
       }
       if (!candidatePassword) {
-        console.error('❌ Candidate password is empty');
+        console.error(' Candidate password is empty');
         return false;
       }
       
       const result = await bcrypt.compare(candidatePassword, this.password);
-      console.log(`✅ bcrypt.compare result: ${result}`);
+      console.log(` bcrypt.compare result: ${result}`);
       return result;
     } catch (error) {
-      console.error('❌ Error comparing password:', error.message);
+      console.error(' Error comparing password:', error.message);
       console.error(error.stack);
       return false;
     }

@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up log source routes...');
+console.log(' Setting up log source routes...');
 
 // Validation rules
 const createLogSourceValidation = [
@@ -245,6 +245,6 @@ router.post('/log-sources/check-heartbeats',
   LogSourceController.checkStaleHeartbeats
 );
 
-console.log('✅ Log source routes configured');
+console.log(' Log source routes configured');
 
 module.exports = router;

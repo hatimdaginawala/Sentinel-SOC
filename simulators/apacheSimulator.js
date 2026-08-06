@@ -314,7 +314,7 @@ async function sendLogs(logs) {
     });
 
     const logCount = Array.isArray(logs) ? logs.length : 1;
-    console.log(`✅ Sent ${logCount} Apache event(s) - Status: ${response.status}`);
+    console.log(` Sent ${logCount} Apache event(s) - Status: ${response.status}`);
     return response.data;
   } catch (error) {
     if (error.response) {

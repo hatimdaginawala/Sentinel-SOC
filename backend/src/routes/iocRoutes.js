@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up IOC routes...');
+console.log(' Setting up IOC routes...');
 
 // Validation rules
 const createIOCValidation = [
@@ -301,6 +301,6 @@ router.post('/iocs/:id/reactivate',
   IOCController.reactivateIOC
 );
 
-console.log('✅ IOC routes configured');
+console.log(' IOC routes configured');
 
 module.exports = router;

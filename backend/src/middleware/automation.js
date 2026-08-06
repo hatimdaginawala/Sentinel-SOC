@@ -20,18 +20,18 @@ const processLogAutomatically = asyncHandler(async (req, res, next) => {
           // Process the log through automation pipeline
           AutomationService.processLog(log)
             .then(result => {
-              console.log('✅ Automation pipeline completed:', {
+              console.log(' Automation pipeline completed:', {
                 alerts: result?.alerts?.length || 0,
                 incidents: result?.incidents?.length || 0,
                 iocs: result?.matchedIOCs?.length || 0
               });
             })
             .catch(error => {
-              console.error('❌ Automation pipeline error:', error);
+              console.error(' Automation pipeline error:', error);
             });
         }
       } catch (error) {
-        console.error('❌ Failed to parse response for automation:', error);
+        console.error(' Failed to parse response for automation:', error);
       }
     }
     

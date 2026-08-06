@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { PERMISSIONS, ASSET_TYPES } = require('../config/constants');
 
-console.log('🔧 Setting up asset routes...');
+console.log(' Setting up asset routes...');
 
 // Validation rules
 const createAssetValidation = [
@@ -179,6 +179,6 @@ router.delete('/:id/permanent',
   AssetController.hardDeleteAsset
 );
 
-console.log('✅ Asset routes configured');
+console.log(' Asset routes configured');
 
 module.exports = router;

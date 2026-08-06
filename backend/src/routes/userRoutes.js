@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth');
 const { body, param, query } = require('express-validator');
 const { ROLES, PERMISSIONS } = require('../config/constants');
 
-console.log('🔧 Setting up user routes...');
+console.log(' Setting up user routes...');
 
 // Validation rules
 const createUserValidation = [
@@ -241,6 +241,6 @@ router.post('/:id/reset-password',
   UserController.resetPassword
 );
 
-console.log('✅ User routes configured');
+console.log(' User routes configured');
 
 module.exports = router;

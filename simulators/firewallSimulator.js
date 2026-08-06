@@ -335,7 +335,7 @@ async function sendEvents(events) {
     });
 
     const eventCount = Array.isArray(events) ? events.length : 1;
-    console.log(`✅ Sent ${eventCount} firewall event(s) - Status: ${response.status}`);
+    console.log(` Sent ${eventCount} firewall event(s) - Status: ${response.status}`);
     return response.data;
   } catch (error) {
     if (error.response) {

@@ -18,7 +18,7 @@ class AutomationService {
    */
  async processLog(log) {
     try {
-      logger.info(`🔄 Processing log: ${log._id} - ${log.eventType || 'unknown'} - Org: ${log.organization}`);
+      logger.info(` Processing log: ${log._id} - ${log.eventType || 'unknown'} - Org: ${log.organization}`);
       
       // Step 1: Check against threat rules (for ALL organizations)
       const matchedRules = await this.checkThreatRules(log);
@@ -60,7 +60,7 @@ class AutomationService {
         matchedRules
       };
     } catch (error) {
-      logger.error('❌ Error in automation pipeline:', error.message);
+      logger.error(' Error in automation pipeline:', error.message);
       // Don't throw - just log the error so the log ingestion continues
       return null;
     }

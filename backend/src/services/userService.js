@@ -293,7 +293,7 @@ class UserService {
 
 async authenticateUser(identifier, password) {
   try {
-    console.log(`🔐 Attempting login for: ${identifier}`);
+    console.log(` Attempting login for: ${identifier}`);
 
     const user = await User.findOne({
       $or: [
@@ -303,11 +303,11 @@ async authenticateUser(identifier, password) {
     }).select('+password +refreshToken +passwordResetToken +passwordResetExpires');
 
     if (!user) {
-      console.log(`❌ User not found: ${identifier}`);
+      console.log(` User not found: ${identifier}`);
       throw new AppError('Invalid credentials', HTTP_STATUS.UNAUTHORIZED, 'INVALID_CREDENTIALS');
     }
 
-    console.log(`✅ User found: ${user.email}`);
+    console.log(` User found: ${user.email}`);
 
     if (user.isLocked()) {
       throw new AppError('Account is locked', HTTP_STATUS.UNAUTHORIZED, 'ACCOUNT_LOCKED');
@@ -318,12 +318,12 @@ async authenticateUser(identifier, password) {
     }
 
     if (!user.comparePassword) {
-      console.error('❌ comparePassword method not found on user object');
+      console.error(' comparePassword method not found on user object');
       throw new AppError('Authentication error', HTTP_STATUS.INTERNAL_SERVER_ERROR, 'AUTH_ERROR');
     }
 
     const isPasswordValid = await user.comparePassword(password);
-    console.log(`✅ Password valid: ${isPasswordValid}`);
+    console.log(` Password valid: ${isPasswordValid}`);
 
     if (!isPasswordValid) {
       await user.incrementLoginAttempts();
