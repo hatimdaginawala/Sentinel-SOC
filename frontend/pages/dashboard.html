@@ -35,97 +35,173 @@
   <div class="app-container">
     
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+        <aside class="sidebar">
       <div class="sidebar-brand">
         <i class="fa-solid fa-shield-halved"></i>
         <span class="brand-name">SentinelSOC</span>
       </div>
-      <ul class="sidebar-nav">
-        <li class="sidebar-item">
-          <a href="/pages/dashboard.html" class="sidebar-link">
-            <i class="fa-solid fa-chart-line"></i>
-            <span class="nav-text">Dashboard</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/organizations.html" class="sidebar-link">
-            <i class="fa-solid fa-building"></i>
-            <span class="nav-text">Organizations</span>
-          </a>
-        </li>
-                        <li class="sidebar-item">
-          <a href="/pages/users.html" class="sidebar-link">
-            <i class="fa-solid fa-users"></i>
-            <span class="nav-text">Users</span>
-          </a>
-        </li>
-                <li class="sidebar-item">
-          <a href="/pages/roles.html" class="sidebar-link">
-            <i class="fa-solid fa-user-shield"></i>
-            <span class="nav-text">Roles</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/assets.html" class="sidebar-link">
-            <i class="fa-solid fa-server"></i>
-            <span class="nav-text">Assets</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/log-sources.html" class="sidebar-link">
-            <i class="fa-solid fa-network-wired"></i>
-            <span class="nav-text">Log Sources</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/logs.html" class="sidebar-link">
-            <i class="fa-solid fa-file-waveform"></i>
-            <span class="nav-text">Logs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/threat-rules.html" class="sidebar-link">
-            <i class="fa-solid fa-bug"></i>
-            <span class="nav-text">Threat Rules</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/alerts.html" class="sidebar-link">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span class="nav-text">Alerts</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/incidents.html" class="sidebar-link">
-            <i class="fa-solid fa-ticket"></i>
-            <span class="nav-text">Incidents</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/iocs.html" class="sidebar-link">
-            <i class="fa-solid fa-database"></i>
-            <span class="nav-text">IOCs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/reports.html" class="sidebar-link">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span class="nav-text">Reports</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/audit-logs.html" class="sidebar-link">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span class="nav-text">Audit Logs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/settings.html" class="sidebar-link">
-            <i class="fa-solid fa-sliders"></i>
-            <span class="nav-text">Settings</span>
-          </a>
-        </li>
-      </ul>
+<ul class="sidebar-nav">
+
+  <!-- Overview (standalone, no group) -->
+  <li class="sidebar-item">
+    <a href="/pages/dashboard.html" class="sidebar-link">
+      <i class="fa-solid fa-chart-line"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+  </li>
+
+  <!-- Identity & Access -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-id-badge"></i>
+      <span class="nav-text">Identity &amp; Access</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/organizations.html" class="sidebar-link">
+          <i class="fa-solid fa-building"></i>
+          <span class="nav-text">Organizations</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/users.html" class="sidebar-link">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/roles.html" class="sidebar-link">
+          <i class="fa-solid fa-user-shield"></i>
+          <span class="nav-text">Roles</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assets & Network -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-server"></i>
+      <span class="nav-text">Assets &amp; Network</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/assets.html" class="sidebar-link">
+          <i class="fa-solid fa-server"></i>
+          <span class="nav-text">Assets</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/network-topology.html" class="sidebar-link">
+          <i class="fa-solid fa-network-wired"></i>
+          <span class="nav-text">Network Topology</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/log-sources.html" class="sidebar-link">
+          <i class="fa-solid fa-plug"></i>
+          <span class="nav-text">Log Sources</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Detection -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span class="nav-text">Detection</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/logs.html" class="sidebar-link">
+          <i class="fa-solid fa-file-waveform"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/threat-rules.html" class="sidebar-link">
+          <i class="fa-solid fa-bug"></i>
+          <span class="nav-text">Threat Rules</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/alerts.html" class="sidebar-link">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="nav-text">Alerts</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/incidents.html" class="sidebar-link">
+          <i class="fa-solid fa-ticket"></i>
+          <span class="nav-text">Incidents</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/iocs.html" class="sidebar-link">
+          <i class="fa-solid fa-database"></i>
+          <span class="nav-text">IOCs</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assurance -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-file-shield"></i>
+      <span class="nav-text">Assurance</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/security-testing.html" class="sidebar-link">
+          <i class="fa-solid fa-vial"></i>
+          <span class="nav-text">Security Testing</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/security-assessment.html" class="sidebar-link">
+          <i class="fa-solid fa-file-shield"></i>
+          <span class="nav-text">Security Assessment</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/reports.html" class="sidebar-link">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Admin -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-gear"></i>
+      <span class="nav-text">Admin</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/audit-logs.html" class="sidebar-link">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/settings.html" class="sidebar-link">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
       <div class="sidebar-toggle-container">
         <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
           <i class="fa-solid fa-angles-left"></i>
@@ -134,8 +210,9 @@
     </aside>
 
     <!-- TOP NAVBAR -->
-    <nav class="navbar">
+        <nav class="navbar">
       <div class="navbar-left">
+        <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
         <div class="navbar-search">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
@@ -256,7 +333,61 @@
             <div class="kpi-value">0</div>
             <div class="kpi-subtext">Total: 0</div>
           </div>
+        </div>
 
+        <!-- Network Metrics (Suricata / Zeek) -->
+        <h3 class="mt-4 mb-3" style="color: var(--text-primary); font-size: 1.25rem;"><i class="fa-solid fa-network-wired text-info"></i> Network Security Metrics (Suricata/Zeek)</h3>
+        <div class="dashboard-grid mb-4">
+          <!-- Detected Network Threats (Suricata) -->
+          <div class="card kpi-card" style="border-left: 4px solid var(--danger);">
+            <div class="kpi-header">
+              <span class="kpi-title">Suricata Alerts</span>
+              <i class="fa-solid fa-spider kpi-icon text-danger"></i>
+            </div>
+            <div class="kpi-value" id="kpi-suricata-alerts">142</div>
+            <div class="kpi-subtext"><i class="fa-solid fa-arrow-trend-up text-danger"></i> +12% from yesterday</div>
+          </div>
+          <!-- Blocked Connections -->
+          <div class="card kpi-card" style="border-left: 4px solid var(--warning);">
+            <div class="kpi-header">
+              <span class="kpi-title">Blocked Conns</span>
+              <i class="fa-solid fa-ban kpi-icon text-warning"></i>
+            </div>
+            <div class="kpi-value" id="kpi-blocked-conns">89</div>
+            <div class="kpi-subtext">Automated Firewall Blocks</div>
+          </div>
+          <!-- Zeek Connections -->
+          <div class="card kpi-card" style="border-left: 4px solid var(--info);">
+            <div class="kpi-header">
+              <span class="kpi-title">Zeek Flows</span>
+              <i class="fa-solid fa-project-diagram kpi-icon text-info"></i>
+            </div>
+            <div class="kpi-value" id="kpi-zeek-flows">12.4K</div>
+            <div class="kpi-subtext">Analyzed Network Flows</div>
+          </div>
+          <!-- Top Attacking IPs -->
+          <div class="card kpi-card" style="border-left: 4px solid var(--danger); grid-column: span 2;">
+            <div class="kpi-header" style="margin-bottom: 0.5rem;">
+              <span class="kpi-title">Top Attacking IPs (24h)</span>
+              <i class="fa-solid fa-bullseye kpi-icon text-danger"></i>
+            </div>
+            <table class="table-compact" style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 4px 0;"><span class="badge bg-danger">192.168.1.100</span></td>
+                  <td style="padding: 4px 0; text-align: right;">42 events</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 4px 0;"><span class="badge bg-warning text-dark">45.22.19.10</span></td>
+                  <td style="padding: 4px 0; text-align: right;">18 events</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0;"><span class="badge bg-warning text-dark">103.44.11.2</span></td>
+                  <td style="padding: 4px 0; text-align: right;">9 events</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Section Grids for Charts and Feeds -->

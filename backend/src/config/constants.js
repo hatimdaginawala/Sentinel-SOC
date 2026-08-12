@@ -149,7 +149,8 @@ module.exports = {
     EXECUTIVE: 'executive',
     INCIDENT: 'incident',
     RISK: 'risk',
-    COMPLIANCE: 'compliance'
+    COMPLIANCE: 'compliance',
+    NETWORK_SECURITY_ASSESSMENT: 'network_security_assessment'
   },
 
   // Report Formats

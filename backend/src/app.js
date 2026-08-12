@@ -32,6 +32,11 @@ const threatRuleRoutes = require('./routes/threatRuleRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const networkTopologyRoutes = require('./routes/networkTopologyRoutes');
+const securitySensorRoutes = require('./routes/securitySensorRoutes');
+const securityControlRoutes = require('./routes/securityControlRoutes');
+const securityTestRoutes = require('./routes/securityTestRoutes');
+const securityAssessmentRoutes = require('./routes/securityAssessmentRoutes');
 
 // Import audit middleware
 const audit = require('./middleware/audit');
@@ -66,20 +71,60 @@ io.on('connection', (socket) => {
 app.set('io', io);
 
 // Security middleware
+// Security middleware - UPDATED CSP for vis-network
+// Security middleware - UPDATED CSP for vis-network and other resources
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://cdn.datatables.net', 'https://fonts.googleapis.com'],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://cdn.socket.io', 'https://cdn.datatables.net', 'https://code.jquery.com'],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        'https://cdnjs.cloudflare.com', 
+        'https://cdn.jsdelivr.net', 
+        'https://cdn.datatables.net', 
+        'https://fonts.googleapis.com',
+        'https://unpkg.com'
+      ],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        'https://cdnjs.cloudflare.com', 
+        'https://cdn.jsdelivr.net', 
+        'https://cdn.socket.io', 
+        'https://cdn.datatables.net', 
+        'https://code.jquery.com',
+        'https://unpkg.com',
+        'https://cdnjs.cloudflare.com/ajax/libs/vis-network',
+        'https://visjs.github.io',
+        'blob:',
+        'data:'
+      ],
+      imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
       connectSrc: ["'self'", 'ws:', 'wss:', 'http:', 'https:'],
-      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
+      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:', 'https://unpkg.com'],
       scriptSrcAttr: ["'unsafe-inline'"],
     },
   },
 }));
-
+// Add this after the static files middleware
+// Favicon route to prevent 404 errors
+app.get('/favicon.ico', (req, res) => {
+  // Try to serve from frontend assets, or return 204 No Content
+  const faviconPath = path.join(frontendPath, 'assets/images/favicon.ico');
+  res.sendFile(faviconPath, { 
+    root: '.',
+    dotfiles: 'deny',
+    headers: {
+      'Cache-Control': 'public, max-age=86400'
+    }
+  }, (err) => {
+    if (err) {
+      // If favicon doesn't exist, return 204 No Content (silent success)
+      res.status(204).end();
+    }
+  });
+});
 // CORS configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -179,6 +224,13 @@ app.use(`${API_PREFIX}`, auditLogRoutes);
 
 // Settings routes
 app.use(`${API_PREFIX}`, settingsRoutes);
+
+// Network Defense routes
+app.use(`${API_PREFIX}/network-topology`, networkTopologyRoutes);
+app.use(`${API_PREFIX}/security-sensors`, securitySensorRoutes);
+app.use(`${API_PREFIX}/security-controls`, securityControlRoutes);
+app.use(`${API_PREFIX}/security-tests`, securityTestRoutes);
+app.use(`${API_PREFIX}/security-assessments`, securityAssessmentRoutes);
 
 console.log(' All routes mounted');
 

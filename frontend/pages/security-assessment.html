@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Security Assessment</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+<ul class="sidebar-nav">
+
+  <!-- Overview (standalone, no group) -->
+  <li class="sidebar-item">
+    <a href="/pages/dashboard.html" class="sidebar-link">
+      <i class="fa-solid fa-chart-line"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+  </li>
+
+  <!-- Identity & Access -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-id-badge"></i>
+      <span class="nav-text">Identity &amp; Access</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/organizations.html" class="sidebar-link">
+          <i class="fa-solid fa-building"></i>
+          <span class="nav-text">Organizations</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/users.html" class="sidebar-link">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/roles.html" class="sidebar-link">
+          <i class="fa-solid fa-user-shield"></i>
+          <span class="nav-text">Roles</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assets & Network -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-server"></i>
+      <span class="nav-text">Assets &amp; Network</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/assets.html" class="sidebar-link">
+          <i class="fa-solid fa-server"></i>
+          <span class="nav-text">Assets</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/network-topology.html" class="sidebar-link">
+          <i class="fa-solid fa-network-wired"></i>
+          <span class="nav-text">Network Topology</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/log-sources.html" class="sidebar-link">
+          <i class="fa-solid fa-plug"></i>
+          <span class="nav-text">Log Sources</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Detection -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span class="nav-text">Detection</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/logs.html" class="sidebar-link">
+          <i class="fa-solid fa-file-waveform"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/threat-rules.html" class="sidebar-link">
+          <i class="fa-solid fa-bug"></i>
+          <span class="nav-text">Threat Rules</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/alerts.html" class="sidebar-link">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="nav-text">Alerts</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/incidents.html" class="sidebar-link">
+          <i class="fa-solid fa-ticket"></i>
+          <span class="nav-text">Incidents</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/iocs.html" class="sidebar-link">
+          <i class="fa-solid fa-database"></i>
+          <span class="nav-text">IOCs</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assurance -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-file-shield"></i>
+      <span class="nav-text">Assurance</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/security-testing.html" class="sidebar-link">
+          <i class="fa-solid fa-vial"></i>
+          <span class="nav-text">Security Testing</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/security-assessment.html" class="sidebar-link">
+          <i class="fa-solid fa-file-shield"></i>
+          <span class="nav-text">Security Assessment</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/reports.html" class="sidebar-link">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Admin -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-gear"></i>
+      <span class="nav-text">Admin</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/audit-logs.html" class="sidebar-link">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/settings.html" class="sidebar-link">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme"><i class="fa-regular fa-moon"></i></button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span></button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <a href="/pages/settings.html" class="profile-dropdown-item"><i class="fa-solid fa-sliders"></i> System Settings</a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-file-shield text-info"></i> Security Assessment</h1>
+          <div class="page-header-actions" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="btn-refresh"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            <button class="btn btn-primary btn-sm" id="btn-create-assessment"><i class="fa-solid fa-plus"></i> Create Assessment</button>
+          </div>
+        </div>
+
+        <div id="dashboard-loader" class="loader-overlay" style="display: none;">
+          <div class="text-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-info" style="font-size: 2rem;"></i>
+            <p class="mt-2 text-muted">Loading assessments...</p>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="stat-card-group mb-4" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Overall Risk (Latest)</div>
+            <div class="h2 m-0 mt-1" id="stat-risk">-</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Threats Assessed</div>
+            <div class="h2 text-warning m-0 mt-1" id="stat-threats">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Incidents Assessed</div>
+            <div class="h2 text-danger m-0 mt-1" id="stat-incidents">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Affected Assets</div>
+            <div class="h2 text-info m-0 mt-1" id="stat-assets">0</div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Assessment History</span>
+          </div>
+          <div class="card-body">
+            <table class="enterprise-table w-full">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Risk Level</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="assessments-list">
+                <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Assessment Detail Modal -->
+    <div class="modal-overlay" id="assessment-modal">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3 class="modal-title" id="assessment-modal-title">Assessment Details</h3>
+          <button class="modal-close" id="assessment-modal-close">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto; background: var(--bg-secondary);">
+          <div id="assessment-details-content"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="assessment-modal-cancel">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core Script Integrations -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+
+  <script>
+    let assessmentsData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAssessments();
+      
+      document.getElementById('btn-refresh').addEventListener('click', loadAssessments);
+      document.getElementById('btn-create-assessment').addEventListener('click', () => {
+        Swal.fire('Not Implemented', 'Assessment creation form is available in the admin panel.', 'info');
+      });
+
+      // Modal close handlers
+      document.getElementById('assessment-modal-close').addEventListener('click', () => {
+        document.getElementById('assessment-modal').classList.remove('active');
+      });
+      document.getElementById('assessment-modal-cancel').addEventListener('click', () => {
+        document.getElementById('assessment-modal').classList.remove('active');
+      });
+    });
+
+    function getRiskBadge(risk) {
+      if (risk === 'Critical') return 'badge-danger';
+      if (risk === 'High') return 'badge-warning';
+      if (risk === 'Medium') return 'badge-info';
+      if (risk === 'Low') return 'badge-success';
+      return 'badge-secondary';
+    }
+
+    function getRiskColor(risk) {
+      if (risk === 'Critical') return 'var(--danger)';
+      if (risk === 'High') return 'var(--warning)';
+      if (risk === 'Medium') return 'var(--info)';
+      if (risk === 'Low') return 'var(--success)';
+      return 'var(--text-muted)';
+    }
+
+    async function loadAssessments() {
+      const loader = document.getElementById('dashboard-loader');
+      loader.style.display = 'flex';
+
+      try {
+        const response = await API.get('/security-assessments');
+        if (response.success && response.data) {
+          assessmentsData = response.data.sort((a,b) => new Date(b.date) - new Date(a.date));
+          renderAssessments(assessmentsData);
+          updateMetrics(assessmentsData);
+        } else {
+          assessmentsData = [];
+          renderAssessments([]);
+          updateMetrics([]);
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'Failed to load security assessments', 'error');
+        renderAssessments([]);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    function updateMetrics(data) {
+      if (data.length > 0) {
+        const latest = data[0];
+        const riskEl = document.getElementById('stat-risk');
+        riskEl.textContent = latest.riskLevel;
+        riskEl.style.color = getRiskColor(latest.riskLevel);
+
+        document.getElementById('stat-threats').textContent = latest.threatsDetected?.length || 0;
+        document.getElementById('stat-incidents').textContent = latest.incidents?.length || 0;
+        document.getElementById('stat-assets').textContent = latest.affectedAssets?.length || 0;
+      } else {
+        document.getElementById('stat-risk').textContent = '-';
+        document.getElementById('stat-risk').style.color = 'var(--text-muted)';
+        document.getElementById('stat-threats').textContent = '0';
+        document.getElementById('stat-incidents').textContent = '0';
+        document.getElementById('stat-assets').textContent = '0';
+      }
+    }
+
+    function renderAssessments(data) {
+      const tbody = document.getElementById('assessments-list');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No security assessments found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      data.forEach(assessment => {
+        let statusBadge = assessment.status === 'Final' ? 'bg-success' : 'bg-warning text-dark';
+        
+        tbody.innerHTML += `
+          <tr>
+            <td class="fw-semibold">${Utils.escapeHTML(assessment.title)}</td>
+            <td>${Utils.formatDate(assessment.date)}</td>
+            <td><span class="badge ${getRiskBadge(assessment.riskLevel)}">${Utils.escapeHTML(assessment.riskLevel)}</span></td>
+            <td><span class="badge ${statusBadge}">${Utils.escapeHTML(assessment.status)}</span></td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" onclick="viewAssessment('${assessment._id}')">
+                <i class="fa-solid fa-eye"></i> View
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function viewAssessment(id) {
+      try {
+        const loader = document.getElementById('dashboard-loader');
+        loader.style.display = 'flex';
+        
+        const response = await API.get(`/security-assessments/${id}`);
+        loader.style.display = 'none';
+
+        if (response.success && response.data) {
+          renderAssessmentModal(response.data);
+        } else {
+          Swal.fire('Error', 'Failed to load assessment details', 'error');
+        }
+      } catch (err) {
+        document.getElementById('dashboard-loader').style.display = 'none';
+        console.error(err);
+        Swal.fire('Error', 'Failed to load assessment details', 'error');
+      }
+    }
+
+    function renderAssessmentModal(assessment) {
+      document.getElementById('assessment-modal-title').textContent = assessment.title;
+      
+      let html = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">`;
+      
+      // Overview Card
+      html += `<div class="card">
+                <div class="card-header"><span class="card-title">Risk Overview</span></div>
+                <div class="card-body p-3">
+                  <div style="font-size: 2rem; font-weight: bold; color: ${getRiskColor(assessment.riskLevel)}; mb-2">${assessment.riskLevel}</div>
+                  <div>Status: <strong>${assessment.status}</strong></div>
+                  <div>Date: <strong>${Utils.formatDate(assessment.date)}</strong></div>
+                </div>
+               </div>`;
+               
+      // Stats Card
+      html += `<div class="card">
+                <div class="card-header"><span class="card-title">Linked Entities</span></div>
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Alerts:</span> <span class="badge badge-secondary">${assessment.threatsDetected?.length || 0}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Incidents:</span> <span class="badge badge-secondary">${assessment.incidents?.length || 0}</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span>Affected Assets:</span> <span class="badge badge-secondary">${assessment.affectedAssets?.length || 0}</span>
+                  </div>
+                </div>
+               </div>`;
+      html += `</div>`;
+
+      // Weaknesses
+      if (assessment.securityWeaknesses && assessment.securityWeaknesses.length > 0) {
+        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-danger"><i class="fa-solid fa-bug"></i> Security Weaknesses</span></div><div class="card-body p-0">`;
+        html += `<ul class="list-group list-group-flush m-0">`;
+        assessment.securityWeaknesses.forEach(w => {
+          html += `<li class="list-group-item" style="border-bottom: 1px solid var(--border-color); padding: 1rem;">${Utils.escapeHTML(w)}</li>`;
+        });
+        html += `</ul></div></div>`;
+      }
+
+      // Recommended Controls
+      if (assessment.recommendedControls && assessment.recommendedControls.length > 0) {
+        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-info"><i class="fa-solid fa-shield"></i> Recommended Controls</span></div><div class="card-body p-0">
+                  <table class="enterprise-table w-full m-0">
+                    <thead><tr><th>Control</th><th>Priority</th><th>Description</th></tr></thead>
+                    <tbody>`;
+        assessment.recommendedControls.forEach(c => {
+          let badge = 'badge-secondary';
+          if (c.priority === 'High') badge = 'badge-danger';
+          if (c.priority === 'Medium') badge = 'badge-warning';
+          
+          html += `<tr>
+            <td class="fw-semibold">${Utils.escapeHTML(c.name)}</td>
+            <td><span class="badge ${badge}">${Utils.escapeHTML(c.priority)}</span></td>
+            <td><span class="text-muted" style="font-size: 0.9rem;">${Utils.escapeHTML(c.description)}</span></td>
+          </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+      }
+
+      // Mitigations
+      if (assessment.mitigations && assessment.mitigations.length > 0) {
+        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-success"><i class="fa-solid fa-check-double"></i> Mitigations</span></div><div class="card-body p-0">
+                  <table class="enterprise-table w-full m-0">
+                    <thead><tr><th>Mitigation</th><th>Priority</th><th>Description</th></tr></thead>
+                    <tbody>`;
+        assessment.mitigations.forEach(c => {
+          let badge = 'badge-secondary';
+          if (c.priority === 'High') badge = 'badge-danger';
+          
+          html += `<tr>
+            <td class="fw-semibold">${Utils.escapeHTML(c.name)}</td>
+            <td><span class="badge ${badge}">${Utils.escapeHTML(c.priority || 'Normal')}</span></td>
+            <td><span class="text-muted" style="font-size: 0.9rem;">${Utils.escapeHTML(c.description)}</span></td>
+          </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+      }
+      
+      // Threats Detected Links
+      if (assessment.threatsDetected && assessment.threatsDetected.length > 0) {
+        html += `<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-bell"></i> Associated Alerts</span></div><div class="card-body p-3">`;
+        html += `<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">`;
+        assessment.threatsDetected.forEach(alert => {
+           html += `<a href="/pages/alerts.html?id=${alert._id}" class="btn btn-sm btn-outline-secondary" target="_blank">${Utils.escapeHTML(alert.title || alert._id)} <i class="fa-solid fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`;
+        });
+        html += `</div></div></div>`;
+      }
+
+      document.getElementById('assessment-details-content').innerHTML = html;
+      document.getElementById('assessment-modal').classList.add('active');
+    }
+  </script>
+</body>
+</html>

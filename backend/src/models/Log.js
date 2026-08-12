@@ -118,6 +118,16 @@ const logSchema = new mongoose.Schema({
   metadata: {
     type: Map,
     of: mongoose.Schema.Types.Mixed
+  },
+  isTestEvent: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  securityTestId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SecurityTest',
+    index: true
   }
 }, {
   timestamps: true,

@@ -156,6 +156,16 @@ const incidentSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
+  networkEvidence: [{
+    sourceIp: { type: String, trim: true },
+    destinationIp: { type: String, trim: true },
+    sourcePort: { type: Number },
+    destinationPort: { type: Number },
+    protocol: { type: String, trim: true },
+    sensor: { type: mongoose.Schema.Types.ObjectId, ref: 'SecuritySensor' },
+    detectionSignature: { type: String, trim: true },
+    rawEvent: { type: mongoose.Schema.Types.Mixed }
+  }],
   resolution: {
     status: {
       type: String,

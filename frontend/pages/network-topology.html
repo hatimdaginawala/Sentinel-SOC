@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Network Topology</title>
+  
+  <!-- Favicon to prevent 404 errors -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+  
+  <style>
+    .zone-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+      font-weight: var(--font-weight-medium);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    .node-detail-label {
+      color: var(--text-secondary);
+      font-size: var(--font-xs);
+      font-weight: var(--font-weight-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .node-detail-value {
+      color: var(--text-primary);
+      font-size: var(--font-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+    #network-container {
+      width: 100%;
+      height: 550px;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      position: relative;
+      overflow: hidden;
+    }
+    #network-container .vis-network {
+      border-radius: var(--radius-md);
+      width: 100%;
+      height: 100%;
+    }
+    .network-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 550px;
+      color: var(--text-secondary);
+    }
+    .network-loading .spinner {
+      font-size: 3rem;
+      color: var(--color-primary);
+      margin-bottom: 1rem;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .empty-state-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 550px;
+      padding: var(--spacing-xl);
+      text-align: center;
+    }
+    .empty-state-container .empty-icon {
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: var(--spacing-md);
+    }
+    .empty-state-container h3 {
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-sm);
+    }
+    .empty-state-container p {
+      color: var(--text-muted);
+      max-width: 400px;
+      margin-bottom: var(--spacing-md);
+    }
+    .legend-color {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .legend-color.square {
+      border-radius: 3px;
+    }
+    .legend-color.star {
+      border-radius: 2px;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      padding: 3px 0;
+    }
+    .zone-list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .zone-list-item:last-child {
+      border-bottom: none;
+    }
+    .zone-list-item .zone-name {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-primary);
+    }
+    .zone-list-item .zone-count {
+      color: var(--text-secondary);
+      font-size: var(--font-sm);
+    }
+    #network-container .vis-network:focus {
+      outline: none;
+    }
+    .vis-tooltip {
+      background: var(--bg-secondary) !important;
+      border: 1px solid var(--border-color) !important;
+      color: var(--text-primary) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: var(--spacing-sm) var(--spacing-md) !important;
+      font-size: var(--font-xs) !important;
+      box-shadow: var(--shadow-md) !important;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+<ul class="sidebar-nav">
+
+  <!-- Overview (standalone, no group) -->
+  <li class="sidebar-item">
+    <a href="/pages/dashboard.html" class="sidebar-link">
+      <i class="fa-solid fa-chart-line"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+  </li>
+
+  <!-- Identity & Access -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-id-badge"></i>
+      <span class="nav-text">Identity &amp; Access</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/organizations.html" class="sidebar-link">
+          <i class="fa-solid fa-building"></i>
+          <span class="nav-text">Organizations</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/users.html" class="sidebar-link">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/roles.html" class="sidebar-link">
+          <i class="fa-solid fa-user-shield"></i>
+          <span class="nav-text">Roles</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assets & Network -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-server"></i>
+      <span class="nav-text">Assets &amp; Network</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/assets.html" class="sidebar-link">
+          <i class="fa-solid fa-server"></i>
+          <span class="nav-text">Assets</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/network-topology.html" class="sidebar-link">
+          <i class="fa-solid fa-network-wired"></i>
+          <span class="nav-text">Network Topology</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/log-sources.html" class="sidebar-link">
+          <i class="fa-solid fa-plug"></i>
+          <span class="nav-text">Log Sources</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Detection -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span class="nav-text">Detection</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/logs.html" class="sidebar-link">
+          <i class="fa-solid fa-file-waveform"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/threat-rules.html" class="sidebar-link">
+          <i class="fa-solid fa-bug"></i>
+          <span class="nav-text">Threat Rules</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/alerts.html" class="sidebar-link">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="nav-text">Alerts</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/incidents.html" class="sidebar-link">
+          <i class="fa-solid fa-ticket"></i>
+          <span class="nav-text">Incidents</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/iocs.html" class="sidebar-link">
+          <i class="fa-solid fa-database"></i>
+          <span class="nav-text">IOCs</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assurance -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-file-shield"></i>
+      <span class="nav-text">Assurance</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/security-testing.html" class="sidebar-link">
+          <i class="fa-solid fa-vial"></i>
+          <span class="nav-text">Security Testing</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/security-assessment.html" class="sidebar-link">
+          <i class="fa-solid fa-file-shield"></i>
+          <span class="nav-text">Security Assessment</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/reports.html" class="sidebar-link">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Admin -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-gear"></i>
+      <span class="nav-text">Admin</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/audit-logs.html" class="sidebar-link">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/settings.html" class="sidebar-link">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme"><i class="fa-regular fa-moon"></i></button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span></button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <a href="/pages/settings.html" class="profile-dropdown-item"><i class="fa-solid fa-sliders"></i> System Settings</a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-network-wired text-info"></i> Network Topology</h1>
+          <div class="page-header-actions" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="btn-refresh"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            <button class="btn btn-primary btn-sm" id="btn-add-topology"><i class="fa-solid fa-plus"></i> Add Topology</button>
+          </div>
+        </div>
+
+        <div id="dashboard-loader" class="loader-overlay" style="display: none;">
+          <div class="text-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-info" style="font-size: 2rem;"></i>
+            <p class="mt-2 text-muted">Loading network architecture...</p>
+          </div>
+        </div>
+
+        <!-- Network KPIs -->
+        <div class="stat-card-group mb-3" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Total Nodes</div>
+            <div class="h2 text-primary m-0 mt-1" id="stat-nodes">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Total Connections</div>
+            <div class="h2 text-info m-0 mt-1" id="stat-edges">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Active Sensors</div>
+            <div class="h2 text-success m-0 mt-1" id="stat-sensors">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Connected Assets</div>
+            <div class="h2 text-warning m-0 mt-1" id="stat-assets">0</div>
+          </div>
+        </div>
+
+        <!-- Main Visualization & Legend -->
+        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Network Architecture -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-project-diagram"></i> Network Architecture</span>
+            </div>
+            <div class="card-body p-0" style="position: relative;">
+              <div id="network-container">
+                <div class="network-loading" id="network-loading">
+                  <i class="fa-solid fa-circle-notch spinner"></i>
+                  <p>Loading visualization library...</p>
+                </div>
+              </div>
+              <div id="empty-state" class="empty-state-container" style="display: none;">
+                <i class="fa-solid fa-network-wired empty-icon"></i>
+                <h3>No Network Topology Configured</h3>
+                <p>Define your organization's network architecture by creating a topology with nodes (devices, servers, sensors) and connections.</p>
+                <button class="btn btn-primary" id="btn-create-from-empty"><i class="fa-solid fa-plus"></i> Create Topology</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-list-ul"></i> Legend</span>
+              </div>
+              <div class="card-body">
+                <div class="legend-item"><span class="legend-color" style="background: #dc3545;"></span> Internet / External</div>
+                <div class="legend-item"><span class="legend-color" style="background: #fd7e14;"></span> Firewall</div>
+                <div class="legend-item"><span class="legend-color square" style="background: #6f42c1;"></span> Router</div>
+                <div class="legend-item"><span class="legend-color square" style="background: #0d6efd;"></span> Server</div>
+                <div class="legend-item"><span class="legend-color" style="background: #198754;"></span> Workstation</div>
+                <div class="legend-item"><span class="legend-color star" style="background: #0dcaf0;"></span> Security Sensor</div>
+                <div class="legend-item"><span class="legend-color square" style="background: #2F855A;"></span> SentinelSOC / Core</div>
+                <div class="legend-item"><span class="legend-color square" style="background: #6c757d;"></span> Switch / Other</div>
+              </div>
+            </div>
+
+            <div class="card" style="flex: 1;">
+              <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-layer-group"></i> Network Zones</span>
+              </div>
+              <div class="card-body p-0" id="zones-container">
+                <div class="zone-list-item">
+                  <span class="text-muted font-sm">No zones defined</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Sensors Table -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fa-solid fa-satellite-dish"></i> Security Sensors</span>
+          </div>
+          <div class="card-body p-0">
+            <table class="enterprise-table w-full">
+              <thead>
+                <tr>
+                  <th>Sensor Name</th>
+                  <th>Type</th>
+                  <th>Network Zone</th>
+                  <th>Associated Asset</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="sensors-list">
+                <tr><td colspan="5" class="text-center text-muted">Loading sensors...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- CREATE TOPOLOGY MODAL -->
+    <div class="modal-overlay" id="topology-modal">
+      <div class="modal-content" style="max-width: 750px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Create Network Topology</h3>
+          <button class="modal-close" id="topology-modal-close">&times;</button>
+        </div>
+        <form id="topology-form">
+          <div class="modal-body">
+            <p class="text-muted mb-3">Define the network architecture for your organization. Add nodes (devices, servers, sensors) and connections between them.</p>
+            
+            <div class="form-group">
+              <label class="form-label">Organization <span class="text-danger">*</span></label>
+              <select name="organization" id="topology-org-select" class="form-control" required>
+                <option value="">-- Select Organization --</option>
+              </select>
+              <span class="form-error">Please select an organization</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Topology Name</label>
+              <input type="text" name="name" class="form-control" placeholder="Production Network Topology">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="2" placeholder="Describe your network architecture..."></textarea>
+            </div>
+
+            <!-- Asset selection for nodes -->
+            <div class="form-group">
+              <label class="form-label">Link Existing Assets <span class="text-muted font-xs">(optional)</span></label>
+              <p class="text-muted font-xs mb-2">Select assets to include in the topology. You can also add nodes without linking to assets.</p>
+              <select id="topology-asset-select" class="form-control" multiple style="height: 100px;">
+                <!-- Populated from API -->
+              </select>
+              <small class="text-muted">Hold Ctrl/Cmd to select multiple assets</small>
+            </div>
+
+            <div class="alert alert-info" style="padding: var(--spacing-md); background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-sm);">
+              <i class="fa-solid fa-lightbulb text-info"></i>
+              <span class="font-sm">A default topology will be created with Internet, Firewall, Router, and placeholder nodes. You can edit it later.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="topology-modal-cancel">Cancel</button>
+            <button type="button" class="btn btn-outline-primary" id="topology-demo-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Load Demo</button>
+            <button type="submit" class="btn btn-primary" id="topology-submit-btn">Create Topology</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- NODE DETAIL MODAL -->
+    <div class="modal-overlay" id="node-modal">
+      <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+          <h3 class="modal-title" id="node-modal-title">Node Details</h3>
+          <button class="modal-close" id="node-modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="node-details-content">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="node-modal-cancel">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core Script Integrations -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Load vis-network with CDN fallback -->
+  <script>
+    // Global vis loading handler
+    window.__visLoaded = false;
+    window.__visCallbacks = [];
+
+    function __onVisLoaded() {
+      window.__visLoaded = true;
+      console.log('vis-network loaded successfully!');
+      window.__visCallbacks.forEach(function(cb) { cb(); });
+      window.__visCallbacks = [];
+    }
+
+    function __onVisError() {
+      console.warn('vis-network failed to load from primary CDN, trying fallback...');
+      var fallbackScript = document.createElement('script');
+      fallbackScript.src = 'https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.js';
+      fallbackScript.onload = __onVisLoaded;
+      fallbackScript.onerror = function() {
+        console.error('vis-network failed to load from fallback CDN');
+        var loadingEl = document.getElementById('network-loading');
+        if (loadingEl) {
+          loadingEl.innerHTML = `
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--color-danger);"></i>
+            <p style="color: var(--color-danger);">Failed to load visualization library</p>
+            <button class="btn btn-primary btn-sm mt-2" onclick="location.reload()">
+              <i class="fa-solid fa-rotate"></i> Retry
+            </button>
+          `;
+        }
+      };
+      document.head.appendChild(fallbackScript);
+    }
+
+    function whenVisReady(callback) {
+      if (window.__visLoaded || typeof vis !== 'undefined') {
+        callback();
+      } else {
+        window.__visCallbacks.push(callback);
+      }
+    }
+  </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js" 
+          onload="__onVisLoaded()" 
+          onerror="__onVisError()">
+  </script>
+  
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+
+  <script>
+    // Main application - runs when vis is ready
+    whenVisReady(function() {
+      var loadingEl = document.getElementById('network-loading');
+      if (loadingEl) {
+        loadingEl.style.display = 'none';
+      }
+      initApp();
+    });
+
+    // Variables
+    var network = null;
+    var topologyData = null;
+    var availableAssets = [];
+
+    function initApp() {
+      loadOrganizationsForSelect();
+      loadAssetsForSelect();
+      loadTopology();
+      loadSensors();
+      
+      // Event Listeners
+      document.getElementById('btn-refresh').addEventListener('click', function() {
+        loadTopology();
+        loadSensors();
+      });
+      
+      document.getElementById('btn-add-topology').addEventListener('click', function() {
+        document.getElementById('topology-modal').classList.add('active');
+      });
+
+      document.getElementById('btn-create-from-empty').addEventListener('click', function() {
+        document.getElementById('topology-modal').classList.add('active');
+      });
+
+      // Modal close handlers
+      document.getElementById('topology-modal-close').addEventListener('click', function() {
+        document.getElementById('topology-modal').classList.remove('active');
+      });
+      document.getElementById('topology-modal-cancel').addEventListener('click', function() {
+        document.getElementById('topology-modal').classList.remove('active');
+      });
+
+      document.getElementById('node-modal-close').addEventListener('click', function() {
+        document.getElementById('node-modal').classList.remove('active');
+      });
+      document.getElementById('node-modal-cancel').addEventListener('click', function() {
+        document.getElementById('node-modal').classList.remove('active');
+      });
+
+      // Demo button
+      document.getElementById('topology-demo-btn').addEventListener('click', loadDemoTopology);
+
+      // Form submission
+      document.getElementById('topology-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await createTopology();
+      });
+    }
+
+    async function loadOrganizationsForSelect() {
+      var select = document.getElementById('topology-org-select');
+      try {
+        var response = await API.get('/organizations');
+        if (response.success && response.data) {
+          var orgs = response.data.items || response.data;
+          select.innerHTML = '<option value="">-- Select Organization --</option>';
+          var currentOrgId = localStorage.getItem('currentOrgId');
+          orgs.forEach(function(org) {
+            var selected = org._id === currentOrgId ? 'selected' : '';
+            select.innerHTML += '<option value="' + Utils.escapeHTML(org._id) + '" ' + selected + '>' + Utils.escapeHTML(org.name) + '</option>';
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load organizations:', err);
+      }
+    }
+
+    async function loadAssetsForSelect() {
+      var select = document.getElementById('topology-asset-select');
+      try {
+        var response = await API.get('/assets');
+        if (response.success && response.data) {
+          var assets = response.data.items || response.data;
+          availableAssets = assets;
+          select.innerHTML = '';
+          assets.forEach(function(asset) {
+            select.innerHTML += '<option value="' + Utils.escapeHTML(asset._id) + '">' + Utils.escapeHTML(asset.name) + ' (' + Utils.escapeHTML(asset.ipAddress || 'No IP') + ')</option>';
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load assets:', err);
+      }
+    }
+
+    async function loadTopology() {
+      var loader = document.getElementById('dashboard-loader');
+      loader.style.display = 'flex';
+
+      try {
+        var response = await API.get('/network-topology');
+        
+        if (response.success && response.data && response.data.nodes && response.data.nodes.length > 0) {
+          topologyData = response.data;
+          renderNetwork(topologyData.nodes, topologyData.edges);
+          updateMetrics(topologyData.nodes, topologyData.edges);
+          renderZones(topologyData.nodes);
+          document.getElementById('empty-state').style.display = 'none';
+          document.getElementById('network-container').style.display = 'block';
+        } else {
+          showEmptyState();
+        }
+      } catch (err) {
+        console.error(err);
+        if (err.status === 404) {
+          showEmptyState();
+        } else {
+          Swal.fire('Error', 'Failed to load network topology: ' + (err.message || 'Unknown error'), 'error');
+          showEmptyState();
+        }
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    function showEmptyState() {
+      document.getElementById('empty-state').style.display = 'flex';
+      document.getElementById('network-container').style.display = 'block';
+      
+      document.getElementById('stat-nodes').textContent = '0';
+      document.getElementById('stat-edges').textContent = '0';
+      document.getElementById('stat-sensors').textContent = '0';
+      document.getElementById('stat-assets').textContent = '0';
+      
+      document.getElementById('zones-container').innerHTML = `
+        <div class="zone-list-item">
+          <span class="text-muted font-sm">No zones defined</span>
+        </div>
+      `;
+    }
+
+    function updateMetrics(nodes, edges) {
+      document.getElementById('stat-nodes').textContent = nodes.length;
+      document.getElementById('stat-edges').textContent = edges.length;
+      
+      var sensors = 0;
+      var assets = 0;
+      nodes.forEach(function(n) {
+        if (n.group === 'sensor' || n.type === 'sensor' || (n.securitySensor != null)) sensors++;
+        if (n.asset != null) assets++;
+      });
+      
+      document.getElementById('stat-sensors').textContent = sensors;
+      document.getElementById('stat-assets').textContent = assets;
+    }
+
+    function renderZones(nodes) {
+      var zones = {};
+      nodes.forEach(function(n) {
+        var zone = n.zone || n.networkZone || 'Unassigned';
+        zones[zone] = (zones[zone] || 0) + 1;
+      });
+
+      var container = document.getElementById('zones-container');
+      
+      if (Object.keys(zones).length === 0) {
+        container.innerHTML = `
+          <div class="zone-list-item">
+            <span class="text-muted font-sm">No zones defined</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      var sortedZones = Object.keys(zones).sort(function(a, b) { return zones[b] - zones[a]; });
+      sortedZones.forEach(function(zone) {
+        container.innerHTML += `
+          <div class="zone-list-item">
+            <span class="zone-name">${Utils.escapeHTML(zone)}</span>
+            <span class="zone-count">${zones[zone]} node${zones[zone] > 1 ? 's' : ''}</span>
+          </div>
+        `;
+      });
+    }
+
+    async function loadSensors() {
+      try {
+        var response = await API.get('/security-sensors');
+        var tbody = document.getElementById('sensors-list');
+        
+        if (!response.success || !response.data || response.data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No security sensors found</td></tr>';
+          return;
+        }
+
+        var sensors = response.data.items || response.data;
+        tbody.innerHTML = '';
+        sensors.forEach(function(sensor) {
+          var statusBadge = 'badge-secondary';
+          if (sensor.status === 'Active' || sensor.status === 'active') statusBadge = 'badge-success';
+          else if (sensor.status === 'Error' || sensor.status === 'error') statusBadge = 'badge-danger';
+          else if (sensor.status === 'Inactive' || sensor.status === 'inactive') statusBadge = 'badge-warning';
+
+          var assetName = sensor.asset && typeof sensor.asset === 'object' ? sensor.asset.name : (sensor.asset || 'None');
+
+          tbody.innerHTML += `
+            <tr>
+              <td class="fw-semibold">${Utils.escapeHTML(sensor.name)}</td>
+              <td>${Utils.escapeHTML(sensor.type)}</td>
+              <td>${Utils.escapeHTML(sensor.networkZone || 'Unknown')}</td>
+              <td>${Utils.escapeHTML(assetName)}</td>
+              <td><span class="badge ${statusBadge}">${Utils.escapeHTML(sensor.status || 'Unknown')}</span></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error('Failed to load sensors:', err);
+        document.getElementById('sensors-list').innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load sensors</td></tr>';
+      }
+    }
+
+    function renderNetwork(apiNodes, apiEdges) {
+      var container = document.getElementById('network-container');
+      
+      // Clear previous network
+      if (network) {
+        network.destroy();
+        network = null;
+      }
+
+      // Check if vis is available
+      if (typeof vis === 'undefined') {
+        container.innerHTML = `
+          <div class="empty-state-container">
+            <i class="fa-solid fa-circle-exclamation text-warning" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h3>Visualization Unavailable</h3>
+            <p class="text-muted">The visualization library is still loading. Please refresh the page.</p>
+            <button class="btn btn-primary btn-sm mt-2" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Retry</button>
+          </div>
+        `;
+        return;
+      }
+
+      var nodeGroups = {
+        internet: { color: { background: '#dc3545', border: '#a71d2a' }, shape: 'hexagon' },
+        firewall: { color: { background: '#fd7e14', border: '#c35d0b' }, shape: 'square' },
+        router: { color: { background: '#6f42c1', border: '#59339d' }, shape: 'triangle' },
+        server: { color: { background: '#0d6efd', border: '#0a58ca' }, shape: 'square' },
+        workstation: { color: { background: '#198754', border: '#146c43' }, shape: 'dot' },
+        sensor: { color: { background: '#0dcaf0', border: '#0aa2c0' }, shape: 'star' },
+        other: { color: { background: '#6c757d', border: '#5a6268' }, shape: 'square' }
+      };
+
+      var nodes = new vis.DataSet(apiNodes.map(function(n) {
+        return {
+          id: n.id || n._id,
+          label: n.label || n.name || 'Node',
+          group: n.group || 'other',
+          title: n.label || n.name || 'Node',
+          ...n
+        };
+      }));
+
+      var edges = new vis.DataSet(apiEdges.map(function(e) {
+        return {
+          from: e.from,
+          to: e.to,
+          arrows: e.directional ? 'to' : undefined,
+          label: e.label || '',
+          dashes: e.dashes || false
+        };
+      }));
+
+      var data = { nodes: nodes, edges: edges };
+      
+      var options = {
+        nodes: {
+          shape: 'dot',
+          size: 25,
+          font: { size: 14, color: '#ffffff', face: 'Inter, sans-serif' },
+          borderWidth: 2,
+          shadow: true
+        },
+        edges: {
+          width: 2,
+          color: '#666666',
+          smooth: { type: 'continuous' }
+        },
+        groups: nodeGroups,
+        physics: {
+          forceAtlas2Based: {
+            gravitationalConstant: -26,
+            centralGravity: 0.005,
+            springLength: 230,
+            springConstant: 0.18
+          },
+          maxVelocity: 146,
+          solver: 'forceAtlas2Based',
+          timestep: 0.35,
+          stabilization: { iterations: 150 }
+        },
+        interaction: {
+          hover: true,
+          tooltipDelay: 200
+        }
+      };
+
+      try {
+        network = new vis.Network(container, data, options);
+
+        // Handle node click for details
+        network.on('click', function(params) {
+          if (params.nodes.length > 0) {
+            var nodeId = params.nodes[0];
+            var node = nodes.get(nodeId);
+            if (node) {
+              showNodeDetails(node);
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Failed to render network:', err);
+        container.innerHTML = `
+          <div class="empty-state-container">
+            <i class="fa-solid fa-circle-exclamation text-danger" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h3>Failed to Render Network</h3>
+            <p class="text-muted">${Utils.escapeHTML(err.message || 'Unknown error')}</p>
+            <button class="btn btn-primary btn-sm mt-2" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    function showNodeDetails(node) {
+      document.getElementById('node-modal-title').textContent = node.label || 'Node Details';
+      
+      var html = '<table class="enterprise-table w-full mb-0"><tbody>';
+      
+      html += '<tr><td class="node-detail-label">Type / Group</td><td class="node-detail-value"><span class="badge badge-secondary">' + Utils.escapeHTML(node.group || 'Unknown') + '</span></td></tr>';
+
+      if (node.zone || node.networkZone) {
+        html += '<tr><td class="node-detail-label">Network Zone</td><td class="node-detail-value"><span class="zone-badge">' + Utils.escapeHTML(node.zone || node.networkZone) + '</span></td></tr>';
+      }
+
+      if (node.asset) {
+        var asset = typeof node.asset === 'object' ? node.asset : { name: node.asset };
+        html += '<tr><td class="node-detail-label">Asset</td><td class="node-detail-value"><a href="/pages/assets.html">' + Utils.escapeHTML(asset.name || 'N/A') + '</a></td></tr>';
+        if (asset.ipAddress) {
+          html += '<tr><td class="node-detail-label">IP Address</td><td class="node-detail-value">' + Utils.escapeHTML(asset.ipAddress) + '</td></tr>';
+        }
+        if (asset.type) {
+          html += '<tr><td class="node-detail-label">Asset Type</td><td class="node-detail-value">' + Utils.escapeHTML(asset.type) + '</td></tr>';
+        }
+      }
+      
+      if (node.securitySensor) {
+        var sensor = typeof node.securitySensor === 'object' ? node.securitySensor : { name: node.securitySensor };
+        html += '<tr><td class="node-detail-label">Security Sensor</td><td class="node-detail-value">' + Utils.escapeHTML(sensor.name || 'N/A') + '</td></tr>';
+        if (sensor.type) {
+          html += '<tr><td class="node-detail-label">Sensor Type</td><td class="node-detail-value">' + Utils.escapeHTML(sensor.type) + '</td></tr>';
+        }
+        if (sensor.status) {
+          var statusBadge = 'badge-secondary';
+          if (sensor.status === 'Active') statusBadge = 'badge-success';
+          else if (sensor.status === 'Error') statusBadge = 'badge-danger';
+          else if (sensor.status === 'Inactive') statusBadge = 'badge-warning';
+          html += '<tr><td class="node-detail-label">Sensor Status</td><td class="node-detail-value"><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(sensor.status) + '</span></td></tr>';
+        }
+      }
+
+      if (node.ip || node.ipAddress) {
+        html += '<tr><td class="node-detail-label">IP Address</td><td class="node-detail-value">' + Utils.escapeHTML(node.ip || node.ipAddress) + '</td></tr>';
+      }
+
+      html += '</tbody></table>';
+      
+      document.getElementById('node-details-content').innerHTML = html;
+      document.getElementById('node-modal').classList.add('active');
+    }
+
+    async function createTopology() {
+      var submitBtn = document.getElementById('topology-submit-btn');
+      var originalText = submitBtn.innerHTML;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+
+        var form = document.getElementById('topology-form');
+        var formData = new FormData(form);
+        
+        var orgId = formData.get('organization');
+        var name = formData.get('name') || 'Default Network Topology';
+        var description = formData.get('description') || 'Automatically generated network topology';
+
+        if (!orgId) {
+          Swal.fire('Error', 'Please select an organization', 'warning');
+          return;
+        }
+
+        // Get selected assets
+        var assetSelect = document.getElementById('topology-asset-select');
+        var selectedAssets = [];
+        for (var i = 0; i < assetSelect.options.length; i++) {
+          if (assetSelect.options[i].selected) {
+            selectedAssets.push(assetSelect.options[i].value);
+          }
+        }
+
+        // Create nodes
+        var nodes = [
+          { id: 'internet', label: 'Internet', group: 'internet', zone: 'External' },
+          { id: 'firewall', label: 'Firewall', group: 'firewall', zone: 'Perimeter' },
+          { id: 'dmz-router', label: 'DMZ Router', group: 'router', zone: 'DMZ' },
+          { id: 'core-router', label: 'Core Router', group: 'router', zone: 'Internal LAN' }
+        ];
+
+        // Add selected assets
+        selectedAssets.forEach(function(assetId) {
+          var asset = availableAssets.find(function(a) { return a._id === assetId; });
+          if (asset) {
+            var group = 'server';
+            if (asset.type === 'workstation') group = 'workstation';
+            else if (asset.type === 'firewall') group = 'firewall';
+            else if (asset.type === 'router') group = 'router';
+            else if (asset.type === 'sensor' || asset.type === 'security_appliance') group = 'sensor';
+            
+            nodes.push({
+              id: 'asset-' + assetId,
+              label: asset.name,
+              group: group,
+              zone: 'Internal LAN',
+              asset: assetId,
+              ipAddress: asset.ipAddress || ''
+            });
+          }
+        });
+
+        // Add default nodes if no assets selected
+        if (selectedAssets.length === 0) {
+          nodes.push(
+            { id: 'web-server', label: 'Web Server', group: 'server', zone: 'DMZ' },
+            { id: 'db-server', label: 'Database Server', group: 'server', zone: 'Internal LAN' },
+            { id: 'workstation', label: 'Workstation', group: 'workstation', zone: 'Internal LAN' },
+            { id: 'sensor', label: 'Security Sensor', group: 'sensor', zone: 'DMZ' }
+          );
+        }
+
+        // Create edges
+        var edges = [
+          { from: 'internet', to: 'firewall' },
+          { from: 'firewall', to: 'dmz-router' },
+          { from: 'firewall', to: 'core-router' }
+        ];
+
+        // Connect assets to routers
+        nodes.forEach(function(node) {
+          if (node.id.startsWith('asset-') || node.id === 'web-server' || node.id === 'db-server' || node.id === 'workstation' || node.id === 'sensor') {
+            var isDMZ = node.zone === 'DMZ' || node.id === 'web-server' || node.id === 'sensor';
+            edges.push({
+              from: isDMZ ? 'dmz-router' : 'core-router',
+              to: node.id
+            });
+          }
+        });
+
+        var payload = {
+          organization: orgId,
+          name: name,
+          description: description,
+          nodes: nodes,
+          edges: edges
+        };
+
+        var response = await API.post('/network-topology', payload);
+        
+        if (response.success) {
+          Swal.fire('Success', 'Network topology created successfully!', 'success');
+          document.getElementById('topology-modal').classList.remove('active');
+          document.getElementById('topology-form').reset();
+          loadTopology();
+          loadSensors();
+        } else {
+          throw new Error(response.message || 'Failed to create topology');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to create topology', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    }
+
+    async function loadDemoTopology() {
+      var orgSelect = document.getElementById('topology-org-select');
+      if (!orgSelect.value) {
+        Swal.fire('Warning', 'Please select an organization first', 'warning');
+        return;
+      }
+
+      var confirm = await Swal.fire({
+        title: 'Load Demo Topology?',
+        text: 'This will create a demo network architecture with common network components.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Load Demo'
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      try {
+        var submitBtn = document.getElementById('topology-submit-btn');
+        var originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+
+        var assetSelect = document.getElementById('topology-asset-select');
+        var selectedAssets = [];
+        for (var i = 0; i < assetSelect.options.length; i++) {
+          if (assetSelect.options[i].selected) {
+            selectedAssets.push(assetSelect.options[i].value);
+          }
+        }
+
+        var nodes = [
+          { id: 'internet', label: 'Internet', group: 'internet', zone: 'External' },
+          { id: 'firewall', label: 'Edge Firewall', group: 'firewall', zone: 'Perimeter' },
+          { id: 'dmz-router', label: 'DMZ Router', group: 'router', zone: 'DMZ' },
+          { id: 'core-router', label: 'Core Router', group: 'router', zone: 'Internal LAN' },
+          { id: 'web-server', label: 'DMZ Web Server', group: 'server', zone: 'DMZ' },
+          { id: 'db-server', label: 'Database Server', group: 'server', zone: 'Internal LAN' },
+          { id: 'workstation', label: 'Staff Workstation', group: 'workstation', zone: 'Internal LAN' },
+          { id: 'suricata', label: 'Suricata IDS', group: 'sensor', zone: 'DMZ' },
+          { id: 'zeek', label: 'Zeek Monitor', group: 'sensor', zone: 'Internal LAN' }
+        ];
+
+        selectedAssets.forEach(function(assetId) {
+          var asset = availableAssets.find(function(a) { return a._id === assetId; });
+          if (asset) {
+            var group = 'server';
+            if (asset.type === 'workstation') group = 'workstation';
+            else if (asset.type === 'firewall') group = 'firewall';
+            else if (asset.type === 'router') group = 'router';
+            else if (asset.type === 'sensor' || asset.type === 'security_appliance') group = 'sensor';
+            
+            nodes.push({
+              id: 'asset-' + assetId,
+              label: asset.name,
+              group: group,
+              zone: 'Internal LAN',
+              asset: assetId,
+              ipAddress: asset.ipAddress || ''
+            });
+          }
+        });
+
+        var edges = [
+          { from: 'internet', to: 'firewall' },
+          { from: 'firewall', to: 'dmz-router' },
+          { from: 'firewall', to: 'core-router' },
+          { from: 'dmz-router', to: 'web-server' },
+          { from: 'dmz-router', to: 'suricata' },
+          { from: 'core-router', to: 'db-server' },
+          { from: 'core-router', to: 'workstation' },
+          { from: 'core-router', to: 'zeek' }
+        ];
+
+        nodes.forEach(function(node) {
+          if (node.id.startsWith('asset-')) {
+            edges.push({ from: 'core-router', to: node.id });
+          }
+        });
+
+        var response = await API.post('/network-topology', {
+          organization: orgSelect.value,
+          name: 'Demo Network Topology',
+          description: 'Sample network architecture for demonstration purposes',
+          nodes: nodes,
+          edges: edges
+        });
+
+        if (response.success) {
+          Swal.fire('Success', 'Demo topology loaded successfully!', 'success');
+          document.getElementById('topology-modal').classList.remove('active');
+          loadTopology();
+          loadSensors();
+        } else {
+          throw new Error(response.message || 'Failed to load demo');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to load demo topology', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Create Topology';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -53,97 +53,173 @@
   <div class="app-container">
     
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+        <aside class="sidebar">
       <div class="sidebar-brand">
         <i class="fa-solid fa-shield-halved"></i>
         <span class="brand-name">SentinelSOC</span>
       </div>
-      <ul class="sidebar-nav">
-        <li class="sidebar-item">
-          <a href="/pages/dashboard.html" class="sidebar-link">
-            <i class="fa-solid fa-chart-line"></i>
-            <span class="nav-text">Dashboard</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/organizations.html" class="sidebar-link">
-            <i class="fa-solid fa-building"></i>
-            <span class="nav-text">Organizations</span>
-          </a>
-        </li>
-                        <li class="sidebar-item">
-          <a href="/pages/users.html" class="sidebar-link">
-            <i class="fa-solid fa-users"></i>
-            <span class="nav-text">Users</span>
-          </a>
-        </li>
-                <li class="sidebar-item">
-          <a href="/pages/roles.html" class="sidebar-link">
-            <i class="fa-solid fa-user-shield"></i>
-            <span class="nav-text">Roles</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/assets.html" class="sidebar-link">
-            <i class="fa-solid fa-server"></i>
-            <span class="nav-text">Assets</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/log-sources.html" class="sidebar-link">
-            <i class="fa-solid fa-network-wired"></i>
-            <span class="nav-text">Log Sources</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/logs.html" class="sidebar-link">
-            <i class="fa-solid fa-file-waveform"></i>
-            <span class="nav-text">Logs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/threat-rules.html" class="sidebar-link">
-            <i class="fa-solid fa-bug"></i>
-            <span class="nav-text">Threat Rules</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/alerts.html" class="sidebar-link">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span class="nav-text">Alerts</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/incidents.html" class="sidebar-link">
-            <i class="fa-solid fa-ticket"></i>
-            <span class="nav-text">Incidents</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/iocs.html" class="sidebar-link">
-            <i class="fa-solid fa-database"></i>
-            <span class="nav-text">IOCs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/reports.html" class="sidebar-link">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span class="nav-text">Reports</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/audit-logs.html" class="sidebar-link">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span class="nav-text">Audit Logs</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/pages/settings.html" class="sidebar-link">
-            <i class="fa-solid fa-sliders"></i>
-            <span class="nav-text">Settings</span>
-          </a>
-        </li>
-      </ul>
+<ul class="sidebar-nav">
+
+  <!-- Overview (standalone, no group) -->
+  <li class="sidebar-item">
+    <a href="/pages/dashboard.html" class="sidebar-link">
+      <i class="fa-solid fa-chart-line"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+  </li>
+
+  <!-- Identity & Access -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-id-badge"></i>
+      <span class="nav-text">Identity &amp; Access</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/organizations.html" class="sidebar-link">
+          <i class="fa-solid fa-building"></i>
+          <span class="nav-text">Organizations</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/users.html" class="sidebar-link">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/roles.html" class="sidebar-link">
+          <i class="fa-solid fa-user-shield"></i>
+          <span class="nav-text">Roles</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assets & Network -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-server"></i>
+      <span class="nav-text">Assets &amp; Network</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/assets.html" class="sidebar-link">
+          <i class="fa-solid fa-server"></i>
+          <span class="nav-text">Assets</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/network-topology.html" class="sidebar-link">
+          <i class="fa-solid fa-network-wired"></i>
+          <span class="nav-text">Network Topology</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/log-sources.html" class="sidebar-link">
+          <i class="fa-solid fa-plug"></i>
+          <span class="nav-text">Log Sources</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Detection -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span class="nav-text">Detection</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/logs.html" class="sidebar-link">
+          <i class="fa-solid fa-file-waveform"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/threat-rules.html" class="sidebar-link">
+          <i class="fa-solid fa-bug"></i>
+          <span class="nav-text">Threat Rules</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/alerts.html" class="sidebar-link">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="nav-text">Alerts</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/incidents.html" class="sidebar-link">
+          <i class="fa-solid fa-ticket"></i>
+          <span class="nav-text">Incidents</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/iocs.html" class="sidebar-link">
+          <i class="fa-solid fa-database"></i>
+          <span class="nav-text">IOCs</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assurance -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-file-shield"></i>
+      <span class="nav-text">Assurance</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/security-testing.html" class="sidebar-link">
+          <i class="fa-solid fa-vial"></i>
+          <span class="nav-text">Security Testing</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/security-assessment.html" class="sidebar-link">
+          <i class="fa-solid fa-file-shield"></i>
+          <span class="nav-text">Security Assessment</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/reports.html" class="sidebar-link">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Admin -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-gear"></i>
+      <span class="nav-text">Admin</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/audit-logs.html" class="sidebar-link">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/settings.html" class="sidebar-link">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
       <div class="sidebar-toggle-container">
         <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
           <i class="fa-solid fa-angles-left"></i>
@@ -152,8 +228,9 @@
     </aside>
 
     <!-- TOP NAVBAR -->
-    <nav class="navbar">
+        <nav class="navbar">
       <div class="navbar-left">
+        <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
         <div class="navbar-search">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
@@ -345,38 +422,122 @@
           </div>
         </div>
 
-        <h4 class="fw-semibold font-sm mb-2"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Recent Alerts in Scope</h4>
-        <div class="table-container mb-3" style="max-height: 200px;">
-          <table class="enterprise-table">
-            <thead>
-              <tr>
-                <th>Alert Title</th>
-                <th>Category</th>
-                <th>Severity</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody id="view-alerts-list">
-              <tr><td colspan="4" class="text-center text-muted">No alerts found in time scope</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="report-sections" style="display: grid; gap: 1.5rem; margin-top: 2rem;">
+          
+          <!-- 1. Executive Summary -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
+            <h4 class="fw-semibold font-sm mb-2 text-primary">1. Executive Summary</h4>
+            <p class="text-secondary font-sm mb-0">This report provides a comprehensive review of the organization's network defense architecture, active threats, and overall security posture across the SentinelSOC environment. It highlights key security metrics and outlines actionable recommendations.</p>
+          </div>
 
-        <h4 class="fw-semibold font-sm mb-2"><i class="fa-solid fa-ticket text-danger"></i> Recent Incidents in Scope</h4>
-        <div class="table-container" style="max-height: 200px;">
-          <table class="enterprise-table">
-            <thead>
-              <tr>
-                <th>Incident Title</th>
-                <th>Severity</th>
-                <th>Status</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody id="view-incidents-list">
-              <tr><td colspan="4" class="text-center text-muted">No incidents found in time scope</td></tr>
-            </tbody>
-          </table>
+          <!-- 2. Scope & Objectives -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--info);">
+            <h4 class="fw-semibold font-sm mb-2 text-info">2. Scope & Objectives</h4>
+            <p class="text-secondary font-sm mb-0">The objective is to evaluate the end-to-end security pipeline, validate detection mechanisms (Suricata/Zeek), assess network resilience against targeted attacks, and ensure robust logging and incident response.</p>
+          </div>
+
+          <!-- 3. Network Architecture Review -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--info);">
+            <h4 class="fw-semibold font-sm mb-2 text-info">3. Network Architecture Review</h4>
+            <p class="text-secondary font-sm mb-0">Review of the mapped Network Topology, ensuring proper segmentation, firewalls, and DMZ placement. Continuous monitoring of internal (10.0.x.x, 192.168.x.x) and external traffic flows.</p>
+          </div>
+
+          <!-- 4. Threat Landscape Analysis -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--warning);">
+            <h4 class="fw-semibold font-sm mb-2 text-warning">4. Threat Landscape Analysis</h4>
+            <p class="text-secondary font-sm mb-0">Analysis of recent attack vectors including Brute Force, Port Scanning, and Suspicious Outbound Connections targeting the infrastructure over the reporting period.</p>
+          </div>
+
+          <!-- 5. Log Sources & Ingestion -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--success);">
+            <h4 class="fw-semibold font-sm mb-2 text-success">5. Log Sources & Ingestion</h4>
+            <p class="text-secondary font-sm mb-0">Verification of syslog, Webhook, and API ingestion points. Assessed the normalization pipeline to ensure Suricata, Zeek, and Linux logs are accurately categorized.</p>
+          </div>
+
+          <!-- 6. Detection Capabilities -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--danger);">
+            <h4 class="fw-semibold font-sm mb-2 text-danger">6. Detection Capabilities (Suricata/Zeek)</h4>
+            <p class="text-secondary font-sm mb-0">Evaluating the Threat Rules engine. Ensured signature-based detection for critical network threats functions effectively and correlates raw events to SOC alerts.</p>
+          </div>
+
+          <!-- 7. Vulnerability Assessment -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--warning);">
+            <h4 class="fw-semibold font-sm mb-2 text-warning">7. Vulnerability Assessment</h4>
+            <p class="text-secondary font-sm mb-0">Summary of known CVEs and system vulnerabilities identified on network assets during active Security Assessments and periodic vulnerability scans.</p>
+          </div>
+
+          <!-- 8. Incident Response Metrics -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
+            <h4 class="fw-semibold font-sm mb-2 text-primary">8. Incident Response Metrics</h4>
+            <div class="table-container mt-2" style="max-height: 200px;">
+              <table class="enterprise-table" style="font-size: 0.85rem;">
+                <thead>
+                  <tr>
+                    <th>Incident Title</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="view-incidents-list">
+                  <tr><td colspan="4" class="text-center text-muted">No incidents found in time scope</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 9. Automated Defense Mechanisms -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--success);">
+            <h4 class="fw-semibold font-sm mb-2 text-success">9. Automated Defense Mechanisms</h4>
+            <p class="text-secondary font-sm mb-0">Review of the SOC Automation Engine. Confirmed successful triggering of auto-containment, firewall blocks, and alert deduplication upon detection of confirmed threats.</p>
+          </div>
+
+          <!-- 10. End-to-End Pipeline Validation -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
+            <h4 class="fw-semibold font-sm mb-2 text-primary">10. End-to-End Pipeline Validation</h4>
+            <p class="text-secondary font-sm mb-0">Results of Controlled Security Testing scenarios (Port Scan, Brute Force). The pipeline correctly processed simulated attacks from Log Generation to Incident Evidence Recording.</p>
+          </div>
+
+          <!-- 11. Authentication & Access Controls -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--info);">
+            <h4 class="fw-semibold font-sm mb-2 text-info">11. Authentication & Access Controls</h4>
+            <p class="text-secondary font-sm mb-0">Evaluation of RBAC policies, IAM roles, and system user privileges. Ensured least-privilege principles are enforced across all organizational assets.</p>
+          </div>
+
+          <!-- 12. Data Protection & Encryption -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--info);">
+            <h4 class="fw-semibold font-sm mb-2 text-info">12. Data Protection & Encryption</h4>
+            <p class="text-secondary font-sm mb-0">Verified that data in transit and at rest utilizes strong cryptographic standards. Examined TLS certificates and database encryption measures.</p>
+          </div>
+
+          <!-- 13. Compliance & Policy -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--warning);">
+            <h4 class="fw-semibold font-sm mb-2 text-warning">13. Compliance & Policy</h4>
+            <p class="text-secondary font-sm mb-0">Audited SOC operations against regulatory standards. The system maintains full audit logs and evidence-preservation capabilities for compliance purposes.</p>
+          </div>
+
+          <!-- 14. Security Awareness -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--success);">
+            <h4 class="fw-semibold font-sm mb-2 text-success">14. Security Awareness</h4>
+            <p class="text-secondary font-sm mb-0">Assessment of insider threats and user behavior anomalies. Recommended continued training to mitigate phishing and unauthorized access risks.</p>
+          </div>
+
+          <!-- 15. Recommendations & Remediation -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--danger);">
+            <h4 class="fw-semibold font-sm mb-2 text-danger">15. Recommendations & Remediation</h4>
+            <ul class="text-secondary font-sm mb-0" style="padding-left: 1.5rem;">
+              <li>Enhance baseline threat rules to cover emerging malware variants.</li>
+              <li>Implement stricter rate-limiting on external facing assets.</li>
+              <li>Conduct quarterly red-team simulation tests to validate SOC readiness.</li>
+            </ul>
+          </div>
+
+          <!-- 16. Conclusion -->
+          <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
+            <h4 class="fw-semibold font-sm mb-2 text-primary">16. Conclusion</h4>
+            <p class="text-secondary font-sm mb-0">The SentinelSOC network defense architecture demonstrates strong capability in detecting and responding to malicious activity. Sustained monitoring and implementation of the recommended remediations will further mature the organization's security posture.</p>
+          </div>
+
         </div>
       </div>
       <div class="modal-footer">

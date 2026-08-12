@@ -101,9 +101,24 @@ class LogService {
       case 'Nginx':
         normalized = this.normalizeNginxLog(normalized, rawLog);
         break;
-      case 'Suricata':
-        normalized = this.normalizeSuricataLog(normalized, rawLog);
+      case 'Suricata': {
+        const SuricataParser = require('../utils/SuricataParser');
+        const parsed = SuricataParser.parse(rawLog, logSource.organization, logSource.asset, logSource._id);
+        if (parsed) {
+          normalized = parsed;
+        } else {
+          normalized = this.normalizeSuricataLog(normalized, rawLog);
+        }
         break;
+      }
+      case 'Zeek': {
+        const ZeekParser = require('../utils/ZeekParser');
+        const parsed = ZeekParser.parse(rawLog, rawLog.event_type || rawLog.type || rawLog._path || 'unknown', logSource.organization, logSource.asset, logSource._id);
+        if (parsed) {
+          normalized = parsed;
+        }
+        break;
+      }
       case 'Snort':
         normalized = this.normalizeSnortLog(normalized, rawLog);
         break;

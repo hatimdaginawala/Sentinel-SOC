@@ -135,8 +135,16 @@ const assetSchema = new mongoose.Schema({
         type: String,
         trim: true
       }
-    }]
+    }],
+    networkZone: {
+      type: String,
+      trim: true
+    }
   },
+  securitySensors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SecuritySensor'
+  }],
   security: {
     firewallEnabled: {
       type: Boolean,

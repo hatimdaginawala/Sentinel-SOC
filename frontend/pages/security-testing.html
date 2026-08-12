@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelSOC - Security Testing Lab</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/sidebar.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/cards.css">
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <link rel="stylesheet" href="/assets/css/tables.css">
+  <link rel="stylesheet" href="/assets/css/forms.css">
+  <link rel="stylesheet" href="/assets/css/dark-mode.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+  
+  <style>
+    .pipeline-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+    }
+    .pipeline-step {
+      text-align: center;
+      flex: 1;
+    }
+    .pipeline-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      transition: color 0.3s ease;
+    }
+    .pipeline-text {
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    .step-pending .pipeline-icon, .step-pending .pipeline-text { color: var(--text-muted); }
+    .step-success .pipeline-icon, .step-success .pipeline-text { color: var(--success); }
+    .step-fail .pipeline-icon, .step-fail .pipeline-text { color: var(--danger); }
+    .step-running .pipeline-icon, .step-running .pipeline-text { color: var(--warning); }
+    
+    .test-scenario-card {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--bg-secondary);
+      transition: box-shadow 0.2s ease;
+    }
+    .test-scenario-card:hover {
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">SentinelSOC</span>
+      </div>
+<ul class="sidebar-nav">
+
+  <!-- Overview (standalone, no group) -->
+  <li class="sidebar-item">
+    <a href="/pages/dashboard.html" class="sidebar-link">
+      <i class="fa-solid fa-chart-line"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+  </li>
+
+  <!-- Identity & Access -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-id-badge"></i>
+      <span class="nav-text">Identity &amp; Access</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/organizations.html" class="sidebar-link">
+          <i class="fa-solid fa-building"></i>
+          <span class="nav-text">Organizations</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/users.html" class="sidebar-link">
+          <i class="fa-solid fa-users"></i>
+          <span class="nav-text">Users</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/roles.html" class="sidebar-link">
+          <i class="fa-solid fa-user-shield"></i>
+          <span class="nav-text">Roles</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assets & Network -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-server"></i>
+      <span class="nav-text">Assets &amp; Network</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/assets.html" class="sidebar-link">
+          <i class="fa-solid fa-server"></i>
+          <span class="nav-text">Assets</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/network-topology.html" class="sidebar-link">
+          <i class="fa-solid fa-network-wired"></i>
+          <span class="nav-text">Network Topology</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/log-sources.html" class="sidebar-link">
+          <i class="fa-solid fa-plug"></i>
+          <span class="nav-text">Log Sources</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Detection -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span class="nav-text">Detection</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/logs.html" class="sidebar-link">
+          <i class="fa-solid fa-file-waveform"></i>
+          <span class="nav-text">Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/threat-rules.html" class="sidebar-link">
+          <i class="fa-solid fa-bug"></i>
+          <span class="nav-text">Threat Rules</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/alerts.html" class="sidebar-link">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="nav-text">Alerts</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/incidents.html" class="sidebar-link">
+          <i class="fa-solid fa-ticket"></i>
+          <span class="nav-text">Incidents</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/iocs.html" class="sidebar-link">
+          <i class="fa-solid fa-database"></i>
+          <span class="nav-text">IOCs</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Assurance -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-file-shield"></i>
+      <span class="nav-text">Assurance</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/security-testing.html" class="sidebar-link">
+          <i class="fa-solid fa-vial"></i>
+          <span class="nav-text">Security Testing</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/security-assessment.html" class="sidebar-link">
+          <i class="fa-solid fa-file-shield"></i>
+          <span class="nav-text">Security Assessment</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/reports.html" class="sidebar-link">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Admin -->
+  <li class="sidebar-item sidebar-item-has-submenu">
+    <a href="#" class="sidebar-link">
+      <i class="fa-solid fa-gear"></i>
+      <span class="nav-text">Admin</span>
+      <i class="fa-solid fa-chevron-right arrow-indicator"></i>
+    </a>
+    <ul class="sidebar-submenu">
+      <li class="sidebar-item">
+        <a href="/pages/audit-logs.html" class="sidebar-link">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/pages/settings.html" class="sidebar-link">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+
+</ul>
+      <div class="sidebar-toggle-container">
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
+        <div class="navbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="navbar-search-input" class="navbar-search-input" placeholder="Search assets, alerts, incidents...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+        <div class="org-selector">
+          <select id="navbar-org-selector"></select>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-time" id="navbar-clock">CLOCK</div>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme"><i class="fa-regular fa-moon"></i></button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span></button>
+        <div class="profile-menu-container">
+          <button class="profile-trigger" id="profile-menu-trigger">
+            <div class="user-avatar">SA</div>
+            <div class="user-info-text">
+              <span class="user-name">Super Admin</span>
+              <span class="user-role">Super Admin</span>
+            </div>
+            <i class="fa-solid fa-angle-down text-muted" style="font-size: var(--font-xs)"></i>
+          </button>
+          <div class="profile-dropdown" id="profile-dropdown-menu">
+            <div class="profile-dropdown-header">
+              <div class="fw-semibold user-name">Super Admin</div>
+              <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
+            </div>
+            <a href="/pages/profile.html" class="profile-dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <a href="/pages/settings.html" class="profile-dropdown-item"><i class="fa-solid fa-sliders"></i> System Settings</a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN BODY -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fa-solid fa-vial text-info"></i> Security Testing Lab</h1>
+          <div class="page-header-actions" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="btn-refresh"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            <button class="btn btn-primary btn-sm" id="btn-create-test"><i class="fa-solid fa-plus"></i> Create Test</button>
+          </div>
+        </div>
+
+        <div id="dashboard-loader" class="loader-overlay" style="display: none;">
+          <div class="text-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-info" style="font-size: 2rem;"></i>
+            <p class="mt-2 text-muted">Loading tests...</p>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="stat-card-group mb-3" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Total Tests</div>
+            <div class="h2 text-primary m-0 mt-1" id="stat-total">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Passed</div>
+            <div class="h2 text-success m-0 mt-1" id="stat-passed">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Failed</div>
+            <div class="h2 text-danger m-0 mt-1" id="stat-failed">0</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div class="text-secondary font-xs uppercase fw-bold">Pending</div>
+            <div class="h2 text-warning m-0 mt-1" id="stat-pending">0</div>
+          </div>
+        </div>
+
+        <!-- Scenarios -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <span class="card-title"><i class="fa-solid fa-layer-group"></i> Validation Scenarios</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted mb-4">Inject benign test logs to verify the end-to-end detection pipeline works without running real attacks.</p>
+            <div id="test-scenarios-container">
+              <!-- Dynamically populated -->
+            </div>
+            <div id="empty-state" style="display: none; padding: 3rem 0; text-align: center;">
+              <i class="fa-solid fa-vial-circle-check text-muted mb-3" style="font-size: 3rem;"></i>
+              <h3 class="text-muted">No security tests found</h3>
+              <p class="text-muted">Create a test scenario to validate your detection pipeline.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Test Detail Modal -->
+    <div class="modal-overlay" id="test-modal">
+      <div class="modal-content" style="max-width: 650px;">
+        <div class="modal-header">
+          <h3 class="modal-title" id="test-modal-title">Test Result Details</h3>
+          <button class="modal-close" id="test-modal-close">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+          <div id="test-details-content"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="test-modal-cancel">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core Script Integrations -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/validators.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/auth.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+
+  <script>
+    let activePolls = {};
+    let testsData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTests();
+      
+      document.getElementById('btn-refresh').addEventListener('click', loadTests);
+      document.getElementById('btn-create-test').addEventListener('click', () => {
+        Swal.fire('Not Implemented', 'Test creation form is available in the admin panel.', 'info');
+      });
+
+      // Modal close handlers
+      document.getElementById('test-modal-close').addEventListener('click', () => {
+        document.getElementById('test-modal').classList.remove('active');
+      });
+      document.getElementById('test-modal-cancel').addEventListener('click', () => {
+        document.getElementById('test-modal').classList.remove('active');
+      });
+    });
+
+    async function loadTests() {
+      const loader = document.getElementById('dashboard-loader');
+      loader.style.display = 'flex';
+
+      try {
+        const response = await API.get('/security-tests');
+        if (response.success && response.data) {
+          testsData = response.data;
+          renderTests(testsData);
+          updateMetrics(testsData);
+        } else {
+          testsData = [];
+          renderTests([]);
+          updateMetrics([]);
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'Failed to load security tests', 'error');
+        renderTests([]);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    function updateMetrics(tests) {
+      document.getElementById('stat-total').textContent = tests.length;
+      document.getElementById('stat-passed').textContent = tests.filter(t => t.status === 'PASS').length;
+      document.getElementById('stat-failed').textContent = tests.filter(t => t.status === 'FAIL').length;
+      document.getElementById('stat-pending').textContent = tests.filter(t => t.status === 'PENDING' || t.status === 'RUNNING').length;
+    }
+
+    function renderTests(tests) {
+      const container = document.getElementById('test-scenarios-container');
+      const emptyState = document.getElementById('empty-state');
+      
+      if (tests.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      container.innerHTML = '';
+
+      tests.forEach(test => {
+        // Pipeline states
+        // If PASS: everything is success
+        // If FAIL: some are success, some failed
+        // If PENDING/RUNNING: only Log Generated is running/success, rest pending
+        
+        const isPass = test.status === 'PASS';
+        const isFail = test.status === 'FAIL';
+        const isRunning = test.status === 'PENDING' || test.status === 'RUNNING';
+        
+        let genClass = 'step-pending';
+        let ingClass = 'step-pending';
+        let detClass = 'step-pending';
+        let altClass = 'step-pending';
+        let incClass = 'step-pending';
+        let evdClass = 'step-pending';
+
+        if (isPass) {
+           genClass = ingClass = detClass = altClass = incClass = evdClass = 'step-success';
+        } else if (isFail) {
+           genClass = ingClass = 'step-success';
+           detClass = altClass = incClass = 'step-fail';
+           evdClass = 'step-success';
+        } else if (isRunning) {
+           genClass = 'step-success';
+           ingClass = 'step-running';
+        } else {
+           // Fresh state or undefined
+           genClass = ingClass = detClass = altClass = incClass = evdClass = 'step-pending';
+        }
+
+        // Specific overrides based on related records
+        if (!isRunning && !isPass && !isFail) {
+            if (test.relatedAlert) altClass = 'step-success';
+            if (test.relatedIncident) incClass = 'step-success';
+        }
+
+        let badgeClass = 'bg-secondary';
+        if (test.status === 'PASS') badgeClass = 'bg-success';
+        if (test.status === 'FAIL') badgeClass = 'bg-danger';
+        if (test.status === 'PENDING' || test.status === 'RUNNING') badgeClass = 'bg-warning text-dark';
+
+        const runBtnDisabled = isRunning ? 'disabled' : '';
+        const runBtnHtml = `<button class="btn btn-sm btn-outline-primary" onclick="runTest('${test._id}')" ${runBtnDisabled} id="btn-run-${test._id}">
+                              <i class="fa-solid fa-play"></i> Run
+                            </button>`;
+        const viewBtnHtml = `<button class="btn btn-sm btn-secondary" onclick="viewTest('${test._id}')" style="margin-left: 0.5rem;">
+                              <i class="fa-solid fa-eye"></i> View Result
+                            </button>`;
+
+        const html = `
+          <div class="test-scenario-card" id="card-${test._id}">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+              <div>
+                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                  ${Utils.escapeHTML(test.name)}
+                  <span class="badge ${badgeClass}" style="font-size: 0.75rem;" id="badge-${test._id}">${test.status || 'READY'}</span>
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0 0 0;">${Utils.escapeHTML(test.description || '')}</p>
+                <div class="font-xs text-muted mt-1">Expected Detection: <strong>${Utils.escapeHTML(test.expectedDetection?.name || 'Any')}</strong></div>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                ${runBtnHtml}
+                ${viewBtnHtml}
+              </div>
+            </div>
+            
+            <div class="pipeline-status">
+              <div class="pipeline-step ${genClass}" id="step-gen-${test._id}">
+                <i class="fa-solid fa-file-code pipeline-icon"></i>
+                <div class="pipeline-text">Log Generated</div>
+              </div>
+              <i class="fa-solid fa-arrow-right text-muted"></i>
+              <div class="pipeline-step ${ingClass}" id="step-ing-${test._id}">
+                <i class="fa-solid fa-database pipeline-icon"></i>
+                <div class="pipeline-text">Log Ingested</div>
+              </div>
+              <i class="fa-solid fa-arrow-right text-muted"></i>
+              <div class="pipeline-step ${detClass}" id="step-det-${test._id}">
+                <i class="fa-solid fa-microchip pipeline-icon"></i>
+                <div class="pipeline-text">Detection Triggered</div>
+              </div>
+              <i class="fa-solid fa-arrow-right text-muted"></i>
+              <div class="pipeline-step ${altClass}" id="step-alt-${test._id}">
+                <i class="fa-solid fa-bell pipeline-icon"></i>
+                <div class="pipeline-text">Alert Created</div>
+              </div>
+              <i class="fa-solid fa-arrow-right text-muted"></i>
+              <div class="pipeline-step ${incClass}" id="step-inc-${test._id}">
+                <i class="fa-solid fa-ticket pipeline-icon"></i>
+                <div class="pipeline-text">Incident Created</div>
+              </div>
+              <i class="fa-solid fa-arrow-right text-muted"></i>
+              <div class="pipeline-step ${evdClass}" id="step-evd-${test._id}">
+                <i class="fa-solid fa-file-shield pipeline-icon"></i>
+                <div class="pipeline-text">Evidence Recorded</div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.innerHTML += html;
+      });
+    }
+
+    async function runTest(testId) {
+      document.getElementById(`btn-run-${testId}`).disabled = true;
+      document.getElementById(`badge-${testId}`).className = 'badge bg-warning text-dark';
+      document.getElementById(`badge-${testId}`).textContent = 'PENDING';
+
+      try {
+        const response = await API.post(`/security-tests/${testId}/run`, {});
+        if (response.success) {
+          // Visual pipeline set to running state
+          document.getElementById(`step-gen-${testId}`).className = 'pipeline-step step-success';
+          document.getElementById(`step-ing-${testId}`).className = 'pipeline-step step-running';
+          document.getElementById(`step-det-${testId}`).className = 'pipeline-step step-pending';
+          document.getElementById(`step-alt-${testId}`).className = 'pipeline-step step-pending';
+          document.getElementById(`step-inc-${testId}`).className = 'pipeline-step step-pending';
+          document.getElementById(`step-evd-${testId}`).className = 'pipeline-step step-pending';
+          
+          pollTestResult(testId);
+        } else {
+          Swal.fire('Error', response.message || 'Failed to execute test', 'error');
+          loadTests(); // Refresh to original state
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'Failed to execute test', 'error');
+        loadTests();
+      }
+    }
+
+    function pollTestResult(testId) {
+      if (activePolls[testId]) return; // Already polling
+      
+      let attempts = 0;
+      const maxAttempts = 30; // 30 seconds
+      
+      activePolls[testId] = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await API.get(`/security-tests/${testId}`);
+          if (res.success) {
+            const test = res.data;
+            if (test.status === 'PASS' || test.status === 'FAIL') {
+              clearInterval(activePolls[testId]);
+              delete activePolls[testId];
+              
+              // Find and update the test in testsData
+              const idx = testsData.findIndex(t => t._id === testId);
+              if (idx !== -1) testsData[idx] = test;
+              
+              renderTests(testsData); // Re-render everything to update UI correctly
+              updateMetrics(testsData);
+            }
+          }
+        } catch (err) {
+          console.error('Polling error', err);
+        }
+
+        if (attempts >= maxAttempts) {
+          clearInterval(activePolls[testId]);
+          delete activePolls[testId];
+          Swal.fire('Timeout', 'The test took too long to complete. Check backend logs.', 'warning');
+          loadTests(); // Fallback reload
+        }
+      }, 1000); // 1 sec poll
+    }
+
+    function viewTest(testId) {
+      const test = testsData.find(t => t._id === testId);
+      if (!test) return;
+
+      document.getElementById('test-modal-title').textContent = `Test: ${test.name}`;
+      
+      let html = `<table class="enterprise-table w-full mb-3"><tbody>`;
+      html += `<tr><td class="fw-semibold" style="width: 30%;">Status</td><td><span class="badge ${test.status==='PASS'?'bg-success':test.status==='FAIL'?'bg-danger':'bg-warning text-dark'}">${test.status}</span></td></tr>`;
+      html += `<tr><td class="fw-semibold">Result Details</td><td>${Utils.escapeHTML(test.actualResult || 'N/A')}</td></tr>`;
+      
+      if (test.relatedAlert) {
+         html += `<tr><td class="fw-semibold">Triggered Alert</td><td><a href="/pages/alerts.html?id=${test.relatedAlert._id}">${Utils.escapeHTML(test.relatedAlert.title)}</a></td></tr>`;
+      }
+      if (test.relatedIncident) {
+         html += `<tr><td class="fw-semibold">Correlated Incident</td><td><a href="/pages/incidents.html?id=${test.relatedIncident._id}">${Utils.escapeHTML(test.relatedIncident.title)}</a></td></tr>`;
+      }
+      html += `</tbody></table>`;
+
+      html += `<div class="fw-semibold mb-2">Raw Test Payload:</div>`;
+      html += `<pre style="background: var(--bg-primary); padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; color: var(--text-primary);">${Utils.escapeHTML(JSON.stringify(test.payload, null, 2))}</pre>`;
+
+      document.getElementById('test-details-content').innerHTML = html;
+      document.getElementById('test-modal').classList.add('active');
+    }
+  </script>
+</body>
+</html>
