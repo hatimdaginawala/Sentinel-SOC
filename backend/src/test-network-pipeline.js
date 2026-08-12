@@ -20,21 +20,21 @@ const connectDB = async () => {
 };
 
 // Import Models
-const Organization = require('./src/models/Organization');
-const Asset = require('./src/models/Asset');
-const SecuritySensor = require('./src/models/SecuritySensor');
-const User = require('./src/models/User');
-const LogSource = require('./src/models/LogSource');
-const ThreatRule = require('./src/models/ThreatRule');
-const SecurityTest = require('./src/models/SecurityTest');
-const Log = require('./src/models/Log');
-const Alert = require('./src/models/Alert');
-const Incident = require('./src/models/Incident');
-const Settings = require('./src/models/Settings');
+const Organization = require('./models/Organization');
+const Asset = require('./models/Asset');
+const SecuritySensor = require('./models/SecuritySensor');
+const User = require('./models/User');
+const LogSource = require('./models/LogSource');
+const ThreatRule = require('./models/ThreatRule');
+const SecurityTest = require('./models/SecurityTest');
+const Log = require('./models/Log');
+const Alert = require('./models/Alert');
+const Incident = require('./models/Incident');
+const Settings = require('./models/Settings');
 
 // Import Services
-const LogService = require('./src/services/logService');
-const AutomationService = require('./src/services/automationService');
+const LogService = require('./services/logService');
+const AutomationService = require('./services/automationService');
 
 const logService = LogService;
 const automationService = AutomationService;

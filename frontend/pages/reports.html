@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SentinelSOC - Security Reports</title>
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -21,11 +23,8 @@
   <link rel="stylesheet" href="/assets/css/forms.css">
   <link rel="stylesheet" href="/assets/css/tables.css">
   <link rel="stylesheet" href="/assets/css/dark-mode.css">
- <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
   <link rel="stylesheet" href="/assets/css/utilities.css">
-  <script src="/assets/js/sidebar.js"></script>
-<script src="/assets/js/navbar.js"></script>
-<script src="/assets/js/nav-permissions.js"></script>
   
   <style>
     @media print {
@@ -47,13 +46,24 @@
         display: none !important;
       }
     }
+    .report-sections .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+    }
+    .report-sections .card p, 
+    .report-sections .card li {
+      color: var(--text-secondary);
+    }
+    .report-sections .card h4 {
+      color: var(--text-primary);
+    }
   </style>
 </head>
 <body class="dark-theme">
   <div class="app-container">
     
     <!-- LEFT SIDEBAR -->
-        <aside class="sidebar">
+    <aside class="sidebar">
       <div class="sidebar-brand">
         <i class="fa-solid fa-shield-halved"></i>
         <span class="brand-name">SentinelSOC</span>
@@ -221,14 +231,12 @@
 
 </ul>
       <div class="sidebar-toggle-container">
-        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-angles-left"></i></button>
       </div>
     </aside>
 
     <!-- TOP NAVBAR -->
-        <nav class="navbar">
+    <nav class="navbar">
       <div class="navbar-left">
         <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
         <div class="navbar-search">
@@ -242,13 +250,8 @@
       </div>
       <div class="navbar-right">
         <div class="navbar-time" id="navbar-clock">CLOCK</div>
-        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
-          <i class="fa-regular fa-moon"></i>
-        </button>
-        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
-        </button>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme"><i class="fa-regular fa-moon"></i></button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span></button>
         <div class="profile-menu-container">
           <button class="profile-trigger" id="profile-menu-trigger">
             <div class="user-avatar">SA</div>
@@ -263,15 +266,9 @@
               <div class="fw-semibold user-name">Super Admin</div>
               <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
             </div>
-            <a href="/pages/profile.html" class="profile-dropdown-item">
-              <i class="fa-regular fa-user"></i> My Profile
-            </a>
-            <a href="/pages/settings.html" class="profile-dropdown-item">
-              <i class="fa-solid fa-sliders"></i> System Settings
-            </a>
-            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
-            </a>
+            <a href="/pages/profile.html" class="profile-dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <a href="/pages/settings.html" class="profile-dropdown-item"><i class="fa-solid fa-sliders"></i> System Settings</a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect</a>
           </div>
         </div>
       </div>
@@ -386,7 +383,7 @@
 
   <!-- VIEW COMPILED REPORT MODAL -->
   <div class="modal-overlay" id="view-report-modal" style="z-index: 1600;">
-    <div class="modal-content" style="max-width: 900px;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
         <h3 class="modal-title">Compiled Report Summary</h3>
         <button class="modal-close" id="view-report-close">&times;</button>
@@ -422,7 +419,47 @@
           </div>
         </div>
 
-        <div class="report-sections" style="display: grid; gap: 1.5rem; margin-top: 2rem;">
+        <!-- Alerts Section -->
+        <div class="report-section card p-3 mb-3" style="border-left: 3px solid var(--warning);">
+          <h4 class="fw-semibold font-sm mb-2 text-warning"><i class="fa-solid fa-bell"></i> Alerts Logged</h4>
+          <div class="table-container" style="max-height: 200px;">
+            <table class="enterprise-table" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Alert Title</th>
+                  <th>Category</th>
+                  <th>Severity</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="view-alerts-list">
+                <tr><td colspan="4" class="text-center text-muted">No alerts found in time scope</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Incidents Section -->
+        <div class="report-section card p-3 mb-3" style="border-left: 3px solid var(--danger);">
+          <h4 class="fw-semibold font-sm mb-2 text-danger"><i class="fa-solid fa-ticket"></i> Incident Tickets</h4>
+          <div class="table-container" style="max-height: 200px;">
+            <table class="enterprise-table" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Incident Title</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="view-incidents-list">
+                <tr><td colspan="4" class="text-center text-muted">No incidents found in time scope</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="report-sections" style="display: grid; gap: 1.5rem; margin-top: 1rem;">
           
           <!-- 1. Executive Summary -->
           <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
@@ -469,21 +506,7 @@
           <!-- 8. Incident Response Metrics -->
           <div class="report-section card p-3" style="border-left: 3px solid var(--primary);">
             <h4 class="fw-semibold font-sm mb-2 text-primary">8. Incident Response Metrics</h4>
-            <div class="table-container mt-2" style="max-height: 200px;">
-              <table class="enterprise-table" style="font-size: 0.85rem;">
-                <thead>
-                  <tr>
-                    <th>Incident Title</th>
-                    <th>Severity</th>
-                    <th>Status</th>
-                    <th>Time</th>
-                  </tr>
-                </thead>
-                <tbody id="view-incidents-list">
-                  <tr><td colspan="4" class="text-center text-muted">No incidents found in time scope</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <p class="text-secondary font-sm mb-0">Review of incident response effectiveness including mean time to detect (MTTD), mean time to respond (MTTR), and overall incident closure rates.</p>
           </div>
 
           <!-- 9. Automated Defense Mechanisms -->
@@ -570,9 +593,9 @@
   <script src="/assets/js/forms.js"></script>
 
   <script>
-    let datatableInstance = null;
+    var datatableInstance = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       if (!Auth.enforcePermission('view_reports')) return;
 
       loadReports();
@@ -580,38 +603,46 @@
     });
 
     async function loadReports() {
-      const orgId = localStorage.getItem('currentOrgId') || '';
+      var orgId = localStorage.getItem('currentOrgId') || '';
       try {
-        const response = await API.get(`/reports?organization=${orgId}`);
+        var response = await API.get('/reports?organization=' + orgId);
         if (response.success && response.data) {
-          const reports = response.data.items || [];
+          var reports = response.data.items || [];
           
           if (datatableInstance) {
             datatableInstance.destroy();
           }
 
-          const tbody = document.getElementById('reports-list');
+          var tbody = document.getElementById('reports-list');
           tbody.innerHTML = '';
 
-          reports.forEach(rep => {
-            let statusBadge = '';
+          if (reports.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No reports found</td></tr>';
+          }
+
+          reports.forEach(function(rep) {
+            var statusBadge = '';
             if (rep.status === 'completed') statusBadge = 'badge-online';
             else if (rep.status === 'processing') statusBadge = 'badge-investigating';
             else if (rep.status === 'failed') statusBadge = 'badge-critical';
-            else statusBadge = 'badge-high'; // pending
+            else statusBadge = 'badge-high';
+
+            var typeLabel = rep.type ? rep.type.toUpperCase() : 'N/A';
+            var formatLabel = rep.format ? rep.format.toUpperCase() : 'N/A';
+            var createdBy = rep.createdBy && typeof rep.createdBy === 'object' ? rep.createdBy.username : (rep.createdBy || 'System');
 
             tbody.innerHTML += `
               <tr>
                 <td><strong>${Utils.escapeHTML(rep.title)}</strong></td>
-                <td><span class="badge badge-info">${Utils.escapeHTML(rep.type.toUpperCase())}</span></td>
-                <td><span class="badge badge-medium">${Utils.escapeHTML(rep.format.toUpperCase())}</span></td>
-                <td><span class="badge ${statusBadge}">${rep.status}</span></td>
-                <td><span class="fw-semibold text-secondary">${Utils.escapeHTML(rep.createdBy?.username || 'System')}</span></td>
+                <td><span class="badge badge-info">${Utils.escapeHTML(typeLabel)}</span></td>
+                <td><span class="badge badge-medium">${Utils.escapeHTML(formatLabel)}</span></td>
+                <td><span class="badge ${statusBadge}">${Utils.escapeHTML(rep.status)}</span></td>
+                <td><span class="fw-semibold text-secondary">${Utils.escapeHTML(createdBy)}</span></td>
                 <td>${Utils.formatDate(rep.createdAt)}</td>
                 <td>
                   <div class="table-actions-cell">
                     <button class="table-btn text-success" onclick="viewReport('${rep._id}')" title="View Compiled Details"><i class="fa-solid fa-eye"></i></button>
-                    <button class="table-btn delete" onclick="deleteReport('${rep._id}')" title="Delete Report"><i class="fa-solid fa-trash"></i></button>
+                    ${Auth.hasPermission('manage_reports') ? `<button class="table-btn delete" onclick="deleteReport('${rep._id}')" title="Delete Report"><i class="fa-solid fa-trash"></i></button>` : ''}
                   </div>
                 </td>
               </tr>
@@ -620,29 +651,31 @@
 
           // Check permissions
           if (!Auth.hasPermission('manage_reports')) {
-            document.getElementById('btn-add-report').style.display = 'none';
-            document.querySelectorAll('.table-btn.delete').forEach(btn => btn.style.display = 'none');
+            var addBtn = document.getElementById('btn-add-report');
+            if (addBtn) addBtn.style.display = 'none';
+            document.querySelectorAll('.table-btn.delete').forEach(function(btn) { btn.style.display = 'none'; });
           }
 
           datatableInstance = Tables.init('#reports-table');
         }
       } catch (err) {
+        console.error('Failed to load reports:', err);
         Swal.fire('Error', err.message || 'Failed to retrieve reports', 'error');
       }
     }
 
     function setupModal() {
-      const modal = document.getElementById('report-modal');
-      const addBtn = document.getElementById('btn-add-report');
-      const closeBtn = document.getElementById('report-modal-close');
-      const cancelBtn = document.getElementById('report-modal-cancel');
-      const form = document.getElementById('report-form');
+      var modal = document.getElementById('report-modal');
+      var addBtn = document.getElementById('btn-add-report');
+      var closeBtn = document.getElementById('report-modal-close');
+      var cancelBtn = document.getElementById('report-modal-cancel');
+      var form = document.getElementById('report-form');
 
-      const openModal = () => {
+      var openModal = function() {
         modal.classList.add('active');
       };
 
-      const closeModal = () => {
+      var closeModal = function() {
         modal.classList.remove('active');
         form.reset();
       };
@@ -651,10 +684,10 @@
       if (closeBtn) closeBtn.addEventListener('click', closeModal);
       if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
-      Forms.bind(form, { title: ['required'], startDate: ['required'], endDate: ['required'] }, async (formData) => {
-        const orgId = localStorage.getItem('currentOrgId') || '';
+      Forms.bind(form, { title: ['required'], startDate: ['required'], endDate: ['required'] }, async function(formData) {
+        var orgId = localStorage.getItem('currentOrgId') || '';
 
-        const payload = {
+        var payload = {
           title: formData.get('title'),
           description: formData.get('description'),
           type: formData.get('type'),
@@ -666,13 +699,17 @@
           organization: orgId
         };
 
-        const response = await API.post('/reports', payload);
+        var response = await API.post('/reports', payload);
         if (response.success && response.data) {
           closeModal();
           Swal.fire('Report Request Queued', 'Triggering compilation service in the background...', 'success');
           
           // Trigger generation immediately
-          await API.post(`/reports/${response.data._id}/generate`).catch(() => {});
+          try {
+            await API.post('/reports/' + response.data._id + '/generate');
+          } catch (e) {
+            console.warn('Report generation trigger failed:', e);
+          }
           
           await loadReports();
           return true;
@@ -682,88 +719,88 @@
       });
 
       // View Report Closers
-      const viewModal = document.getElementById('view-report-modal');
-      const viewClose = document.getElementById('view-report-close');
-      const viewCancel = document.getElementById('view-report-cancel');
+      var viewModal = document.getElementById('view-report-modal');
+      var viewClose = document.getElementById('view-report-close');
+      var viewCancel = document.getElementById('view-report-cancel');
 
-      const closeView = () => viewModal.classList.remove('active');
+      var closeView = function() { viewModal.classList.remove('active'); };
       if (viewClose) viewClose.addEventListener('click', closeView);
       if (viewCancel) viewCancel.addEventListener('click', closeView);
     }
 
-async function viewReport(id) {
-  try {
-    const response = await API.get(`/reports/${id}`);
-    if (response.success && response.data) {
-      const rep = response.data;
+    async function viewReport(id) {
+      try {
+        var response = await API.get('/reports/' + id);
+        if (response.success && response.data) {
+          var rep = response.data;
 
-      document.getElementById('view-title').textContent = rep.title;
-      document.getElementById('view-desc').textContent = rep.description || '';
-      document.getElementById('view-type').textContent = rep.type.toUpperCase();
-      document.getElementById('view-date').textContent = Utils.formatDate(rep.createdAt);
+          document.getElementById('view-title').textContent = rep.title;
+          document.getElementById('view-desc').textContent = rep.description || '';
+          document.getElementById('view-type').textContent = rep.type ? rep.type.toUpperCase() : 'N/A';
+          document.getElementById('view-date').textContent = Utils.formatDate(rep.createdAt);
 
-      const data = rep.data || {};
-      // Defensive: only 'daily'/'weekly'/'monthly' currently produce this exact shape.
-      // Other types (executive/incident/risk/compliance) have their own structure —
-      // fall back to zeros rather than crashing until those get dedicated views.
-      const summary = data.summary || {};
-      const logsCount = summary.logs ?? 0;
-      const alertsCount = summary.alerts ?? 0;
-      const incidentsCount = summary.incidents ?? 0;
-      const criticalCount = summary.critical ?? 0;
+          var data = rep.data || {};
+          var summary = data.summary || {};
+          
+          document.getElementById('view-stat-logs').textContent = (summary.logs || 0).toLocaleString();
+          document.getElementById('view-stat-alerts').textContent = (summary.alerts || 0).toLocaleString();
+          document.getElementById('view-stat-incidents').textContent = (summary.incidents || 0).toLocaleString();
+          document.getElementById('view-stat-critical').textContent = (summary.critical || 0).toLocaleString();
 
-      document.getElementById('view-stat-logs').textContent = logsCount.toLocaleString();
-      document.getElementById('view-stat-alerts').textContent = alertsCount.toLocaleString();
-      document.getElementById('view-stat-incidents').textContent = incidentsCount.toLocaleString();
-      document.getElementById('view-stat-critical').textContent = criticalCount.toLocaleString();
+          // Render Alerts list
+          var alertBody = document.getElementById('view-alerts-list');
+          if (alertBody) {
+            alertBody.innerHTML = '';
+            var alertsList = Array.isArray(data.alerts) ? data.alerts : [];
+            if (alertsList.length === 0) {
+              alertBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No alerts logged in time scope</td></tr>';
+            } else {
+              alertsList.forEach(function(a) {
+                var sevBadge = Utils.getSeverityBadgeClass(a.severity);
+                alertBody.innerHTML += `
+                  <tr>
+                    <td><strong>${Utils.escapeHTML(a.title)}</strong></td>
+                    <td>${Utils.escapeHTML(a.category || 'Threat')}</td>
+                    <td><span class="badge ${sevBadge}">${Utils.escapeHTML(a.severity || 'info')}</span></td>
+                    <td>${Utils.formatDate(a.createdAt)}</td>
+                  </tr>
+                `;
+              });
+            }
+          }
 
-      // Render Alerts list
-      const alertBody = document.getElementById('view-alerts-list');
-      alertBody.innerHTML = '';
-      const alertsList = Array.isArray(data.alerts) ? data.alerts : [];
-      if (alertsList.length === 0) {
-        alertBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No alerts logged in time scope</td></tr>`;
-      } else {
-        alertsList.forEach(a => {
-          alertBody.innerHTML += `
-            <tr>
-              <td><strong>${Utils.escapeHTML(a.title)}</strong></td>
-              <td>${Utils.escapeHTML(a.category || 'Threat')}</td>
-              <td><span class="badge ${Utils.getSeverityBadgeClass(a.severity)}">${a.severity}</span></td>
-              <td>${Utils.formatDate(a.createdAt)}</td>
-            </tr>
-          `;
-        });
+          // Render Incidents list
+          var incBody = document.getElementById('view-incidents-list');
+          if (incBody) {
+            incBody.innerHTML = '';
+            var incList = Array.isArray(data.incidents) ? data.incidents : [];
+            if (incList.length === 0) {
+              incBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No incidents logged in time scope</td></tr>';
+            } else {
+              incList.forEach(function(inc) {
+                var sevBadge = Utils.getSeverityBadgeClass(inc.severity);
+                incBody.innerHTML += `
+                  <tr>
+                    <td><strong>${Utils.escapeHTML(inc.title)}</strong></td>
+                    <td><span class="badge ${sevBadge}">${Utils.escapeHTML(inc.severity || 'info')}</span></td>
+                    <td>${Utils.escapeHTML(inc.status || 'new')}</td>
+                    <td>${Utils.formatDate(inc.createdAt)}</td>
+                  </tr>
+                `;
+              });
+            }
+          }
+
+          document.getElementById('view-report-modal').classList.add('active');
+        }
+      } catch (err) {
+        console.error('Failed to view report:', err);
+        Swal.fire('Error', err.message || 'Failed to view report details', 'error');
       }
-
-      // Render Incidents list
-      const incBody = document.getElementById('view-incidents-list');
-      incBody.innerHTML = '';
-      const incList = Array.isArray(data.incidents) ? data.incidents : [];
-      if (incList.length === 0) {
-        incBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No incidents logged in time scope</td></tr>`;
-      } else {
-        incList.forEach(inc => {
-          incBody.innerHTML += `
-            <tr>
-              <td><strong>${Utils.escapeHTML(inc.title)}</strong></td>
-              <td><span class="badge ${Utils.getSeverityBadgeClass(inc.severity)}">${inc.severity}</span></td>
-              <td>${inc.status}</td>
-              <td>${Utils.formatDate(inc.createdAt)}</td>
-            </tr>
-          `;
-        });
-      }
-
-      document.getElementById('view-report-modal').classList.add('active');
     }
-  } catch (err) {
-    Swal.fire('Error', err.message || 'Failed to view report details', 'error');
-  }
-}
 
     async function deleteReport(id) {
-      const confirm = await Swal.fire({
+      var confirm = await Swal.fire({
         title: 'Delete this report?',
         text: "The generated statistics compilation details will be deleted permanently.",
         icon: 'warning',
@@ -775,12 +812,13 @@ async function viewReport(id) {
 
       if (confirm.isConfirmed) {
         try {
-          const response = await API.delete(`/reports/${id}`);
+          var response = await API.delete('/reports/' + id);
           if (response.success) {
             Swal.fire('Deleted!', 'Report record has been removed.', 'success');
             await loadReports();
           }
         } catch (err) {
+          console.error('Failed to delete report:', err);
           Swal.fire('Error', err.message || 'Deletion failed', 'error');
         }
       }
