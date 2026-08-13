@@ -67,6 +67,12 @@ const Auth = {
         const { user, accessToken, refreshToken } = response.data;
         API.setTokens(accessToken, refreshToken);
         localStorage.setItem('currentUser', JSON.stringify(user));
+        // Store the organization ID for this user
+        if (user.organization) {
+          const orgId = typeof user.organization === 'object' ? user.organization._id : user.organization;
+          localStorage.setItem('userOrgId', orgId);
+          localStorage.setItem('currentOrgId', orgId);
+        }
         return { success: true, user };
       }
       return { success: false, message: response.message || 'Login failed' };
@@ -83,6 +89,8 @@ const Auth = {
       await API.post('/auth/logout').catch(() => {});
     } finally {
       API.clearTokens();
+      localStorage.removeItem('userOrgId');
+      localStorage.removeItem('currentOrgId');
       window.location.href = '/pages/login.html';
     }
   },
@@ -107,8 +115,17 @@ const Auth = {
     try {
       const response = await API.get('/users/me');
       if (response.success && response.data) {
-        localStorage.setItem('currentUser', JSON.stringify(response.data));
-        return response.data;
+        const user = response.data;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        if (user.organization) {
+          const orgId = typeof user.organization === 'object' ? user.organization._id : user.organization;
+          localStorage.setItem('userOrgId', orgId);
+          // Only set currentOrgId if not already set or if super admin
+          if (!localStorage.getItem('currentOrgId') || this.isSuperAdmin()) {
+            localStorage.setItem('currentOrgId', orgId);
+          }
+        }
+        return user;
       }
       return null;
     } catch (e) {
@@ -148,30 +165,72 @@ const Auth = {
   },
 
   /**
+   * Check if user is Super Admin
+   */
+  isSuperAdmin() {
+    const user = this.getCurrentUser();
+    return user && user.role === this.ROLES.SUPER_ADMIN;
+  },
+
+  /**
+   * Get user's organization ID
+   */
+  getUserOrganizationId() {
+    const user = this.getCurrentUser();
+    if (!user) return null;
+    if (user.organization) {
+      return typeof user.organization === 'object' ? user.organization._id : user.organization;
+    }
+    return localStorage.getItem('userOrgId') || null;
+  },
+
+  /**
+   * Check if user can access a specific organization
+   */
+  canAccessOrganization(orgId) {
+    if (!orgId) return false;
+    if (this.isSuperAdmin()) return true;
+    const userOrgId = this.getUserOrganizationId();
+    return userOrgId === orgId;
+  },
+
+  /**
    * Check if user has permission
    */
-hasPermission(permission) {
-  const user = this.getCurrentUser();
-  if (!user || !user.role) return false;
+  hasPermission(permission) {
+    const user = this.getCurrentUser();
+    if (!user || !user.role) return false;
 
-  if (user.role === this.ROLES.SUPER_ADMIN) return true;
+    if (user.role === this.ROLES.SUPER_ADMIN) return true;
 
-  // Prefer permissions the server actually computed from the Role collection —
-  // this is the source of truth the backend's authorize() middleware also uses.
-  if (Array.isArray(user.permissions)) {
-    return user.permissions.includes(permission) || user.permissions.includes('*');
-  }
+    // Prefer permissions the server actually computed from the Role collection
+    if (Array.isArray(user.permissions)) {
+      return user.permissions.includes(permission) || user.permissions.includes('*');
+    }
 
-  // Fallback for sessions cached before this change shipped.
-  const allowedPermissions = this.ROLE_PERMISSIONS[user.role] || [];
-  return allowedPermissions.includes(permission) || allowedPermissions.includes('*');
-},
+    // Fallback for sessions cached before this change shipped.
+    const allowedPermissions = this.ROLE_PERMISSIONS[user.role] || [];
+    return allowedPermissions.includes(permission) || allowedPermissions.includes('*');
+  },
+
   /**
    * Enforce permission, redirect to 403 page if not authorized
    */
   enforcePermission(permission) {
     if (!this.checkAuth()) return false;
     if (!this.hasPermission(permission)) {
+      window.location.href = '/pages/403.html';
+      return false;
+    }
+    return true;
+  },
+
+  /**
+   * Enforce organization access
+   */
+  enforceOrganizationAccess(orgId) {
+    if (!this.checkAuth()) return false;
+    if (!this.canAccessOrganization(orgId)) {
       window.location.href = '/pages/403.html';
       return false;
     }

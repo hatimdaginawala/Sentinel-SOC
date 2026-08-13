@@ -24,6 +24,13 @@ const API = {
   },
 
   /**
+   * Get the current organization ID for requests
+   */
+  getCurrentOrganizationId() {
+    return localStorage.getItem('currentOrgId') || localStorage.getItem('userOrgId') || '';
+  },
+
+  /**
    * Safe fetch with authorization header injection
    */
   async request(endpoint, options = {}) {
@@ -35,6 +42,13 @@ const API = {
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
+    
+    // Add organization header for all requests
+    const orgId = this.getCurrentOrganizationId();
+    if (orgId) {
+      headers.set('X-Organization-Id', orgId);
+    }
+    
     if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
     }
@@ -51,14 +65,23 @@ const API = {
       if (response.status === 401 && this.getRefreshToken()) {
         const refreshed = await this.refreshTokens();
         if (refreshed) {
-          // Retry the original request
           headers.set('Authorization', `Bearer ${this.getAccessToken()}`);
           response = await fetch(url, config);
         } else {
-          // Token expired or invalid, force logout
           this.handleSessionExpired();
           throw new Error('Session expired. Please log in again.');
         }
+      }
+
+      // Handle 403 Forbidden (access denied)
+      if (response.status === 403) {
+        const data = await response.json().catch(() => ({}));
+        throw {
+          status: response.status,
+          message: data.message || 'You do not have permission to access this resource.',
+          errors: data.errors,
+          isForbidden: true
+        };
       }
 
       // Parse JSON response
@@ -110,6 +133,8 @@ const API = {
 
   handleSessionExpired() {
     this.clearTokens();
+    localStorage.removeItem('userOrgId');
+    localStorage.removeItem('currentOrgId');
     if (!window.location.pathname.endsWith('login.html')) {
       window.location.href = '/pages/login.html';
     }

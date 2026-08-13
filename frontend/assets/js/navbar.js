@@ -42,7 +42,6 @@ const Navbar = {
 
     const updateTime = () => {
       const now = new Date();
-      // Format: YYYY-MM-DD HH:MM:SS UTC+XX
       const pad = (n) => String(n).padStart(2, '0');
       const yyyy = now.getFullYear();
       const mm = pad(now.getMonth() + 1);
@@ -90,20 +89,37 @@ const Navbar = {
       const response = await API.get('/organizations');
       if (response.success && response.data) {
         const orgs = response.data.items || (Array.isArray(response.data) ? response.data : []);
+        const isSuperAdmin = Auth.isSuperAdmin();
+        const userOrgId = Auth.getUserOrganizationId();
+        
         select.innerHTML = '';
         
-        orgs.forEach(org => {
+        // Filter organizations based on user's role
+        const accessibleOrgs = isSuperAdmin ? orgs : orgs.filter(org => org._id === userOrgId);
+        
+        if (accessibleOrgs.length === 0) {
+          select.innerHTML = '<option value="">No organizations available</option>';
+          return;
+        }
+
+        accessibleOrgs.forEach(org => {
           const opt = document.createElement('option');
           opt.value = org._id;
           opt.textContent = org.name;
           select.appendChild(opt);
         });
 
-        // Set selected organization from user details or saved preference
+        // Set selected organization
         let currentOrgId = localStorage.getItem('currentOrgId');
+        
+        // Validate that the currentOrgId is accessible
+        if (currentOrgId && !accessibleOrgs.some(org => org._id === currentOrgId)) {
+          // If not accessible, fall back to user's organization
+          currentOrgId = userOrgId || (accessibleOrgs[0] ? accessibleOrgs[0]._id : '');
+        }
+        
         if (!currentOrgId) {
-          const user = Auth.getCurrentUser();
-          currentOrgId = user && user.organization ? user.organization : (orgs[0] ? orgs[0]._id : '');
+          currentOrgId = userOrgId || (accessibleOrgs[0] ? accessibleOrgs[0]._id : '');
           if (currentOrgId) {
             localStorage.setItem('currentOrgId', currentOrgId);
           }
@@ -113,14 +129,38 @@ const Navbar = {
           select.value = currentOrgId;
         }
 
-        // Add change listener
+        // Add change listener with organization validation
         select.addEventListener('change', (e) => {
-          localStorage.setItem('currentOrgId', e.target.value);
+          const selectedOrgId = e.target.value;
+          
+          // Validate that the user can access this organization
+          if (!Auth.canAccessOrganization(selectedOrgId)) {
+            Swal.fire({
+              title: 'Access Denied',
+              text: 'You do not have permission to access this organization.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+            // Revert to previous selection
+            e.target.value = localStorage.getItem('currentOrgId');
+            return;
+          }
+          
+          localStorage.setItem('currentOrgId', selectedOrgId);
           // Notify page to reload organizational data
-          window.dispatchEvent(new CustomEvent('orgchanged', { detail: { organizationId: e.target.value } }));
+          window.dispatchEvent(new CustomEvent('orgchanged', { detail: { organizationId: selectedOrgId } }));
           // Simple reload ensures consistency
           window.location.reload();
         });
+
+        // Hide the organization selector for non-super-admin users with only one org
+        if (!isSuperAdmin && accessibleOrgs.length <= 1) {
+          select.style.display = 'none';
+          const orgSelector = select.closest('.org-selector');
+          if (orgSelector) {
+            orgSelector.style.display = 'none';
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to load organizations in navbar:', error);
@@ -146,11 +186,13 @@ const Navbar = {
 
       debounceTimeout = setTimeout(async () => {
         try {
-          // Perform parallel lookups on search-supported endpoints
+          const orgId = localStorage.getItem('currentOrgId') || '';
+          
+          // Perform parallel lookups on search-supported endpoints with organization filter
           const [alertsRes, incidentsRes, assetsRes] = await Promise.all([
-            API.get(`/alerts?search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
-            API.get(`/incidents?search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
-            API.get(`/assets?search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] }))
+            API.get(`/alerts?organization=${orgId}&search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
+            API.get(`/incidents?organization=${orgId}&search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
+            API.get(`/assets?organization=${orgId}&search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] }))
           ]);
 
           const alerts = alertsRes.data?.alerts || alertsRes.data || [];

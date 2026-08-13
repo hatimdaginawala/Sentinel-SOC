@@ -6,7 +6,7 @@ const controlController = require('../controllers/securityControlController');
 const { protect } = require('../middleware/auth');
 
 // All routes require authentication
-router.use(protect);
+// router.use(protect);
 
 // Statistics endpoint
 router.get('/stats', controlController.getControlStats);

@@ -1,6 +1,6 @@
 /**
  * Database Seed Script - Complete
- * Populates the database with comprehensive test data for all modules
+ * Populates the database with comprehensive test data for all modules including Network Defense
  * 
  * Run: node src/seed.js
  */
@@ -28,6 +28,13 @@ const AuditLog = require('./models/AuditLog');
 const Settings = require('./models/Settings');
 const Role = require('./models/Role');
 
+// NEW: Network Defense Models
+const NetworkTopology = require('./models/NetworkTopology');
+const SecuritySensor = require('./models/SecuritySensor');
+const SecurityControl = require('./models/SecurityControl');
+const SecurityTest = require('./models/SecurityTest');
+const SecurityAssessment = require('./models/SecurityAssessment');
+
 const { ROLES, ASSET_TYPES, SEVERITY, ALERT_STATUS, INCIDENT_STATUS, RULE_TYPES } = require('./config/constants');
 
 // Import logger
@@ -48,6 +55,10 @@ function randomItem(arr) {
 
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
+}
+
+function generateId() {
+  return crypto.randomBytes(8).toString('hex');
 }
 
 // Seed data
@@ -593,7 +604,453 @@ const seedData = {
     }
   ],
 
-  // Log Sources
+  // NEW: Network Topology Data
+  networkTopologies: [
+    {
+      name: 'Acme Corporation Network Architecture',
+      description: 'Production network topology for Acme Corporation',
+      organizationName: 'Acme Corporation',
+      nodes: [
+        { id: 'internet', label: 'Internet', group: 'internet', zone: 'External' },
+        { id: 'firewall', label: 'Edge Firewall', group: 'firewall', zone: 'Perimeter' },
+        { id: 'dmz-router', label: 'DMZ Router', group: 'router', zone: 'DMZ' },
+        { id: 'core-router', label: 'Core Router', group: 'router', zone: 'Internal LAN' },
+        { id: 'web-server', label: 'DMZ Web Server', group: 'server', zone: 'DMZ' },
+        { id: 'db-server', label: 'Database Server', group: 'server', zone: 'Internal LAN' },
+        { id: 'workstation', label: 'Staff Workstation', group: 'workstation', zone: 'Internal LAN' },
+        { id: 'suricata', label: 'Suricata IDS', group: 'sensor', zone: 'DMZ' },
+        { id: 'zeek', label: 'Zeek Monitor', group: 'sensor', zone: 'Internal LAN' },
+        { id: 'sentinel-soc', label: 'SentinelSOC Core', group: 'server', zone: 'Management' }
+      ],
+      edges: [
+        { from: 'internet', to: 'firewall' },
+        { from: 'firewall', to: 'dmz-router' },
+        { from: 'firewall', to: 'core-router' },
+        { from: 'dmz-router', to: 'web-server' },
+        { from: 'dmz-router', to: 'suricata' },
+        { from: 'core-router', to: 'db-server' },
+        { from: 'core-router', to: 'workstation' },
+        { from: 'core-router', to: 'zeek' },
+        { from: 'suricata', to: 'sentinel-soc' },
+        { from: 'zeek', to: 'sentinel-soc' }
+      ]
+    },
+    {
+      name: 'Global Finance Network',
+      description: 'Financial network topology for Global Finance Inc',
+      organizationName: 'Global Finance Inc',
+      nodes: [
+        { id: 'internet', label: 'Internet', group: 'internet', zone: 'External' },
+        { id: 'firewall', label: 'Financial Firewall', group: 'firewall', zone: 'Perimeter' },
+        { id: 'core-router', label: 'Core Router', group: 'router', zone: 'Internal LAN' },
+        { id: 'web-server', label: 'Financial Web Server', group: 'server', zone: 'Internal LAN' },
+        { id: 'db-server', label: 'Financial Database', group: 'server', zone: 'Internal LAN' },
+        { id: 'workstation', label: 'Financial Workstation', group: 'workstation', zone: 'Internal LAN' },
+        { id: 'suricata', label: 'Suricata IDS', group: 'sensor', zone: 'Internal LAN' },
+        { id: 'sentinel-soc', label: 'SentinelSOC Core', group: 'server', zone: 'Management' }
+      ],
+      edges: [
+        { from: 'internet', to: 'firewall' },
+        { from: 'firewall', to: 'core-router' },
+        { from: 'core-router', to: 'web-server' },
+        { from: 'core-router', to: 'db-server' },
+        { from: 'core-router', to: 'workstation' },
+        { from: 'core-router', to: 'suricata' },
+        { from: 'suricata', to: 'sentinel-soc' }
+      ]
+    }
+  ],
+
+  // NEW: Security Sensors
+  securitySensors: [
+    {
+      name: 'Suricata-IDS-DMZ-01',
+      type: 'Suricata',
+      description: 'Primary Suricata IDS monitoring DMZ traffic',
+      networkZone: 'DMZ',
+      ipAddress: '192.168.1.100',
+      port: 5632,
+      status: 'Active',
+      healthScore: 95,
+      capabilities: ['ids', 'network_monitoring', 'threat_detection'],
+      tags: ['production', 'dmz', 'ids'],
+      organizationName: 'Acme Corporation',
+      eventsReceived: 15234,
+      eventsForwarded: 14892,
+      alertsGenerated: 234,
+      lastHeartbeat: new Date(),
+      version: '6.0.0',
+      configuration: {
+        interface: 'eth0',
+        ruleset: 'emerging-threats',
+        alertLevel: 'high',
+        threads: 4
+      }
+    },
+    {
+      name: 'Zeek-Monitor-Internal-01',
+      type: 'Zeek',
+      description: 'Zeek network monitor for internal LAN traffic analysis',
+      networkZone: 'Internal LAN',
+      ipAddress: '192.168.1.101',
+      port: 5432,
+      status: 'Active',
+      healthScore: 92,
+      capabilities: ['network_monitoring', 'dns_monitoring', 'http_monitoring', 'tls_monitoring'],
+      tags: ['production', 'internal', 'monitoring'],
+      organizationName: 'Acme Corporation',
+      eventsReceived: 45234,
+      eventsForwarded: 44500,
+      alertsGenerated: 89,
+      lastHeartbeat: new Date(),
+      version: '5.2.0',
+      configuration: {
+        interface: 'eth1',
+        capture: 'full',
+        protocols: ['dns', 'http', 'ssl', 'conn']
+      }
+    },
+    {
+      name: 'Firewall-Edge-01',
+      type: 'Firewall',
+      description: 'Edge firewall monitoring with logging',
+      networkZone: 'Perimeter',
+      ipAddress: '192.168.1.1',
+      port: 443,
+      status: 'Active',
+      healthScore: 98,
+      capabilities: ['ips', 'log_collection', 'threat_detection'],
+      tags: ['production', 'firewall', 'edge'],
+      organizationName: 'Acme Corporation',
+      eventsReceived: 89234,
+      eventsForwarded: 87123,
+      alertsGenerated: 567,
+      lastHeartbeat: new Date(),
+      version: '2.7.0',
+      configuration: {
+        logging: 'full',
+        blockStrategy: 'default',
+        interface: 'wan'
+      }
+    },
+    {
+      name: 'Suricata-IDS-Finance-01',
+      type: 'Suricata',
+      description: 'Suricata IDS for financial network',
+      networkZone: 'Internal LAN',
+      ipAddress: '10.0.0.50',
+      port: 5632,
+      status: 'Active',
+      healthScore: 88,
+      capabilities: ['ids', 'network_monitoring'],
+      tags: ['production', 'finance', 'ids'],
+      organizationName: 'Global Finance Inc',
+      eventsReceived: 8234,
+      eventsForwarded: 7892,
+      alertsGenerated: 134,
+      lastHeartbeat: new Date(),
+      version: '6.0.0',
+      configuration: {
+        interface: 'eth0',
+        ruleset: 'financial',
+        alertLevel: 'medium'
+      }
+    },
+    {
+      name: 'Host-Collector-HCS-01',
+      type: 'Host Collector',
+      description: 'Host collector for healthcare systems',
+      networkZone: 'Management',
+      ipAddress: '172.16.0.50',
+      port: 4567,
+      status: 'Active',
+      healthScore: 85,
+      capabilities: ['host_monitoring', 'log_collection'],
+      tags: ['production', 'healthcare', 'host'],
+      organizationName: 'Healthcare Systems',
+      eventsReceived: 5234,
+      eventsForwarded: 5123,
+      alertsGenerated: 45,
+      lastHeartbeat: new Date(),
+      version: '3.1.5',
+      configuration: {
+        monitoring: 'full',
+        interval: 60
+      }
+    }
+  ],
+
+  // NEW: Security Controls
+  securityControls: [
+    {
+      threatName: 'SSH Brute Force Attack',
+      description: 'Addressing SSH brute force attacks on Linux servers',
+      securityImpact: 'Unauthorized access to critical servers, potential data breach',
+      riskLevel: 'High',
+      recommendedControls: [
+        { name: 'Enable fail2ban', description: 'Install and configure fail2ban to block IPs after multiple failures', priority: 'High', status: 'Implemented' },
+        { name: 'Implement rate limiting', description: 'Configure rate limiting for SSH connections using iptables or firewalld', priority: 'Medium', status: 'In Progress' },
+        { name: 'Use SSH key authentication', description: 'Disable password authentication and use SSH keys only', priority: 'High', status: 'Pending' }
+      ],
+      mitigations: [
+        { name: 'Block IP after 5 attempts', description: 'Automatically block source IPs after 5 failed SSH attempts', priority: 'High', status: 'Implemented' },
+        { name: 'Monitor SSH logs', description: 'Regularly review SSH authentication logs for patterns', priority: 'Medium', status: 'Pending' }
+      ],
+      analystActions: [
+        { name: 'Review SSH logs', description: 'Check for successful breaches from blocked IPs', priority: 'High' },
+        { name: 'Rotate compromised credentials', description: 'If any breach detected, rotate affected user credentials', priority: 'Critical' }
+      ],
+      complianceFrameworks: ['NIST', 'ISO27001'],
+      tags: ['ssh', 'brute_force', 'authentication'],
+      organizationName: 'Acme Corporation'
+    },
+    {
+      threatName: 'SQL Injection Attack',
+      description: 'Preventing SQL injection attacks on web applications',
+      securityImpact: 'Potential data exfiltration, database compromise',
+      riskLevel: 'Critical',
+      recommendedControls: [
+        { name: 'Use parameterized queries', description: 'Implement parameterized queries for all database interactions', priority: 'Critical', status: 'In Progress' },
+        { name: 'Web Application Firewall', description: 'Deploy WAF to filter malicious SQL patterns', priority: 'High', status: 'Pending' },
+        { name: 'Input validation', description: 'Implement strict input validation on all user inputs', priority: 'High', status: 'Implemented' }
+      ],
+      mitigations: [
+        { name: 'Database firewall', description: 'Implement database firewall to block suspicious queries', priority: 'High', status: 'Pending' },
+        { name: 'Regular code reviews', description: 'Conduct regular code reviews for SQL injection vulnerabilities', priority: 'Medium', status: 'In Progress' }
+      ],
+      analystActions: [
+        { name: 'Review application logs', description: 'Check for SQL injection attempts in web server logs', priority: 'High' },
+        { name: 'Monitor database access', description: 'Monitor for unauthorized database queries', priority: 'High' }
+      ],
+      complianceFrameworks: ['NIST', 'ISO27001', 'PCI-DSS'],
+      tags: ['sql_injection', 'web_attack', 'database'],
+      organizationName: 'Acme Corporation'
+    },
+    {
+      threatName: 'Malware Communication',
+      description: 'Detecting and preventing malware C2 communication',
+      securityImpact: 'System compromise, data exfiltration, lateral movement',
+      riskLevel: 'Critical',
+      recommendedControls: [
+        { name: 'Network segmentation', description: 'Implement network segmentation to limit malware spread', priority: 'High', status: 'Implemented' },
+        { name: 'DNS filtering', description: 'Implement DNS filtering to block known malicious domains', priority: 'High', status: 'Pending' },
+        { name: 'Endpoint detection', description: 'Deploy endpoint detection and response (EDR) solutions', priority: 'Critical', status: 'In Progress' }
+      ],
+      mitigations: [
+        { name: 'Network monitoring', description: 'Monitor for unusual outbound connections', priority: 'High', status: 'Implemented' },
+        { name: 'IOC blocking', description: 'Block known C2 IPs and domains at the firewall', priority: 'High', status: 'Pending' }
+      ],
+      analystActions: [
+        { name: 'Investigate outbound traffic', description: 'Investigate any unusual outbound traffic patterns', priority: 'High' },
+        { name: 'Update IOCs', description: 'Regularly update C2 IP and domain lists', priority: 'Medium' }
+      ],
+      complianceFrameworks: ['NIST', 'ISO27001'],
+      tags: ['malware', 'c2', 'network'],
+      organizationName: 'Acme Corporation'
+    }
+  ],
+
+  // NEW: Security Tests
+  securityTests: [
+    {
+      name: 'Port Scan Detection Test',
+      description: 'Validates that Suricata detects port scanning activity',
+      testType: 'port_scan',
+      status: 'PASS',
+      actualResult: JSON.stringify({
+        logGenerated: true,
+        logIngested: true,
+        detectionTriggered: true,
+        alertCreated: true,
+        incidentCreated: true,
+        evidenceRecorded: true
+      }),
+      payload: {
+        eventType: 'port_scan',
+        sourceIP: '192.168.1.200',
+        destinationIP: '192.168.1.10',
+        destinationPort: 80,
+        protocol: 'TCP',
+        message: 'Port scan detected from 192.168.1.200'
+      },
+      organizationName: 'Acme Corporation'
+    },
+    {
+      name: 'Brute Force Detection Test',
+      description: 'Validates that brute force attacks are detected',
+      testType: 'brute_force',
+      status: 'PASS',
+      actualResult: JSON.stringify({
+        logGenerated: true,
+        logIngested: true,
+        detectionTriggered: true,
+        alertCreated: true,
+        incidentCreated: false,
+        evidenceRecorded: true
+      }),
+      payload: {
+        eventType: 'brute_force',
+        sourceIP: '192.168.1.201',
+        destinationIP: '192.168.1.20',
+        destinationPort: 22,
+        protocol: 'TCP',
+        message: 'Brute force attack detected from 192.168.1.201'
+      },
+      organizationName: 'Acme Corporation'
+    },
+    {
+      name: 'Suspicious Connection Test',
+      description: 'Validates detection of suspicious outbound connections',
+      testType: 'suspicious_traffic',
+      status: 'PASS',
+      actualResult: JSON.stringify({
+        logGenerated: true,
+        logIngested: true,
+        detectionTriggered: true,
+        alertCreated: true,
+        incidentCreated: false,
+        evidenceRecorded: true
+      }),
+      payload: {
+        eventType: 'suspicious_traffic',
+        sourceIP: '192.168.1.30',
+        destinationIP: '185.130.5.10',
+        destinationPort: 4444,
+        protocol: 'TCP',
+        message: 'Suspicious connection to malicious C2 server'
+      },
+      organizationName: 'Acme Corporation'
+    },
+    {
+      name: 'SQL Injection Detection Test',
+      description: 'Validates SQL injection detection capabilities',
+      testType: 'sql_injection',
+      status: 'PENDING',
+      payload: {
+        eventType: 'sql_injection',
+        sourceIP: '45.33.22.11',
+        destinationIP: '192.168.1.10',
+        destinationPort: 443,
+        protocol: 'TCP',
+        message: "SQL injection attempt: ' OR '1'='1",
+        payload: "' OR '1'='1"
+      },
+      organizationName: 'Acme Corporation'
+    },
+    {
+      name: 'XSS Detection Test',
+      description: 'Validates XSS detection capabilities',
+      testType: 'xss',
+      status: 'PENDING',
+      payload: {
+        eventType: 'xss',
+        sourceIP: '89.45.67.23',
+        destinationIP: '192.168.1.10',
+        destinationPort: 443,
+        protocol: 'TCP',
+        message: "XSS attempt: <script>alert('xss')</script>",
+        payload: "<script>alert('xss')</script>"
+      },
+      organizationName: 'Acme Corporation'
+    }
+  ],
+
+  // NEW: Security Assessments
+  securityAssessments: [
+    {
+      title: 'Q4 2024 Security Posture Review',
+      description: 'Comprehensive security assessment for Q4 2024 covering all assets and threats',
+      date: new Date('2024-12-15'),
+      riskLevel: 'High',
+      status: 'Final',
+      assessmentPeriod: {
+        startDate: new Date('2024-10-01'),
+        endDate: new Date('2024-12-15')
+      },
+      securityWeaknesses: [
+        'Outdated SSL/TLS configurations on web servers',
+        'No rate limiting on authentication endpoints',
+        'Default credentials still present on some IoT devices',
+        'No regular vulnerability scanning in place',
+        'Missing backup encryption'
+      ],
+      recommendedControls: [
+        { name: 'Update SSL/TLS configurations', description: 'Disable outdated protocols and implement TLS 1.3', priority: 'High' },
+        { name: 'Implement rate limiting', description: 'Add rate limiting to authentication endpoints', priority: 'High' },
+        { name: 'Credentials management', description: 'Audit and remove default credentials', priority: 'Critical' },
+        { name: 'Regular vulnerability scanning', description: 'Implement weekly automated vulnerability scans', priority: 'Medium' }
+      ],
+      mitigations: [
+        { name: 'Deploy WAF', description: 'Implement Web Application Firewall', priority: 'High' },
+        { name: 'Implement IP blocking', description: 'Block malicious IPs at firewall', priority: 'Medium' }
+      ],
+      summary: 'Acme Corporation demonstrates a solid security foundation but requires immediate attention to high-risk vulnerabilities. Critical findings include the presence of default credentials and outdated SSL configurations. Recommended actions should prioritize credential management and encryption upgrades.',
+      tags: ['quarterly', 'compliance', 'high_risk'],
+      organizationName: 'Acme Corporation',
+      nextReviewDate: new Date('2025-03-15')
+    },
+    {
+      title: 'Financial Security Assessment - Q4',
+      description: 'Security assessment for Global Finance Inc focusing on financial data protection',
+      date: new Date('2024-11-30'),
+      riskLevel: 'Medium',
+      status: 'Review',
+      assessmentPeriod: {
+        startDate: new Date('2024-09-01'),
+        endDate: new Date('2024-11-30')
+      },
+      securityWeaknesses: [
+        'Inadequate logging for financial transactions',
+        'No segmentation between production and development networks',
+        'Missing encryption for database backups'
+      ],
+      recommendedControls: [
+        { name: 'Implement comprehensive logging', description: 'Add detailed logging for all financial transactions', priority: 'High' },
+        { name: 'Network segmentation', description: 'Implement VLANs to separate development from production', priority: 'Medium' },
+        { name: 'Encrypt backups', description: 'Implement encryption for all database backups', priority: 'High' }
+      ],
+      mitigations: [
+        { name: 'Log monitoring', description: 'Implement real-time log monitoring for financial systems', priority: 'High' }
+      ],
+      summary: 'Global Finance Inc requires improvements in logging and network segmentation. The identified weaknesses pose moderate risk to financial data integrity. Priority should be given to implementing comprehensive transaction logging and securing backups.',
+      tags: ['quarterly', 'finance', 'compliance'],
+      organizationName: 'Global Finance Inc',
+      nextReviewDate: new Date('2025-02-28')
+    },
+    {
+      title: 'Healthcare Compliance Assessment',
+      description: 'HIPAA compliance assessment for Healthcare Systems',
+      date: new Date('2024-11-01'),
+      riskLevel: 'Critical',
+      status: 'In Progress',
+      assessmentPeriod: {
+        startDate: new Date('2024-08-01'),
+        endDate: new Date('2024-11-01')
+      },
+      securityWeaknesses: [
+        'No encryption for patient data at rest',
+        'Weak access controls for medical records',
+        'Missing audit logs for data access',
+        'No data loss prevention controls'
+      ],
+      recommendedControls: [
+        { name: 'Encrypt patient data', description: 'Implement encryption for all patient data at rest', priority: 'Critical' },
+        { name: 'Implement RBAC', description: 'Role-based access control for medical records', priority: 'High' },
+        { name: 'Enable audit logging', description: 'Implement detailed audit logs for all data access', priority: 'High' },
+        { name: 'Deploy DLP', description: 'Implement Data Loss Prevention controls', priority: 'High' }
+      ],
+      mitigations: [
+        { name: 'Access monitoring', description: 'Monitor all access to patient records', priority: 'High' },
+        { name: 'Regular audits', description: 'Conduct regular compliance audits', priority: 'Medium' }
+      ],
+      summary: 'Healthcare Systems has critical compliance gaps requiring immediate attention. The lack of encryption for patient data and weak access controls pose significant risk. Remediation must prioritize encryption and access control implementation to ensure HIPAA compliance.',
+      tags: ['healthcare', 'hipaa', 'compliance'],
+      organizationName: 'Healthcare Systems',
+      nextReviewDate: new Date('2025-02-01')
+    }
+  ],
+
+  // Log Sources (unchanged)
   logSources: [
     {
       sourceName: 'ACME-Windows-Server-01',
@@ -810,20 +1267,6 @@ const seedData = {
         domain: 'ACME.local'
       }
     },
-    {
-      sourceType: 'Windows',
-      eventCategory: 'system',
-      eventType: 'Account Locked',
-      severity: 'high',
-      message: 'Account locked for user admin after 5 failed attempts',
-      username: 'admin',
-      sourceIP: '192.168.1.102',
-      rawLog: {
-        eventId: 4740,
-        lockoutDuration: 30,
-        attempts: 5
-      }
-    },
     // Linux Events
     {
       sourceType: 'Linux',
@@ -852,20 +1295,6 @@ const seedData = {
         failures: 3
       }
     },
-    {
-      sourceType: 'Linux',
-      eventCategory: 'access',
-      eventType: 'sudo Execution',
-      severity: 'low',
-      message: 'User jsmith executed sudo command: systemctl restart apache2',
-      username: 'jsmith',
-      sourceIP: '192.168.1.101',
-      rawLog: {
-        pid: 12347,
-        command: 'systemctl restart apache2',
-        tty: 'pts/1'
-      }
-    },
     // Apache Events
     {
       sourceType: 'Apache',
@@ -881,38 +1310,6 @@ const seedData = {
         status: 403,
         payload: "' OR '1'='1",
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'
-      }
-    },
-    {
-      sourceType: 'Apache',
-      eventCategory: 'web',
-      eventType: '404 Not Found',
-      severity: 'medium',
-      message: '404 Not Found: /wp-admin (probing attempt)',
-      sourceIP: '89.45.67.23',
-      destinationIP: '192.168.1.10',
-      rawLog: {
-        method: 'GET',
-        uri: '/wp-admin',
-        status: 404,
-        referer: '-'
-      }
-    },
-    // Nginx Events
-    {
-      sourceType: 'Nginx',
-      eventCategory: 'web',
-      eventType: 'Reverse Proxy Error',
-      severity: 'high',
-      message: '502 Bad Gateway from upstream server backend-01:8080',
-      sourceIP: '192.168.1.101',
-      destinationIP: '192.168.1.70',
-      rawLog: {
-        method: 'GET',
-        uri: '/api/users',
-        status: 502,
-        upstream: 'backend-01:8080',
-        upstream_response_time: 3.456
       }
     },
     // Suricata Events
@@ -934,27 +1331,6 @@ const seedData = {
         },
         flow: 'to_server',
         app_proto: 'dns'
-      }
-    },
-    // Snort Events
-    {
-      sourceType: 'Snort',
-      eventCategory: 'network',
-      eventType: 'Port Scan',
-      severity: 'high',
-      message: 'Port scan detected from 185.130.5.10 targeting multiple ports',
-      sourceIP: '185.130.5.10',
-      destinationIP: '192.168.1.10',
-      rawLog: {
-        rule: {
-          sid: 1000001,
-          name: 'Port Scan Detected',
-          category: 'ATTACK',
-          severity: 'high',
-          msg: 'Port scanning activity detected from source'
-        },
-        protocol: 'TCP',
-        scanned_ports: [22, 80, 443, 3306, 5432]
       }
     },
     // Firewall Events
@@ -1013,41 +1389,6 @@ const seedData = {
       confidence: 95,
       tags: ['malware', 'c2'],
       status: 'active'
-    },
-    {
-      title: 'Port Scan Detected',
-      description: 'Port scan detected from external IP 185.130.5.10',
-      severity: 'high',
-      category: 'network',
-      threatType: 'port_scan',
-      sourceIP: '185.130.5.10',
-      destinationIP: '192.168.1.10',
-      confidence: 80,
-      tags: ['port_scan', 'reconnaissance'],
-      status: 'active'
-    },
-    {
-      title: 'Suspicious PowerShell Activity',
-      description: 'PowerShell execution with suspicious parameters detected',
-      severity: 'high',
-      category: 'system',
-      threatType: 'suspicious_powershell',
-      sourceIP: '192.168.1.101',
-      confidence: 75,
-      tags: ['powershell', 'suspicious'],
-      status: 'investigating'
-    },
-    {
-      title: 'DDoS Attack Pattern Detected',
-      description: 'Potential DDoS attack pattern detected from multiple sources',
-      severity: 'critical',
-      category: 'network',
-      threatType: 'ddos',
-      sourceIP: '212.102.40.15',
-      destinationIP: '192.168.1.10',
-      confidence: 70,
-      tags: ['ddos', 'attack'],
-      status: 'active'
     }
   ],
 
@@ -1061,9 +1402,6 @@ const seedData = {
       status: 'investigating',
       detectionSource: 'automated',
       tags: ['ransomware', 'critical_incident'],
-      affectedAssets: [
-        { impact: 'compromised', notes: 'Files encrypted' }
-      ],
       containmentMeasures: [
         {
           measure: 'Isolated affected systems from network',
@@ -1078,22 +1416,7 @@ const seedData = {
       category: 'phishing',
       status: 'investigating',
       detectionSource: 'user_report',
-      tags: ['phishing', 'social_engineering'],
-      affectedUsers: [
-        { impact: 'affected' }
-      ]
-    },
-    {
-      title: 'Data Breach Investigation',
-      description: 'Sensitive customer data potentially exfiltrated through unauthorized access',
-      severity: 'critical',
-      category: 'data_breach',
-      status: 'in_progress',
-      detectionSource: 'automated',
-      tags: ['data_breach', 'pci'],
-      affectedAssets: [
-        { impact: 'compromised' }
-      ]
+      tags: ['phishing', 'social_engineering']
     }
   ],
 
@@ -1109,17 +1432,6 @@ const seedData = {
       source: 'threat_intelligence',
       threatType: 'malware',
       tags: ['c2', 'emotet', 'malware']
-    },
-    {
-      type: 'ip',
-      value: '212.102.40.15',
-      indicator: '212.102.40.15',
-      description: 'Known IP associated with DDoS botnet',
-      severity: 'high',
-      confidence: 85,
-      source: 'threat_intelligence',
-      threatType: 'botnet',
-      tags: ['ddos', 'botnet']
     },
     {
       type: 'domain',
@@ -1142,28 +1454,6 @@ const seedData = {
       source: 'threat_intelligence',
       threatType: 'ransomware',
       tags: ['ransomware', 'file_hash']
-    },
-    {
-      type: 'email',
-      value: 'phishing@malicious.com',
-      indicator: 'phishing@malicious.com',
-      description: 'Email address used in phishing campaigns',
-      severity: 'high',
-      confidence: 80,
-      source: 'community',
-      threatType: 'phishing',
-      tags: ['phishing', 'email']
-    },
-    {
-      type: 'url',
-      value: 'https://malicious-payload.com/download.exe',
-      indicator: 'https://malicious-payload.com/download.exe',
-      description: 'Known malicious payload URL',
-      severity: 'critical',
-      confidence: 90,
-      source: 'threat_intelligence',
-      threatType: 'malware',
-      tags: ['malware', 'payload']
     }
   ],
 
@@ -1178,11 +1468,7 @@ const seedData = {
       threatType: 'brute_force',
       condition: {
         eventCategory: 'authentication',
-        eventType: 'Failed Login',
-        $or: [
-          { sourceIP: { $regex: '.*' } },
-          { username: { $regex: '.*' } }
-        ]
+        eventType: 'Failed Login'
       },
       actions: [
         {
@@ -1191,25 +1477,12 @@ const seedData = {
             priority: 'high',
             notify: true
           }
-        },
-        {
-          type: 'block',
-          configuration: {
-            duration: 300,
-            source: 'sourceIP'
-          }
         }
       ],
       enabled: true,
       priority: 8,
       cooldown: 60,
-      suppression: {
-        enabled: true,
-        threshold: 5,
-        duration: 300
-      },
-      tags: ['brute_force', 'authentication'],
-      references: ['https://owasp.org/brute-force']
+      tags: ['brute_force', 'authentication']
     },
     {
       name: 'SQL Injection Detection',
@@ -1220,10 +1493,7 @@ const seedData = {
       threatType: 'sql_injection',
       condition: {
         eventCategory: 'web',
-        $or: [
-          { message: { $regex: '.*(OR|UNION|SELECT|DROP).*' } },
-          { rawLog: { $regex: '.*(OR|UNION|SELECT|DROP).*' } }
-        ]
+        message: { $regex: '.*(OR|UNION|SELECT|DROP).*' }
       },
       actions: [
         {
@@ -1232,20 +1502,12 @@ const seedData = {
             priority: 'critical',
             notify: true
           }
-        },
-        {
-          type: 'block',
-          configuration: {
-            duration: 600,
-            source: 'sourceIP'
-          }
         }
       ],
       enabled: true,
       priority: 10,
       cooldown: 30,
-      tags: ['web_attack', 'sql_injection'],
-      references: ['https://owasp.org/sql-injection']
+      tags: ['web_attack', 'sql_injection']
     },
     {
       name: 'Malware Communication Detection',
@@ -1265,20 +1527,12 @@ const seedData = {
             priority: 'critical',
             notify: true
           }
-        },
-        {
-          type: 'isolate',
-          configuration: {
-            duration: 3600,
-            target: 'asset'
-          }
         }
       ],
       enabled: true,
       priority: 10,
       cooldown: 0,
-      tags: ['malware', 'c2'],
-      references: ['https://www.mandiant.com/malware']
+      tags: ['malware', 'c2']
     },
     {
       name: 'Port Scan Detection',
@@ -1303,8 +1557,7 @@ const seedData = {
       enabled: true,
       priority: 6,
       cooldown: 300,
-      tags: ['reconnaissance', 'port_scan'],
-      references: ['https://en.wikipedia.org/wiki/Port_scanner']
+      tags: ['reconnaissance', 'port_scan']
     }
   ],
 
@@ -1388,13 +1641,13 @@ const seedData = {
  */
 async function seedDatabase() {
   try {
-    console.log(' Starting database seed...');
+    console.log('🚀 Starting database seed...');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     // Get MongoDB URI
     let mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sentinel_soc';
     
-    console.log(` Connecting to MongoDB at: ${mongoURI}`);
+    console.log(`📡 Connecting to MongoDB at: ${mongoURI}`);
     
     // Connect with IPv4 preference
     await mongoose.connect(mongoURI, {
@@ -1403,10 +1656,10 @@ async function seedDatabase() {
       family: 4
     });
     
-    console.log(' Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 
-    // Clear existing data (comment out if you want to keep existing data)
-    console.log(' Clearing existing data...');
+    // Clear existing data
+    console.log('🧹 Clearing existing data...');
     await Organization.deleteMany({});
     await User.deleteMany({});
     await Asset.deleteMany({});
@@ -1419,25 +1672,32 @@ async function seedDatabase() {
     await Report.deleteMany({});
     await AuditLog.deleteMany({});
     await Settings.deleteMany({});
-    console.log(' Data cleared');
+    
+    // Clear NEW modules
+    await NetworkTopology.deleteMany({});
+    await SecuritySensor.deleteMany({});
+    await SecurityControl.deleteMany({});
+    await SecurityTest.deleteMany({});
+    await SecurityAssessment.deleteMany({});
+    console.log('✅ Data cleared');
 
     // Seed Organizations
-    console.log('\n Seeding Organizations...');
+    console.log('\n🏢 Seeding Organizations...');
     const createdOrgs = [];
     for (const orgData of seedData.organizations) {
       const org = new Organization(orgData);
       await org.save();
       createdOrgs.push(org);
-      console.log(`  Created: ${org.name} (${org.code})`);
+      console.log(`  ✅ Created: ${org.name} (${org.code})`);
     }
 
     // Seed Users
-    console.log('\n Seeding Users...');
+    console.log('\n👤 Seeding Users...');
     const createdUsers = [];
     for (const userData of seedData.users) {
       const org = createdOrgs.find(o => o.name === userData.organizationName);
       if (!org) {
-        console.log(`  Organization not found for ${userData.email}, skipping...`);
+        console.log(`  ⚠️ Organization not found for ${userData.email}, skipping...`);
         continue;
       }
 
@@ -1448,7 +1708,7 @@ async function seedDatabase() {
       });
       await user.save();
       createdUsers.push(user);
-      console.log(`  Created: ${user.email} (${user.role}) - ${org.name}`);
+      console.log(`  ✅ Created: ${user.email} (${user.role}) - ${org.name}`);
     }
 
     // Update superadmin to be createdBy for other users
@@ -1463,12 +1723,13 @@ async function seedDatabase() {
     }
 
     // Seed Assets
-    console.log('\n Seeding Assets...');
+    console.log('\n🖥️ Seeding Assets...');
     const createdAssets = [];
+    const assetMap = {};
     for (const assetData of seedData.assets) {
       const org = createdOrgs.find(o => o.name === assetData.organizationName);
       if (!org) {
-        console.log(`  Organization not found for ${assetData.name}, skipping...`);
+        console.log(`  ⚠️ Organization not found for ${assetData.name}, skipping...`);
         continue;
       }
 
@@ -1479,46 +1740,43 @@ async function seedDatabase() {
       });
       await asset.save();
       createdAssets.push(asset);
-      console.log(`  Created: ${asset.name} (${asset.type}) - ${org.name}`);
+      assetMap[assetData.hostname] = asset._id;
+      console.log(`  ✅ Created: ${asset.name} (${asset.type}) - ${org.name}`);
     }
 
     // Seed Log Sources
-    console.log('\n Seeding Log Sources...');
+    console.log('\n📊 Seeding Log Sources...');
     const createdSources = [];
     for (const sourceData of seedData.logSources) {
       const org = createdOrgs.find(o => o.name === sourceData.organizationName);
       if (!org) {
-        console.log(`  Organization not found for ${sourceData.sourceName}, skipping...`);
+        console.log(`  ⚠️ Organization not found for ${sourceData.sourceName}, skipping...`);
         continue;
       }
 
-      const asset = createdAssets.find(a => 
-        a.hostname === sourceData.assetHostname && 
-        a.organization.toString() === org._id.toString()
-      );
-      
-      if (!asset) {
-        console.log(`  Asset not found for ${sourceData.assetHostname}, skipping...`);
+      const assetId = assetMap[sourceData.assetHostname];
+      if (!assetId) {
+        console.log(`  ⚠️ Asset not found for ${sourceData.assetHostname}, skipping...`);
         continue;
       }
 
       const source = new LogSource({
         ...sourceData,
         organization: org._id,
-        asset: asset._id,
+        asset: assetId,
         authenticationToken: generateToken(),
         createdBy: superadmin?._id
       });
       await source.save();
       createdSources.push(source);
-      console.log(`  Created: ${source.sourceName} (${source.sourceType}) - ${org.name}`);
+      console.log(`  ✅ Created: ${source.sourceName} (${source.sourceType}) - ${org.name}`);
     }
 
     // Seed Logs
-    console.log('\n Seeding Logs...');
+    console.log('\n📝 Seeding Logs...');
     const createdLogs = [];
     for (const logData of seedData.logs) {
-      const org = createdOrgs[0]; // Acme Corporation
+      const org = createdOrgs[0];
       const asset = createdAssets[0];
       const source = createdSources.find(s => 
         s.organization.toString() === org._id.toString() && 
@@ -1526,7 +1784,7 @@ async function seedDatabase() {
       );
 
       if (!source) {
-        console.log(`  Source not found for ${logData.sourceType}, skipping...`);
+        console.log(`  ⚠️ Source not found for ${logData.sourceType}, skipping...`);
         continue;
       }
 
@@ -1543,11 +1801,11 @@ async function seedDatabase() {
       });
       await log.save();
       createdLogs.push(log);
-      console.log(`  Created: ${log.eventType} - ${log.sourceType}`);
+      console.log(`  ✅ Created: ${log.eventType} - ${log.sourceType}`);
     }
 
     // Seed Alerts
-    console.log('\n Seeding Alerts...');
+    console.log('\n🔔 Seeding Alerts...');
     const createdAlerts = [];
     for (const alertData of seedData.alerts) {
       const org = createdOrgs[0];
@@ -1568,11 +1826,11 @@ async function seedDatabase() {
       });
       await alert.save();
       createdAlerts.push(alert);
-      console.log(`  Created: ${alert.title} (${alert.severity})`);
+      console.log(`  ✅ Created: ${alert.title} (${alert.severity})`);
     }
 
     // Seed Incidents
-    console.log('\n Seeding Incidents...');
+    console.log('\n🎫 Seeding Incidents...');
     const createdIncidents = [];
     for (const incidentData of seedData.incidents) {
       const org = createdOrgs[0];
@@ -1582,20 +1840,15 @@ async function seedDatabase() {
         organization: org._id,
         createdBy: superadmin?._id,
         discoveredAt: randomDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), new Date()),
-        alerts: createdAlerts.slice(0, 2).map(a => a._id),
-        affectedAssets: incidentData.affectedAssets?.map(asset => ({
-          ...asset,
-          asset: createdAssets[0]?._id
-        })) || []
+        alerts: createdAlerts.slice(0, 2).map(a => a._id)
       });
       await incident.save();
       createdIncidents.push(incident);
-      console.log(`  Created: ${incident.title} (${incident.severity})`);
+      console.log(`  ✅ Created: ${incident.title} (${incident.severity})`);
     }
 
     // Seed IOCs
-    console.log('\n Seeding IOCs...');
-    const createdIOCs = [];
+    console.log('\n🔍 Seeding IOCs...');
     for (const iocData of seedData.iocs) {
       const org = createdOrgs[0];
       
@@ -1606,12 +1859,12 @@ async function seedDatabase() {
         firstSeen: randomDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date())
       });
       await ioc.save();
-      createdIOCs.push(ioc);
-      console.log(`  Created: ${ioc.indicator} (${ioc.type})`);
+      console.log(`  ✅ Created: ${ioc.indicator} (${ioc.type})`);
     }
 
     // Seed Threat Rules
-    console.log('\n Seeding Threat Rules...');
+    console.log('\n📋 Seeding Threat Rules...');
+    const createdRules = [];
     for (const ruleData of seedData.threatRules) {
       const org = createdOrgs[0];
       
@@ -1621,11 +1874,171 @@ async function seedDatabase() {
         createdBy: superadmin?._id
       });
       await rule.save();
-      console.log(`  Created: ${rule.name} (${rule.type})`);
+      createdRules.push(rule);
+      console.log(`  ✅ Created: ${rule.name} (${rule.type})`);
+    }
+
+    // NEW: Seed Network Topologies
+    console.log('\n🌐 Seeding Network Topologies...');
+    for (const topologyData of seedData.networkTopologies) {
+      const org = createdOrgs.find(o => o.name === topologyData.organizationName);
+      if (!org) {
+        console.log(`  ⚠️ Organization not found for ${topologyData.name}, skipping...`);
+        continue;
+      }
+
+      const topology = new NetworkTopology({
+        ...topologyData,
+        organization: org._id,
+        createdBy: superadmin?._id,
+        updatedBy: superadmin?._id
+      });
+      await topology.save();
+      console.log(`  ✅ Created: ${topology.name} - ${org.name}`);
+    }
+
+    // NEW: Seed Security Sensors
+    console.log('\n📡 Seeding Security Sensors...');
+    const createdSensors = [];
+    for (const sensorData of seedData.securitySensors) {
+      const org = createdOrgs.find(o => o.name === sensorData.organizationName);
+      if (!org) {
+        console.log(`  ⚠️ Organization not found for ${sensorData.name}, skipping...`);
+        continue;
+      }
+
+      const sensor = new SecuritySensor({
+        ...sensorData,
+        organization: org._id,
+        createdBy: superadmin?._id,
+        updatedBy: superadmin?._id
+      });
+      await sensor.save();
+      createdSensors.push(sensor);
+      console.log(`  ✅ Created: ${sensor.name} (${sensor.type}) - ${org.name}`);
+    }
+
+    // NEW: Seed Security Controls
+// NEW: Seed Security Controls
+console.log('\n🛡️ Seeding Security Controls...');
+// First, get all created threat rules for mapping
+const allThreatRules = await ThreatRule.find({});
+console.log(`  Found ${allThreatRules.length} threat rules for mapping`);
+
+for (const controlData of seedData.securityControls) {
+  const org = createdOrgs.find(o => o.name === controlData.organizationName);
+  if (!org) {
+    console.log(`  ⚠️ Organization not found for ${controlData.threatName}, skipping...`);
+    continue;
+  }
+
+  // Find matching threat rule - more flexible mapping
+  let threatRule = null;
+  
+  // Try exact match first
+  const threatTypeMap = {
+    'SSH Brute Force Attack': 'brute_force',
+    'Brute Force Attack': 'brute_force',
+    'SQL Injection Attack': 'sql_injection',
+    'Malware Communication': 'malware_communication',
+    'Port Scan Detection': 'port_scan'
+  };
+  
+  const mappedType = threatTypeMap[controlData.threatName];
+  if (mappedType) {
+    threatRule = allThreatRules.find(r => r.threatType === mappedType);
+  }
+  
+  // If not found by mapped type, try partial match
+  if (!threatRule) {
+    const searchTerms = controlData.threatName.toLowerCase().split(' ');
+    threatRule = allThreatRules.find(r => {
+      const ruleName = r.name.toLowerCase();
+      return searchTerms.some(term => ruleName.includes(term) && term.length > 3);
+    });
+  }
+  
+  // If still not found, try to find by category
+  if (!threatRule) {
+    const categoryMap = {
+      'SSH Brute Force Attack': 'authentication',
+      'SQL Injection Attack': 'web',
+      'Malware Communication': 'malware'
+    };
+    const category = categoryMap[controlData.threatName];
+    if (category) {
+      threatRule = allThreatRules.find(r => r.category === category);
+    }
+  }
+
+  const control = new SecurityControl({
+    ...controlData,
+    organization: org._id,
+    threatRule: threatRule?._id || null,
+    createdBy: superadmin?._id,
+    updatedBy: superadmin?._id
+  });
+  
+  try {
+    await control.save();
+    console.log(`  ✅ Created: ${control.threatName} - ${org.name}${threatRule ? ` (linked to: ${threatRule.name})` : ' (no rule linked)'}`);
+  } catch (error) {
+    console.log(`  ⚠️ Failed to create ${controlData.threatName}: ${error.message}`);
+  }
+}
+
+    // NEW: Seed Security Tests
+    console.log('\n🧪 Seeding Security Tests...');
+    for (const testData of seedData.securityTests) {
+      const org = createdOrgs.find(o => o.name === testData.organizationName);
+      if (!org) {
+        console.log(`  ⚠️ Organization not found for ${testData.name}, skipping...`);
+        continue;
+      }
+
+      // Find matching threat rule for expected detection
+      const threatRule = createdRules.find(r => 
+        r.threatType === testData.testType
+      );
+
+      const test = new SecurityTest({
+        ...testData,
+        organization: org._id,
+        expectedDetection: threatRule?._id || null,
+        createdBy: superadmin?._id
+      });
+      await test.save();
+      console.log(`  ✅ Created: ${test.name} (${test.testType}) - ${org.name}`);
+    }
+
+    // NEW: Seed Security Assessments
+    console.log('\n📋 Seeding Security Assessments...');
+    for (const assessmentData of seedData.securityAssessments) {
+      const org = createdOrgs.find(o => o.name === assessmentData.organizationName);
+      if (!org) {
+        console.log(`  ⚠️ Organization not found for ${assessmentData.title}, skipping...`);
+        continue;
+      }
+
+      // Link some alerts and incidents to the assessment
+      const alerts = createdAlerts.slice(0, 2).map(a => a._id);
+      const incidents = createdIncidents.slice(0, 1).map(i => i._id);
+      const assets = createdAssets.slice(0, 2).map(a => a._id);
+
+      const assessment = new SecurityAssessment({
+        ...assessmentData,
+        organization: org._id,
+        threatsDetected: alerts,
+        incidents: incidents,
+        affectedAssets: assets,
+        createdBy: superadmin?._id
+      });
+      await assessment.save();
+      console.log(`  ✅ Created: ${assessment.title} (${assessment.riskLevel}) - ${org.name}`);
     }
 
     // Seed Reports
-    console.log('\n Seeding Reports...');
+    console.log('\n📄 Seeding Reports...');
     for (const reportData of seedData.reports) {
       const org = createdOrgs[0];
       
@@ -1637,11 +2050,11 @@ async function seedDatabase() {
         generatedAt: new Date()
       });
       await report.save();
-      console.log(`  Created: ${report.title} (${report.type})`);
+      console.log(`  ✅ Created: ${report.title} (${report.type})`);
     }
 
     // Seed Audit Logs
-    console.log('\n Seeding Audit Logs...');
+    console.log('\n📜 Seeding Audit Logs...');
     for (const auditLogData of seedData.auditLogs) {
       const org = createdOrgs[0];
       const user = createdUsers[0];
@@ -1653,13 +2066,13 @@ async function seedDatabase() {
         performedBy: user?._id
       });
       await auditLog.save();
-      console.log(`  Created: ${auditLog.action} - ${auditLog.resource}`);
+      console.log(`  ✅ Created: ${auditLog.action} - ${auditLog.resource}`);
     }
 
     // Print summary
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(' Database seeding completed successfully!');
-    console.log(` Summary:`);
+    console.log('✅ Database seeding completed successfully!');
+    console.log('📊 Summary:');
     console.log(`  Organizations: ${createdOrgs.length}`);
     console.log(`  Users: ${createdUsers.length}`);
     console.log(`  Assets: ${createdAssets.length}`);
@@ -1667,13 +2080,19 @@ async function seedDatabase() {
     console.log(`  Logs: ${createdLogs.length}`);
     console.log(`  Alerts: ${createdAlerts.length}`);
     console.log(`  Incidents: ${createdIncidents.length}`);
-    console.log(`  IOCs: ${createdIOCs.length}`);
+    console.log(`  IOCs: ${seedData.iocs.length}`);
     console.log(`  Threat Rules: ${seedData.threatRules.length}`);
     console.log(`  Reports: ${seedData.reports.length}`);
     console.log(`  Audit Logs: ${seedData.auditLogs.length}`);
+    console.log(`\n🆕 NEW Modules:`);
+    console.log(`  Network Topologies: ${seedData.networkTopologies.length}`);
+    console.log(`  Security Sensors: ${seedData.securitySensors.length}`);
+    console.log(`  Security Controls: ${seedData.securityControls.length}`);
+    console.log(`  Security Tests: ${seedData.securityTests.length}`);
+    console.log(`  Security Assessments: ${seedData.securityAssessments.length}`);
 
-    // Print authentication details for simulators
-    console.log('\n Log Source Authentication Tokens for Simulators:');
+    // Print log source authentication tokens for simulators
+    console.log('\n🔑 Log Source Authentication Tokens for Simulators:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     for (const source of createdSources) {
       if (['Windows', 'Linux', 'Apache', 'Nginx', 'Suricata', 'Snort', 'pfSense'].includes(source.sourceType)) {
@@ -1685,7 +2104,7 @@ async function seedDatabase() {
     }
 
     // Print login credentials
-    console.log('\n Login Credentials:');
+    console.log('\n🔐 Login Credentials:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('Super Admin: superadmin@sentinel-soc.com / SuperAdmin@2024!');
     console.log('Security Admin: securityadmin@acme.com / Security@2024!');
@@ -1695,10 +2114,10 @@ async function seedDatabase() {
 
     // Close connection
     await mongoose.disconnect();
-    console.log('\n Disconnected from MongoDB');
+    console.log('\n🔌 Disconnected from MongoDB');
 
   } catch (error) {
-    console.error(' Error seeding database:', error.message);
+    console.error('❌ Error seeding database:', error.message);
     console.error(error.stack);
     process.exit(1);
   }

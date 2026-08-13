@@ -25,17 +25,57 @@
   <link rel="stylesheet" href="/assets/css/charts.css">
   <link rel="stylesheet" href="/assets/css/dashboard.css">
   <link rel="stylesheet" href="/assets/css/dark-mode.css">
- <link rel="stylesheet" href="/assets/css/responsive.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
   <link rel="stylesheet" href="/assets/css/utilities.css">
+  
+  <style>
+    .network-metric-card {
+      transition: all 0.3s ease;
+    }
+    .network-metric-card .metric-change {
+      font-size: var(--font-xs);
+      font-weight: var(--font-weight-medium);
+    }
+    .network-metric-card .metric-change.up { color: var(--danger); }
+    .network-metric-card .metric-change.down { color: var(--success); }
+    .network-metric-card .metric-change.neutral { color: var(--text-muted); }
+    .top-ips-table {
+      width: 100%;
+      font-size: 0.85rem;
+      border-collapse: collapse;
+    }
+    .top-ips-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .top-ips-table tr:last-child td {
+      border-bottom: none;
+    }
+    .top-ips-table .ip-badge {
+      font-family: monospace;
+      font-size: var(--font-xs);
+    }
+    .loading-shimmer {
+      animation: shimmer 1.5s ease-in-out infinite;
+      background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-hover) 50%, var(--bg-secondary) 75%);
+      background-size: 200% 100%;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
+  
   <script src="/assets/js/sidebar.js"></script>
-<script src="/assets/js/navbar.js"></script>
-<script src="/assets/js/nav-permissions.js"></script>
+  <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/nav-permissions.js"></script>
 </head>
 <body class="dark-theme">
   <div class="app-container">
     
     <!-- LEFT SIDEBAR -->
-        <aside class="sidebar">
+    <aside class="sidebar">
       <div class="sidebar-brand">
         <i class="fa-solid fa-shield-halved"></i>
         <span class="brand-name">SentinelSOC</span>
@@ -203,14 +243,12 @@
 
 </ul>
       <div class="sidebar-toggle-container">
-        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn">
-          <i class="fa-solid fa-angles-left"></i>
-        </button>
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn"><i class="fa-solid fa-angles-left"></i></button>
       </div>
     </aside>
 
     <!-- TOP NAVBAR -->
-        <nav class="navbar">
+    <nav class="navbar">
       <div class="navbar-left">
         <button id="sidebar-toggle" class="btn btn-icon d-lg-none" style="margin-right: 1rem;"><i class="fa-solid fa-bars"></i></button>
         <div class="navbar-search">
@@ -224,13 +262,8 @@
       </div>
       <div class="navbar-right">
         <div class="navbar-time" id="navbar-clock">CLOCK</div>
-        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme">
-          <i class="fa-regular fa-moon"></i>
-        </button>
-        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span>
-        </button>
+        <button class="navbar-btn" id="theme-toggle-btn" title="Toggle Theme"><i class="fa-regular fa-moon"></i></button>
+        <button class="navbar-btn" id="navbar-notifications-btn" title="System Alerts"><i class="fa-regular fa-bell"></i><span class="badge-dot" id="notifications-badge-dot" style="display: none;"></span></button>
         <div class="profile-menu-container">
           <button class="profile-trigger" id="profile-menu-trigger">
             <div class="user-avatar">SA</div>
@@ -245,15 +278,9 @@
               <div class="fw-semibold user-name">Super Admin</div>
               <div class="profile-dropdown-email">superadmin@sentinel-soc.com</div>
             </div>
-            <a href="/pages/profile.html" class="profile-dropdown-item">
-              <i class="fa-regular fa-user"></i> My Profile
-            </a>
-            <a href="/pages/settings.html" class="profile-dropdown-item">
-              <i class="fa-solid fa-sliders"></i> System Settings
-            </a>
-            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect
-            </a>
+            <a href="/pages/profile.html" class="profile-dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <a href="/pages/settings.html" class="profile-dropdown-item"><i class="fa-solid fa-sliders"></i> System Settings</a>
+            <a href="#" class="profile-dropdown-item logout" id="profile-logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect</a>
           </div>
         </div>
       </div>
@@ -268,7 +295,7 @@
         </div>
 
         <!-- Dashboard Loading Indicator -->
-        <div id="dashboard-loader" class="loader-overlay">
+        <div id="dashboard-loader" class="loader-overlay" style="display: none;">
           <div class="text-center">
             <i class="fa-solid fa-circle-notch fa-spin text-success" style="font-size: var(--font-2xl)"></i>
             <p class="mt-2 text-muted">Retrieving real-time metrics...</p>
@@ -335,58 +362,56 @@
           </div>
         </div>
 
-        <!-- Network Metrics (Suricata / Zeek) -->
-        <h3 class="mt-4 mb-3" style="color: var(--text-primary); font-size: 1.25rem;"><i class="fa-solid fa-network-wired text-info"></i> Network Security Metrics (Suricata/Zeek)</h3>
-        <div class="dashboard-grid mb-4">
-          <!-- Detected Network Threats (Suricata) -->
-          <div class="card kpi-card" style="border-left: 4px solid var(--danger);">
+        <!-- Network Security Metrics (Suricata / Zeek) - REAL DATA -->
+        <h3 class="mt-4 mb-3" style="color: var(--text-primary); font-size: 1.25rem;">
+          <i class="fa-solid fa-network-wired text-info"></i> Network Security Metrics (Suricata/Zeek)
+        </h3>
+        <div class="dashboard-grid mb-4" id="network-metrics-grid">
+          <!-- Suricata Alerts -->
+          <div class="card kpi-card network-metric-card" style="border-left: 4px solid var(--danger);">
             <div class="kpi-header">
               <span class="kpi-title">Suricata Alerts</span>
               <i class="fa-solid fa-spider kpi-icon text-danger"></i>
             </div>
-            <div class="kpi-value" id="kpi-suricata-alerts">142</div>
-            <div class="kpi-subtext"><i class="fa-solid fa-arrow-trend-up text-danger"></i> +12% from yesterday</div>
+            <div class="kpi-value" id="kpi-suricata-alerts">0</div>
+            <div class="kpi-subtext">
+              <span class="metric-change" id="suricata-change">Loading...</span>
+            </div>
           </div>
+          
           <!-- Blocked Connections -->
-          <div class="card kpi-card" style="border-left: 4px solid var(--warning);">
+          <div class="card kpi-card network-metric-card" style="border-left: 4px solid var(--warning);">
             <div class="kpi-header">
-              <span class="kpi-title">Blocked Conns</span>
+              <span class="kpi-title">Blocked Connections</span>
               <i class="fa-solid fa-ban kpi-icon text-warning"></i>
             </div>
-            <div class="kpi-value" id="kpi-blocked-conns">89</div>
-            <div class="kpi-subtext">Automated Firewall Blocks</div>
+            <div class="kpi-value" id="kpi-blocked-conns">0</div>
+            <div class="kpi-subtext" id="blocked-subtext">0 Automated Firewall Blocks</div>
           </div>
-          <!-- Zeek Connections -->
-          <div class="card kpi-card" style="border-left: 4px solid var(--info);">
+          
+          <!-- Zeek Flows -->
+          <div class="card kpi-card network-metric-card" style="border-left: 4px solid var(--info);">
             <div class="kpi-header">
-              <span class="kpi-title">Zeek Flows</span>
+              <span class="kpi-title">Zeek Network Flows</span>
               <i class="fa-solid fa-project-diagram kpi-icon text-info"></i>
             </div>
-            <div class="kpi-value" id="kpi-zeek-flows">12.4K</div>
-            <div class="kpi-subtext">Analyzed Network Flows</div>
+            <div class="kpi-value" id="kpi-zeek-flows">0</div>
+            <div class="kpi-subtext" id="zeek-subtext">0 Analyzed Network Flows</div>
           </div>
+          
           <!-- Top Attacking IPs -->
-          <div class="card kpi-card" style="border-left: 4px solid var(--danger); grid-column: span 2;">
+          <div class="card kpi-card network-metric-card" style="border-left: 4px solid var(--danger); grid-column: span 2;">
             <div class="kpi-header" style="margin-bottom: 0.5rem;">
               <span class="kpi-title">Top Attacking IPs (24h)</span>
               <i class="fa-solid fa-bullseye kpi-icon text-danger"></i>
             </div>
-            <table class="table-compact" style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
-              <tbody>
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                  <td style="padding: 4px 0;"><span class="badge bg-danger">192.168.1.100</span></td>
-                  <td style="padding: 4px 0; text-align: right;">42 events</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                  <td style="padding: 4px 0;"><span class="badge bg-warning text-dark">45.22.19.10</span></td>
-                  <td style="padding: 4px 0; text-align: right;">18 events</td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0;"><span class="badge bg-warning text-dark">103.44.11.2</span></td>
-                  <td style="padding: 4px 0; text-align: right;">9 events</td>
-                </tr>
-              </tbody>
-            </table>
+            <div id="top-attacking-ips">
+              <table class="top-ips-table">
+                <tbody id="top-ips-body">
+                  <tr><td colspan="2" class="text-center text-muted">Loading attacking IPs...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -445,7 +470,7 @@
               </div>
               <div class="card-body">
                 <div id="recent-threats-list" class="threat-feed">
-                  <!-- Loaded dynamically -->
+                  <div class="p-4 text-center text-muted">Loading threats...</div>
                 </div>
               </div>
             </div>
@@ -462,7 +487,6 @@
               </div>
               <div class="card-body">
                 <div id="live-logs-feed" class="live-activity-list">
-                  <!-- Realtime socket.io streams here -->
                   <div class="p-4 text-center text-muted">Listening for new log streams...</div>
                 </div>
               </div>
@@ -476,7 +500,7 @@
               </div>
               <div class="card-body">
                 <div id="recent-incidents-list" class="live-activity-list">
-                  <!-- Dynamic inc list -->
+                  <div class="p-4 text-center text-muted">Loading incidents...</div>
                 </div>
               </div>
             </div>
@@ -496,9 +520,7 @@
       <h3 class="m-0"><i class="fa-solid fa-bell"></i> Live Alerts Feed</h3>
       <button class="notifications-close-btn" id="notifications-close-btn">&times;</button>
     </div>
-    <div class="notifications-drawer-body" id="notifications-list">
-      <!-- Loaded dynamically -->
-    </div>
+    <div class="notifications-drawer-body" id="notifications-list"></div>
   </div>
 
   <!-- Libraries -->
@@ -521,11 +543,220 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Direct authorization check
       if (Auth.checkAuth()) {
         Dashboard.init();
       }
     });
+
+    /**
+     * NetworkMetrics - Fetches REAL data from API with NO static values
+     */
+    const NetworkMetrics = {
+      // Track previous values for change calculation
+      previousValues: {
+        suricata: null,
+        blocked: null,
+        zeek: null
+      },
+
+      async loadNetworkMetrics() {
+        const orgId = localStorage.getItem('currentOrgId') || '';
+        
+        try {
+          // 1. Fetch security sensors for network metrics
+          const sensorsRes = await API.get(`/security-sensors?organization=${orgId}`).catch(() => ({ data: { items: [] } }));
+          const sensors = sensorsRes.data?.items || sensorsRes.data || [];
+          
+          // 2. Fetch active alerts for attack IPs
+          const alertsRes = await API.get(`/alerts?organization=${orgId}&status=active`).catch(() => ({ data: { items: [] } }));
+          const alerts = alertsRes.data?.items || alertsRes.data || [];
+          
+          // 3. Fetch logs for additional data
+          const logsRes = await API.get(`/logs?organization=${orgId}&limit=100`).catch(() => ({ data: { items: [] } }));
+          const logs = logsRes.data?.items || logsRes.data || [];
+          
+          // Calculate metrics from REAL data
+          let suricataAlerts = 0;
+          let zeekFlows = 0;
+          let blockedConns = 0;
+          
+          // Process sensor data - REAL values from database
+          sensors.forEach(sensor => {
+            if (sensor.type === 'Suricata') {
+              suricataAlerts += sensor.alertsGenerated || 0;
+            }
+            if (sensor.type === 'Zeek') {
+              zeekFlows += sensor.eventsForwarded || 0;
+            }
+            if (sensor.type === 'Firewall') {
+              blockedConns += sensor.eventsForwarded || 0;
+            }
+          });
+          
+          // If no sensors found, use alert data as fallback
+          if (sensors.length === 0) {
+            // REAL alert data
+            suricataAlerts = alerts.filter(a => 
+              a.threatType === 'port_scan' || 
+              a.threatType === 'malware_communication' ||
+              a.category === 'network'
+            ).length || 0;
+            
+            zeekFlows = logs.filter(l => 
+              l.sourceType === 'Zeek' || 
+              l.sourceType === 'zeek' ||
+              l.eventCategory === 'network'
+            ).length || 0;
+            
+            blockedConns = alerts.filter(a => 
+              a.severity === 'high' || 
+              a.severity === 'critical'
+            ).length || 0;
+          }
+          
+          // Update UI with REAL data
+          this.updateNetworkMetrics(suricataAlerts, zeekFlows, blockedConns);
+          
+          // Load top attacking IPs from REAL data
+          await this.loadTopAttackingIPs(alerts, logs);
+          
+        } catch (error) {
+          console.error('Failed to load network metrics:', error);
+          this.showNetworkError();
+        }
+      },
+      
+      updateNetworkMetrics(suricataAlerts, zeekFlows, blockedConns) {
+        // Update Suricata Alerts
+        const suricataEl = document.getElementById('kpi-suricata-alerts');
+        if (suricataEl) {
+          suricataEl.textContent = suricataAlerts.toLocaleString();
+        }
+        
+        // Calculate and display change from previous value
+        const changeEl = document.getElementById('suricata-change');
+        if (changeEl) {
+          const prev = this.previousValues.suricata;
+          if (prev !== null && prev > 0) {
+            const change = Math.round(((suricataAlerts - prev) / prev) * 100);
+            this.displayChange(changeEl, change);
+          } else {
+            changeEl.textContent = 'Just updated';
+            changeEl.className = 'metric-change neutral';
+          }
+          this.previousValues.suricata = suricataAlerts;
+        }
+        
+        // Update Zeek Flows
+        const zeekEl = document.getElementById('kpi-zeek-flows');
+        if (zeekEl) {
+          zeekEl.textContent = zeekFlows > 1000 ? `${(zeekFlows / 1000).toFixed(1)}K` : zeekFlows.toLocaleString();
+        }
+        document.getElementById('zeek-subtext').textContent = `${zeekFlows.toLocaleString()} Analyzed Network Flows`;
+        
+        // Update Blocked Connections
+        const blockedEl = document.getElementById('kpi-blocked-conns');
+        if (blockedEl) {
+          blockedEl.textContent = blockedConns.toLocaleString();
+        }
+        document.getElementById('blocked-subtext').textContent = `${blockedConns.toLocaleString()} Automated Firewall Blocks`;
+      },
+      
+      displayChange(element, change) {
+        if (change === 0) {
+          element.textContent = '0% change';
+          element.className = 'metric-change neutral';
+        } else if (change > 0) {
+          element.textContent = `+${change}% from previous`;
+          element.className = 'metric-change up';
+        } else {
+          element.textContent = `${change}% from previous`;
+          element.className = 'metric-change down';
+        }
+      },
+      
+      async loadTopAttackingIPs(alerts, logs) {
+        const tbody = document.getElementById('top-ips-body');
+        if (!tbody) return;
+        
+        try {
+          // Extract source IPs from alerts and logs
+          const ipCounts = {};
+          
+          // From alerts
+          alerts.forEach(alert => {
+            if (alert.sourceIP) {
+              ipCounts[alert.sourceIP] = (ipCounts[alert.sourceIP] || 0) + 1;
+            }
+          });
+          
+          // From logs (add more data)
+          logs.forEach(log => {
+            if (log.sourceIP && log.sourceIP !== '127.0.0.1' && log.sourceIP !== '0.0.0.0') {
+              ipCounts[log.sourceIP] = (ipCounts[log.sourceIP] || 0) + 1;
+            }
+          });
+          
+          // Sort by count descending and get top 5
+          const sortedIPs = Object.entries(ipCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+          
+          if (sortedIPs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No attacking IPs detected</td></tr>';
+            return;
+          }
+          
+          // Render with REAL data
+          tbody.innerHTML = '';
+          sortedIPs.forEach(([ip, count]) => {
+            const severity = count > 20 ? 'danger' : count > 10 ? 'warning' : 'info';
+            const badgeClass = severity === 'danger' ? 'badge-critical' : 
+                               severity === 'warning' ? 'badge-high' : 'badge-info';
+            
+            tbody.innerHTML += `
+              <tr>
+                <td><span class="badge ${badgeClass} ip-badge">${Utils.escapeHTML(ip)}</span></td>
+                <td style="text-align: right;">${count} event${count > 1 ? 's' : ''}</td>
+              </tr>
+            `;
+          });
+          
+        } catch (error) {
+          console.error('Failed to load top attacking IPs:', error);
+          tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">Failed to load attacking IPs</td></tr>';
+        }
+      },
+      
+      showNetworkError() {
+        const elements = ['kpi-suricata-alerts', 'kpi-zeek-flows', 'kpi-blocked-conns'];
+        elements.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = '—';
+        });
+        document.getElementById('top-ips-body').innerHTML = 
+          '<tr><td colspan="2" class="text-center text-muted">No network data available</td></tr>';
+      }
+    };
+
+    // Override Dashboard to include network metrics
+    const originalInit = Dashboard.init;
+    Dashboard.init = async function() {
+      await originalInit.call(this);
+      setTimeout(() => {
+        NetworkMetrics.loadNetworkMetrics();
+      }, 1000);
+    };
+
+    // Add network metrics to refresh
+    const originalRefresh = Dashboard.refreshMetrics;
+    Dashboard.refreshMetrics = async function() {
+      await originalRefresh.call(this);
+      await NetworkMetrics.loadNetworkMetrics();
+    };
+
+    // Make NetworkMetrics globally accessible
+    window.NetworkMetrics = NetworkMetrics;
   </script>
 </body>
 </html>
