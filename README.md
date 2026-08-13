@@ -1549,6 +1549,21 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 
 ---
 
+## Security Disclaimer
+
+SentinelSOC is an educational and research-oriented SOC/SIEM platform.
+
+The security testing functionality is designed for controlled environments
+and uses benign test events to validate detection and response workflows.
+
+Do not use SentinelSOC's testing functionality against systems or networks
+without explicit authorization.
+
+The authors are not responsible for unauthorized use, misuse, damage, or
+security incidents resulting from the use of this software.
+
+---
+
 ## Support
 
 For support, email **hfdaginawala@gmail.com** or create an issue in the repository.
