@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SentinelSOC - Security Assessment</title>
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/reset.css">
@@ -21,6 +24,93 @@
   <link rel="stylesheet" href="/assets/css/dark-mode.css">
   <link rel="stylesheet" href="/assets/css/responsive.css">
   <link rel="stylesheet" href="/assets/css/utilities.css">
+  
+  <style>
+    .risk-level-display {
+      font-size: 2.5rem;
+      font-weight: var(--font-weight-bold);
+      text-align: center;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+    }
+    .risk-level-display.low { color: var(--success); background: rgba(46, 125, 50, 0.1); }
+    .risk-level-display.medium { color: var(--warning); background: rgba(237, 137, 54, 0.1); }
+    .risk-level-display.high { color: var(--danger); background: rgba(197, 48, 48, 0.1); }
+    .risk-level-display.critical { color: var(--danger); background: rgba(197, 48, 48, 0.2); border: 1px solid var(--danger); }
+    
+    .assessment-detail-section {
+      margin-bottom: var(--spacing-md);
+    }
+    .assessment-detail-section .section-title {
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-secondary);
+      font-size: var(--font-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--spacing-sm);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-xs);
+    }
+    .list-item {
+      padding: var(--spacing-sm);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-item .item-name {
+      font-weight: var(--font-weight-medium);
+      color: var(--text-primary);
+    }
+    .list-item .item-desc {
+      color: var(--text-secondary);
+      font-size: var(--font-sm);
+    }
+    .linked-item {
+      display: inline-block;
+      margin: 2px 4px 2px 0;
+    }
+    .badge-draft { background: var(--text-muted); color: white; }
+    .badge-progress { background: var(--warning); color: var(--text-primary); }
+    .badge-review { background: var(--info); color: white; }
+    .badge-final { background: var(--success); color: white; }
+    .badge-control-active { background: var(--success); color: white; }
+    .badge-control-draft { background: var(--text-muted); color: white; }
+    .badge-control-deprecated { background: var(--warning); color: var(--text-primary); }
+    .badge-control-archived { background: var(--danger); color: white; }
+    .tab-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: var(--font-sm);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    .tab-btn.active {
+      background: var(--color-primary);
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body class="dark-theme">
   <div class="app-container">
@@ -262,56 +352,283 @@
             <div class="h2 m-0 mt-1" id="stat-risk">-</div>
           </div>
           <div class="card p-3 text-center">
-            <div class="text-secondary font-xs uppercase fw-bold">Threats Assessed</div>
-            <div class="h2 text-warning m-0 mt-1" id="stat-threats">0</div>
+            <div class="text-secondary font-xs uppercase fw-bold">Total Assessments</div>
+            <div class="h2 text-primary m-0 mt-1" id="stat-total">0</div>
           </div>
           <div class="card p-3 text-center">
-            <div class="text-secondary font-xs uppercase fw-bold">Incidents Assessed</div>
-            <div class="h2 text-danger m-0 mt-1" id="stat-incidents">0</div>
+            <div class="text-secondary font-xs uppercase fw-bold">In Progress</div>
+            <div class="h2 text-warning m-0 mt-1" id="stat-progress">0</div>
           </div>
           <div class="card p-3 text-center">
-            <div class="text-secondary font-xs uppercase fw-bold">Affected Assets</div>
-            <div class="h2 text-info m-0 mt-1" id="stat-assets">0</div>
+            <div class="text-secondary font-xs uppercase fw-bold">Finalized</div>
+            <div class="h2 text-success m-0 mt-1" id="stat-final">0</div>
           </div>
         </div>
 
-        <div class="card mb-4">
-          <div class="card-header">
-            <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Assessment History</span>
+        <!-- Tabs -->
+        <div class="tab-container">
+          <button class="tab-btn active" data-tab="assessments" onclick="switchTab('assessments')">
+            <i class="fa-solid fa-list"></i> Assessments
+          </button>
+          <button class="tab-btn" data-tab="controls" onclick="switchTab('controls')">
+            <i class="fa-solid fa-shield-halved"></i> Controls Library
+          </button>
+          <button class="tab-btn" data-tab="stats" onclick="switchTab('stats')">
+            <i class="fa-solid fa-chart-bar"></i> Statistics
+          </button>
+        </div>
+
+        <!-- Tab: Assessments -->
+        <div id="tab-assessments" class="tab-content active">
+          <div class="card mb-4">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Assessment History</span>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-container">
+                <table id="assessments-table" class="enterprise-table display w-full">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Date</th>
+                      <th>Risk Level</th>
+                      <th>Status</th>
+                      <th>Threats</th>
+                      <th>Incidents</th>
+                      <th>Assets</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="assessments-list">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <table class="enterprise-table w-full">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Date</th>
-                  <th>Risk Level</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="assessments-list">
-                <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
-              </tbody>
-            </table>
+        </div>
+
+        <!-- Tab: Controls Library -->
+        <div id="tab-controls" class="tab-content">
+          <div class="card mb-4">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-shield-halved"></i> Security Controls Library</span>
+              <button class="btn btn-primary btn-sm" id="btn-add-control"><i class="fa-solid fa-plus"></i> Add Control</button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-container">
+                <table id="controls-table" class="enterprise-table display w-full">
+                  <thead>
+                    <tr>
+                      <th>Threat Name</th>
+                      <th>Risk Level</th>
+                      <th>Controls</th>
+                      <th>Mitigations</th>
+                      <th>Actions</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="controls-list">
+                    <tr><td colspan="7" class="text-center text-muted">Loading controls...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Statistics -->
+        <div id="tab-stats" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Assessment & Control Statistics</span>
+            </div>
+            <div class="card-body" id="stats-content">
+              <div class="text-center text-muted py-4">Loading statistics...</div>
+            </div>
           </div>
         </div>
 
       </div>
     </main>
 
-    <!-- Assessment Detail Modal -->
+    <!-- CREATE ASSESSMENT MODAL -->
+    <div class="modal-overlay" id="create-assessment-modal">
+      <div class="modal-content" style="max-width: 650px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Create Security Assessment</h3>
+          <button class="modal-close" id="create-assessment-modal-close">&times;</button>
+        </div>
+        <form id="create-assessment-form">
+          <div class="modal-body">
+            <p class="text-muted mb-3">Generate a comprehensive security assessment for your organization.</p>
+
+            <div class="form-group">
+              <label class="form-label">Assessment Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" class="form-control" placeholder="Q4 Security Posture Review" required>
+              <span class="form-error">Title is required</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="3" placeholder="Summarize the scope of this assessment..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" id="assessment-date-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Risk Level</label>
+                <select name="riskLevel" class="form-control">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                  <option value="Critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tags</label>
+              <input type="text" name="tags" class="form-control" placeholder="compliance, quarterly, network">
+            </div>
+
+            <div class="alert alert-info" style="padding: var(--spacing-md); background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-sm);">
+              <i class="fa-solid fa-lightbulb text-info"></i>
+              <span class="font-sm">You can link alerts, incidents, and assets to this assessment after creation.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="create-assessment-modal-cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="create-assessment-submit">Create Assessment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- CREATE CONTROL MODAL -->
+    <div class="modal-overlay" id="create-control-modal">
+      <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Create Security Control</h3>
+          <button class="modal-close" id="create-control-modal-close">&times;</button>
+        </div>
+        <form id="create-control-form">
+          <div class="modal-body">
+            <p class="text-muted mb-3">Define a security control to address specific threats.</p>
+
+            <div class="form-group">
+              <label class="form-label">Threat Name <span class="text-danger">*</span></label>
+              <input type="text" name="threatName" class="form-control" placeholder="e.g., SQL Injection Attack" required>
+              <span class="form-error">Threat name is required</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="2" placeholder="Describe the threat and its impact..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Risk Level</label>
+                <select name="riskLevel" class="form-control">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                  <option value="Critical">Critical</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                  <option value="Draft">Draft</option>
+                  <option value="Active" selected>Active</option>
+                  <option value="Deprecated">Deprecated</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Recommended Controls (JSON array)</label>
+              <textarea name="recommendedControls" class="form-control" rows="2" placeholder='[{"name": "Enable fail2ban", "description": "Install and configure fail2ban", "priority": "High"}]'></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mitigations (JSON array)</label>
+              <textarea name="mitigations" class="form-control" rows="2" placeholder='[{"name": "Block IP after 5 attempts", "description": "Implement IP blocking", "priority": "High"}]'></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Analyst Actions (JSON array)</label>
+              <textarea name="analystActions" class="form-control" rows="2" placeholder='[{"name": "Review logs", "description": "Check for successful breaches", "priority": "Medium"}]'></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tags</label>
+              <input type="text" name="tags" class="form-control" placeholder="compliance, remediation">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Compliance Frameworks</label>
+              <select name="complianceFrameworks" class="form-control" multiple style="height: 80px;">
+                <option value="NIST">NIST</option>
+                <option value="ISO27001">ISO27001</option>
+                <option value="SOC2">SOC2</option>
+                <option value="HIPAA">HIPAA</option>
+                <option value="GDPR">GDPR</option>
+                <option value="PCI-DSS">PCI-DSS</option>
+                <option value="NERC-CIP">NERC-CIP</option>
+                <option value="Other">Other</option>
+              </select>
+              <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="create-control-modal-cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="create-control-submit">Create Control</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ASSESSMENT DETAIL MODAL -->
     <div class="modal-overlay" id="assessment-modal">
-      <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
         <div class="modal-header">
           <h3 class="modal-title" id="assessment-modal-title">Assessment Details</h3>
           <button class="modal-close" id="assessment-modal-close">&times;</button>
         </div>
-        <div class="modal-body" style="max-height: 70vh; overflow-y: auto; background: var(--bg-secondary);">
-          <div id="assessment-details-content"></div>
+        <div class="modal-body" id="assessment-details-content">
+          <!-- Populated dynamically -->
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" id="assessment-modal-cancel">Close</button>
+          <button type="button" class="btn btn-secondary" id="assessment-modal-cancel">Close</button>
+          <button type="button" class="btn btn-outline-primary" id="btn-edit-assessment" style="display: none;">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROL DETAIL MODAL -->
+    <div class="modal-overlay" id="control-modal">
+      <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+          <h3 class="modal-title" id="control-modal-title">Control Details</h3>
+          <button class="modal-close" id="control-modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="control-details-content">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="control-modal-cancel">Close</button>
+          <button type="button" class="btn btn-outline-primary" id="btn-edit-control" style="display: none;">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
         </div>
       </div>
     </div>
@@ -320,6 +637,9 @@
 
   <!-- Core Script Integrations -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/validators.js"></script>
@@ -328,51 +648,214 @@
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/sidebar.js"></script>
   <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/tables.js"></script>
+  <script src="/assets/js/forms.js"></script>
 
   <script>
-    let assessmentsData = [];
+    var assessmentsTable = null;
+    var controlsTable = null;
+    var assessmentsData = [];
+    var controlsData = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       loadAssessments();
+      loadControls();
       
-      document.getElementById('btn-refresh').addEventListener('click', loadAssessments);
-      document.getElementById('btn-create-assessment').addEventListener('click', () => {
-        Swal.fire('Not Implemented', 'Assessment creation form is available in the admin panel.', 'info');
+      document.getElementById('btn-refresh').addEventListener('click', function() {
+        loadAssessments();
+        loadControls();
+        loadStats();
+      });
+      
+      document.getElementById('btn-create-assessment').addEventListener('click', function() {
+        document.getElementById('create-assessment-modal').classList.add('active');
       });
 
-      // Modal close handlers
-      document.getElementById('assessment-modal-close').addEventListener('click', () => {
+      document.getElementById('btn-add-control').addEventListener('click', function() {
+        document.getElementById('create-control-modal').classList.add('active');
+      });
+
+      // Create Assessment Modal handlers
+      document.getElementById('create-assessment-modal-close').addEventListener('click', function() {
+        document.getElementById('create-assessment-modal').classList.remove('active');
+      });
+      document.getElementById('create-assessment-modal-cancel').addEventListener('click', function() {
+        document.getElementById('create-assessment-modal').classList.remove('active');
+      });
+
+      // Create Control Modal handlers
+      document.getElementById('create-control-modal-close').addEventListener('click', function() {
+        document.getElementById('create-control-modal').classList.remove('active');
+      });
+      document.getElementById('create-control-modal-cancel').addEventListener('click', function() {
+        document.getElementById('create-control-modal').classList.remove('active');
+      });
+
+      // Assessment Detail Modal handlers
+      document.getElementById('assessment-modal-close').addEventListener('click', function() {
         document.getElementById('assessment-modal').classList.remove('active');
       });
-      document.getElementById('assessment-modal-cancel').addEventListener('click', () => {
+      document.getElementById('assessment-modal-cancel').addEventListener('click', function() {
         document.getElementById('assessment-modal').classList.remove('active');
+      });
+
+      // Control Detail Modal handlers
+      document.getElementById('control-modal-close').addEventListener('click', function() {
+        document.getElementById('control-modal').classList.remove('active');
+      });
+      document.getElementById('control-modal-cancel').addEventListener('click', function() {
+        document.getElementById('control-modal').classList.remove('active');
+      });
+
+      // Set default date
+      var dateInput = document.getElementById('assessment-date-input');
+      if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+
+      // Create Assessment Form submission
+      document.getElementById('create-assessment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createAssessment();
+      });
+
+      // Create Control Form submission
+      document.getElementById('create-control-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createControl();
       });
     });
 
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById('tab-' + tabId).classList.add('active');
+      document.querySelector('.tab-btn[data-tab="' + tabId + '"]').classList.add('active');
+      
+      // Refresh data if needed
+      if (tabId === 'controls') {
+        loadControls();
+      } else if (tabId === 'stats') {
+        loadStats();
+      }
+    }
+
     function getRiskBadge(risk) {
-      if (risk === 'Critical') return 'badge-danger';
-      if (risk === 'High') return 'badge-warning';
-      if (risk === 'Medium') return 'badge-info';
-      if (risk === 'Low') return 'badge-success';
+      if (!risk) return 'badge-secondary';
+      var r = risk.toLowerCase();
+      if (r === 'critical') return 'badge-critical';
+      if (r === 'high') return 'badge-high';
+      if (r === 'medium') return 'badge-medium';
+      if (r === 'low') return 'badge-low';
       return 'badge-secondary';
     }
 
     function getRiskColor(risk) {
-      if (risk === 'Critical') return 'var(--danger)';
-      if (risk === 'High') return 'var(--warning)';
-      if (risk === 'Medium') return 'var(--info)';
-      if (risk === 'Low') return 'var(--success)';
+      if (!risk) return 'var(--text-muted)';
+      var r = risk.toLowerCase();
+      if (r === 'critical') return 'var(--danger)';
+      if (r === 'high') return 'var(--warning)';
+      if (r === 'medium') return 'var(--info)';
+      if (r === 'low') return 'var(--success)';
       return 'var(--text-muted)';
     }
 
+    function getStatusBadge(status) {
+      if (!status) return 'badge-secondary';
+      var s = status.toLowerCase();
+      if (s === 'draft') return 'badge-draft';
+      if (s === 'in progress') return 'badge-progress';
+      if (s === 'review') return 'badge-review';
+      if (s === 'final') return 'badge-final';
+      return 'badge-secondary';
+    }
+
+    function getControlStatusBadge(status) {
+      if (!status) return 'badge-secondary';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'badge-control-active';
+      if (s === 'draft') return 'badge-control-draft';
+      if (s === 'deprecated') return 'badge-control-deprecated';
+      if (s === 'archived') return 'badge-control-archived';
+      return 'badge-secondary';
+    }
+
+    function parseJSONArray(value) {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // ============ ASSESSMENT FUNCTIONS ============
+
+    async function createAssessment() {
+      var submitBtn = document.getElementById('create-assessment-submit');
+      var originalText = submitBtn.innerHTML;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+
+        var form = document.getElementById('create-assessment-form');
+        var formData = new FormData(form);
+
+        var orgId = localStorage.getItem('currentOrgId') || '';
+        if (!orgId) {
+          Swal.fire('Error', 'No organization selected. Please select an organization.', 'warning');
+          return;
+        }
+
+        var payload = {
+          title: formData.get('title'),
+          description: formData.get('description') || '',
+          date: formData.get('date') || new Date().toISOString(),
+          riskLevel: formData.get('riskLevel') || 'Medium',
+          tags: formData.get('tags') ? formData.get('tags').split(',').map(function(t) { return t.trim(); }) : [],
+          organization: orgId
+        };
+
+        var response = await API.post('/security-assessments', payload);
+        
+        if (response.success) {
+          Swal.fire('Success', 'Security assessment created successfully!', 'success');
+          document.getElementById('create-assessment-modal').classList.remove('active');
+          document.getElementById('create-assessment-form').reset();
+          document.getElementById('assessment-date-input').value = new Date().toISOString().split('T')[0];
+          loadAssessments();
+        } else {
+          throw new Error(response.message || 'Failed to create assessment');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to create assessment', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    }
+
     async function loadAssessments() {
-      const loader = document.getElementById('dashboard-loader');
+      var loader = document.getElementById('dashboard-loader');
       loader.style.display = 'flex';
 
       try {
-        const response = await API.get('/security-assessments');
+        var response = await API.get('/security-assessments');
+        
         if (response.success && response.data) {
-          assessmentsData = response.data.sort((a,b) => new Date(b.date) - new Date(a.date));
+          assessmentsData = Array.isArray(response.data) ? response.data : (response.data.items || []);
+          assessmentsData.sort(function(a, b) {
+            return new Date(b.date) - new Date(a.date);
+          });
+          
           renderAssessments(assessmentsData);
           updateMetrics(assessmentsData);
         } else {
@@ -382,65 +865,97 @@
         }
       } catch (err) {
         console.error(err);
-        Swal.fire('Error', 'Failed to load security assessments', 'error');
+        Swal.fire('Error', err.message || 'Failed to load security assessments', 'error');
         renderAssessments([]);
+        updateMetrics([]);
       } finally {
         loader.style.display = 'none';
       }
     }
 
     function updateMetrics(data) {
-      if (data.length > 0) {
-        const latest = data[0];
-        const riskEl = document.getElementById('stat-risk');
-        riskEl.textContent = latest.riskLevel;
-        riskEl.style.color = getRiskColor(latest.riskLevel);
+      var total = data.length;
+      var inProgress = data.filter(function(a) { return a.status === 'In Progress' || a.status === 'Review'; }).length;
+      var final = data.filter(function(a) { return a.status === 'Final'; }).length;
 
-        document.getElementById('stat-threats').textContent = latest.threatsDetected?.length || 0;
-        document.getElementById('stat-incidents').textContent = latest.incidents?.length || 0;
-        document.getElementById('stat-assets').textContent = latest.affectedAssets?.length || 0;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-progress').textContent = inProgress;
+      document.getElementById('stat-final').textContent = final;
+
+      if (data.length > 0) {
+        var latest = data[0];
+        var riskEl = document.getElementById('stat-risk');
+        riskEl.textContent = latest.riskLevel || '-';
+        riskEl.style.color = getRiskColor(latest.riskLevel);
       } else {
         document.getElementById('stat-risk').textContent = '-';
         document.getElementById('stat-risk').style.color = 'var(--text-muted)';
-        document.getElementById('stat-threats').textContent = '0';
-        document.getElementById('stat-incidents').textContent = '0';
-        document.getElementById('stat-assets').textContent = '0';
       }
     }
 
     function renderAssessments(data) {
-      const tbody = document.getElementById('assessments-list');
+      if (assessmentsTable) {
+        try { assessmentsTable.destroy(); } catch (e) {}
+        assessmentsTable = null;
+      }
+
+      var tbody = document.getElementById('assessments-list');
+      
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No security assessments found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No security assessments found</td></tr>';
+        try {
+          assessmentsTable = Tables.init('#assessments-table');
+        } catch (e) {}
         return;
       }
-      
-      tbody.innerHTML = '';
-      data.forEach(assessment => {
-        let statusBadge = assessment.status === 'Final' ? 'bg-success' : 'bg-warning text-dark';
-        
-        tbody.innerHTML += `
-          <tr>
-            <td class="fw-semibold">${Utils.escapeHTML(assessment.title)}</td>
-            <td>${Utils.formatDate(assessment.date)}</td>
-            <td><span class="badge ${getRiskBadge(assessment.riskLevel)}">${Utils.escapeHTML(assessment.riskLevel)}</span></td>
-            <td><span class="badge ${statusBadge}">${Utils.escapeHTML(assessment.status)}</span></td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary" onclick="viewAssessment('${assessment._id}')">
-                <i class="fa-solid fa-eye"></i> View
-              </button>
-            </td>
-          </tr>
-        `;
+
+      var html = '';
+      data.forEach(function(assessment) {
+        var riskBadge = getRiskBadge(assessment.riskLevel);
+        var statusBadge = getStatusBadge(assessment.status);
+        var threatCount = (assessment.threatsDetected || []).length;
+        var incidentCount = (assessment.incidents || []).length;
+        var assetCount = (assessment.affectedAssets || []).length;
+
+        html += '<tr>' +
+          '<td class="fw-semibold">' + Utils.escapeHTML(assessment.title) + '</td>' +
+          '<td>' + Utils.formatDate(assessment.date) + '</td>' +
+          '<td><span class="badge ' + riskBadge + '">' + Utils.escapeHTML(assessment.riskLevel || 'N/A') + '</span></td>' +
+          '<td><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(assessment.status || 'Draft') + '</span></td>' +
+          '<td><span class="badge badge-info">' + threatCount + '</span></td>' +
+          '<td><span class="badge badge-info">' + incidentCount + '</span></td>' +
+          '<td><span class="badge badge-info">' + assetCount + '</span></td>' +
+          '<td>' +
+            '<div class="table-actions-cell">' +
+              '<button class="table-btn view" onclick="viewAssessment(\'' + assessment._id + '\')" title="View Details">' +
+                '<i class="fa-solid fa-eye"></i>' +
+              '</button>' +
+              '<button class="table-btn edit" onclick="editAssessment(\'' + assessment._id + '\')" title="Edit Assessment">' +
+                '<i class="fa-solid fa-pen"></i>' +
+              '</button>' +
+              '<button class="table-btn delete" onclick="deleteAssessment(\'' + assessment._id + '\')" title="Delete Assessment">' +
+                '<i class="fa-solid fa-trash"></i>' +
+              '</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
       });
+
+      tbody.innerHTML = html;
+
+      try {
+        assessmentsTable = Tables.init('#assessments-table', {
+          columnDefs: [{ orderable: false, targets: [7] }]
+        });
+      } catch (e) {}
     }
 
     async function viewAssessment(id) {
       try {
-        const loader = document.getElementById('dashboard-loader');
+        var loader = document.getElementById('dashboard-loader');
         loader.style.display = 'flex';
         
-        const response = await API.get(`/security-assessments/${id}`);
+        var response = await API.get('/security-assessments/' + id);
         loader.style.display = 'none';
 
         if (response.success && response.data) {
@@ -451,104 +966,619 @@
       } catch (err) {
         document.getElementById('dashboard-loader').style.display = 'none';
         console.error(err);
-        Swal.fire('Error', 'Failed to load assessment details', 'error');
+        Swal.fire('Error', err.message || 'Failed to load assessment details', 'error');
       }
     }
 
     function renderAssessmentModal(assessment) {
       document.getElementById('assessment-modal-title').textContent = assessment.title;
       
-      let html = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">`;
+      var riskBadge = getRiskBadge(assessment.riskLevel);
+      var statusBadge = getStatusBadge(assessment.status);
+      var riskDisplayClass = assessment.riskLevel ? assessment.riskLevel.toLowerCase() : 'medium';
       
-      // Overview Card
-      html += `<div class="card">
-                <div class="card-header"><span class="card-title">Risk Overview</span></div>
-                <div class="card-body p-3">
-                  <div style="font-size: 2rem; font-weight: bold; color: ${getRiskColor(assessment.riskLevel)}; mb-2">${assessment.riskLevel}</div>
-                  <div>Status: <strong>${assessment.status}</strong></div>
-                  <div>Date: <strong>${Utils.formatDate(assessment.date)}</strong></div>
-                </div>
-               </div>`;
-               
-      // Stats Card
-      html += `<div class="card">
-                <div class="card-header"><span class="card-title">Linked Entities</span></div>
-                <div class="card-body p-3">
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Alerts:</span> <span class="badge badge-secondary">${assessment.threatsDetected?.length || 0}</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Incidents:</span> <span class="badge badge-secondary">${assessment.incidents?.length || 0}</span>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span>Affected Assets:</span> <span class="badge badge-secondary">${assessment.affectedAssets?.length || 0}</span>
-                  </div>
-                </div>
-               </div>`;
-      html += `</div>`;
+      var html = '';
+      
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">';
+      
+      html += '<div class="card"><div class="card-header"><span class="card-title">Risk Overview</span></div><div class="card-body p-3">';
+      html += '<div class="risk-level-display ' + riskDisplayClass + '">' + (assessment.riskLevel || 'N/A') + '</div>';
+      html += '<div class="mt-2"><span class="text-secondary">Status:</span> <span class="badge ' + statusBadge + '">' + Utils.escapeHTML(assessment.status || 'Draft') + '</span></div>';
+      html += '<div><span class="text-secondary">Date:</span> ' + Utils.formatDate(assessment.date) + '</div>';
+      if (assessment.riskScore !== undefined) {
+        html += '<div><span class="text-secondary">Risk Score:</span> ' + assessment.riskScore + '/10</div>';
+      }
+      if (assessment.nextReviewDate) {
+        html += '<div><span class="text-secondary">Next Review:</span> ' + Utils.formatDate(assessment.nextReviewDate) + '</div>';
+      }
+      html += '</div></div>';
+      
+      html += '<div class="card"><div class="card-header"><span class="card-title">Linked Entities</span></div><div class="card-body p-3">';
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Alerts</div><div class="h3 m-0 text-warning">' + (assessment.threatsDetected || []).length + '</div></div>';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Incidents</div><div class="h3 m-0 text-danger">' + (assessment.incidents || []).length + '</div></div>';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Assets</div><div class="h3 m-0 text-info">' + (assessment.affectedAssets || []).length + '</div></div>';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Weaknesses</div><div class="h3 m-0 text-secondary">' + (assessment.securityWeaknesses || []).length + '</div></div>';
+      html += '</div></div></div>';
+      html += '</div>';
 
-      // Weaknesses
+      if (assessment.description) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title">Description</span></div><div class="card-body p-3">';
+        html += '<p class="text-secondary m-0">' + Utils.escapeHTML(assessment.description) + '</p>';
+        html += '</div></div>';
+      }
+
       if (assessment.securityWeaknesses && assessment.securityWeaknesses.length > 0) {
-        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-danger"><i class="fa-solid fa-bug"></i> Security Weaknesses</span></div><div class="card-body p-0">`;
-        html += `<ul class="list-group list-group-flush m-0">`;
-        assessment.securityWeaknesses.forEach(w => {
-          html += `<li class="list-group-item" style="border-bottom: 1px solid var(--border-color); padding: 1rem;">${Utils.escapeHTML(w)}</li>`;
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-danger"><i class="fa-solid fa-bug"></i> Security Weaknesses (' + assessment.securityWeaknesses.length + ')</span></div><div class="card-body p-0">';
+        assessment.securityWeaknesses.forEach(function(w) {
+          html += '<div class="list-item"><span class="item-name">' + Utils.escapeHTML(w) + '</span></div>';
         });
-        html += `</ul></div></div>`;
+        html += '</div></div>';
       }
 
-      // Recommended Controls
       if (assessment.recommendedControls && assessment.recommendedControls.length > 0) {
-        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-info"><i class="fa-solid fa-shield"></i> Recommended Controls</span></div><div class="card-body p-0">
-                  <table class="enterprise-table w-full m-0">
-                    <thead><tr><th>Control</th><th>Priority</th><th>Description</th></tr></thead>
-                    <tbody>`;
-        assessment.recommendedControls.forEach(c => {
-          let badge = 'badge-secondary';
-          if (c.priority === 'High') badge = 'badge-danger';
-          if (c.priority === 'Medium') badge = 'badge-warning';
-          
-          html += `<tr>
-            <td class="fw-semibold">${Utils.escapeHTML(c.name)}</td>
-            <td><span class="badge ${badge}">${Utils.escapeHTML(c.priority)}</span></td>
-            <td><span class="text-muted" style="font-size: 0.9rem;">${Utils.escapeHTML(c.description)}</span></td>
-          </tr>`;
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-info"><i class="fa-solid fa-shield"></i> Recommended Controls (' + assessment.recommendedControls.length + ')</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Control</th><th>Priority</th><th>Status</th><th>Description</th></tr></thead><tbody>';
+        assessment.recommendedControls.forEach(function(c) {
+          var priorityBadge = c.priority === 'High' ? 'badge-danger' : c.priority === 'Critical' ? 'badge-critical' : c.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+          var statusBadge = c.status === 'Completed' ? 'badge-success' : c.status === 'In Progress' ? 'badge-warning' : c.status === 'Not Started' ? 'badge-secondary' : 'badge-info';
+          html += '<tr><td class="fw-semibold">' + Utils.escapeHTML(c.name) + '</td>';
+          html += '<td><span class="badge ' + priorityBadge + '">' + Utils.escapeHTML(c.priority || 'Medium') + '</span></td>';
+          html += '<td><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(c.status || 'Pending') + '</span></td>';
+          html += '<td class="text-secondary" style="font-size: 0.9rem;">' + Utils.escapeHTML(c.description || '') + '</td></tr>';
         });
-        html += `</tbody></table></div></div>`;
+        html += '</tbody></table></div></div>';
       }
 
-      // Mitigations
       if (assessment.mitigations && assessment.mitigations.length > 0) {
-        html += `<div class="card mb-3"><div class="card-header"><span class="card-title text-success"><i class="fa-solid fa-check-double"></i> Mitigations</span></div><div class="card-body p-0">
-                  <table class="enterprise-table w-full m-0">
-                    <thead><tr><th>Mitigation</th><th>Priority</th><th>Description</th></tr></thead>
-                    <tbody>`;
-        assessment.mitigations.forEach(c => {
-          let badge = 'badge-secondary';
-          if (c.priority === 'High') badge = 'badge-danger';
-          
-          html += `<tr>
-            <td class="fw-semibold">${Utils.escapeHTML(c.name)}</td>
-            <td><span class="badge ${badge}">${Utils.escapeHTML(c.priority || 'Normal')}</span></td>
-            <td><span class="text-muted" style="font-size: 0.9rem;">${Utils.escapeHTML(c.description)}</span></td>
-          </tr>`;
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-success"><i class="fa-solid fa-check-double"></i> Mitigations (' + assessment.mitigations.length + ')</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Mitigation</th><th>Priority</th><th>Status</th><th>Description</th></tr></thead><tbody>';
+        assessment.mitigations.forEach(function(c) {
+          var priorityBadge = c.priority === 'High' ? 'badge-danger' : c.priority === 'Critical' ? 'badge-critical' : c.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+          var statusBadge = c.status === 'Completed' ? 'badge-success' : c.status === 'In Progress' ? 'badge-warning' : c.status === 'Not Started' ? 'badge-secondary' : 'badge-info';
+          html += '<tr><td class="fw-semibold">' + Utils.escapeHTML(c.name) + '</td>';
+          html += '<td><span class="badge ' + priorityBadge + '">' + Utils.escapeHTML(c.priority || 'Medium') + '</span></td>';
+          html += '<td><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(c.status || 'Pending') + '</span></td>';
+          html += '<td class="text-secondary" style="font-size: 0.9rem;">' + Utils.escapeHTML(c.description || '') + '</td></tr>';
         });
-        html += `</tbody></table></div></div>`;
+        html += '</tbody></table></div></div>';
       }
-      
-      // Threats Detected Links
+
+      if (assessment.tags && assessment.tags.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-tags"></i> Tags</span></div><div class="card-body p-3">';
+        assessment.tags.forEach(function(tag) {
+          html += '<span class="badge badge-secondary" style="margin-right: 4px;">' + Utils.escapeHTML(tag) + '</span>';
+        });
+        html += '</div></div>';
+      }
+
       if (assessment.threatsDetected && assessment.threatsDetected.length > 0) {
-        html += `<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-bell"></i> Associated Alerts</span></div><div class="card-body p-3">`;
-        html += `<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">`;
-        assessment.threatsDetected.forEach(alert => {
-           html += `<a href="/pages/alerts.html?id=${alert._id}" class="btn btn-sm btn-outline-secondary" target="_blank">${Utils.escapeHTML(alert.title || alert._id)} <i class="fa-solid fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`;
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-bell text-warning"></i> Linked Alerts</span></div><div class="card-body p-3">';
+        html += '<div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">';
+        assessment.threatsDetected.forEach(function(alert) {
+          var alertTitle = alert.title || alert._id;
+          html += '<a href="/pages/alerts.html" class="linked-item"><span class="badge badge-info">' + Utils.escapeHTML(alertTitle) + '</span></a>';
         });
-        html += `</div></div></div>`;
+        html += '</div></div></div>';
       }
+
+      if (assessment.incidents && assessment.incidents.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-ticket text-danger"></i> Linked Incidents</span></div><div class="card-body p-3">';
+        html += '<div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">';
+        assessment.incidents.forEach(function(incident) {
+          var incTitle = incident.title || incident._id;
+          html += '<a href="/pages/incidents.html" class="linked-item"><span class="badge badge-danger">' + Utils.escapeHTML(incTitle) + '</span></a>';
+        });
+        html += '</div></div></div>';
+      }
+
+      if (assessment.affectedAssets && assessment.affectedAssets.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-server text-info"></i> Affected Assets</span></div><div class="card-body p-3">';
+        html += '<div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">';
+        assessment.affectedAssets.forEach(function(asset) {
+          var assetName = asset.name || asset._id;
+          html += '<a href="/pages/assets.html" class="linked-item"><span class="badge badge-info">' + Utils.escapeHTML(assetName) + '</span></a>';
+        });
+        html += '</div></div></div>';
+      }
+
+      html += '<div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-info-circle"></i> Metadata</span></div><div class="card-body p-3">';
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">';
+      html += '<div><span class="text-secondary">Created:</span> ' + Utils.formatDate(assessment.createdAt) + '</div>';
+      html += '<div><span class="text-secondary">Updated:</span> ' + Utils.formatDate(assessment.updatedAt) + '</div>';
+      html += '<div><span class="text-secondary">Created By:</span> ' + (assessment.createdBy ? Utils.escapeHTML(assessment.createdBy.username || assessment.createdBy.email) : 'N/A') + '</div>';
+      if (assessment.reviewedBy) {
+        html += '<div><span class="text-secondary">Reviewed By:</span> ' + Utils.escapeHTML(assessment.reviewedBy.username || assessment.reviewedBy.email) + '</div>';
+      }
+      if (assessment.reviewedAt) {
+        html += '<div><span class="text-secondary">Reviewed At:</span> ' + Utils.formatDate(assessment.reviewedAt) + '</div>';
+      }
+      html += '<div><span class="text-secondary">Version:</span> ' + (assessment.version || 1) + '</div>';
+      html += '</div></div></div>';
 
       document.getElementById('assessment-details-content').innerHTML = html;
       document.getElementById('assessment-modal').classList.add('active');
+      
+      var editBtn = document.getElementById('btn-edit-assessment');
+      editBtn.style.display = 'inline-block';
+      editBtn.dataset.assessmentId = assessment._id;
+      editBtn.onclick = function() {
+        document.getElementById('assessment-modal').classList.remove('active');
+        editAssessment(assessment._id);
+      };
     }
+
+    async function editAssessment(id) {
+      try {
+        var response = await API.get('/security-assessments/' + id);
+        if (response.success && response.data) {
+          var assessment = response.data;
+          
+          var result = await Swal.fire({
+            title: 'Edit Assessment',
+            html: `
+              <input id="swal-title" class="swal2-input" placeholder="Title" value="${Utils.escapeHTML(assessment.title)}">
+              <textarea id="swal-description" class="swal2-textarea" placeholder="Description" rows="3">${Utils.escapeHTML(assessment.description || '')}</textarea>
+              <select id="swal-risk" class="swal2-input">
+                <option value="Low" ${assessment.riskLevel === 'Low' ? 'selected' : ''}>Low</option>
+                <option value="Medium" ${assessment.riskLevel === 'Medium' ? 'selected' : ''}>Medium</option>
+                <option value="High" ${assessment.riskLevel === 'High' ? 'selected' : ''}>High</option>
+                <option value="Critical" ${assessment.riskLevel === 'Critical' ? 'selected' : ''}>Critical</option>
+              </select>
+              <select id="swal-status" class="swal2-input">
+                <option value="Draft" ${assessment.status === 'Draft' ? 'selected' : ''}>Draft</option>
+                <option value="In Progress" ${assessment.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                <option value="Review" ${assessment.status === 'Review' ? 'selected' : ''}>Review</option>
+                <option value="Final" ${assessment.status === 'Final' ? 'selected' : ''}>Final</option>
+              </select>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Update',
+            cancelButtonText: 'Cancel',
+            preConfirm: function() {
+              return {
+                title: document.getElementById('swal-title').value,
+                description: document.getElementById('swal-description').value,
+                riskLevel: document.getElementById('swal-risk').value,
+                status: document.getElementById('swal-status').value
+              };
+            }
+          });
+
+          if (result.isConfirmed && result.value) {
+            var payload = result.value;
+            var updateResponse = await API.put('/security-assessments/' + id, payload);
+            if (updateResponse.success) {
+              Swal.fire('Success', 'Assessment updated successfully', 'success');
+              loadAssessments();
+            } else {
+              throw new Error(updateResponse.message || 'Failed to update');
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to edit assessment', 'error');
+      }
+    }
+
+    async function deleteAssessment(id) {
+      var confirm = await Swal.fire({
+        title: 'Delete Assessment?',
+        text: 'This assessment will be permanently deleted.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, delete'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          var response = await API.delete('/security-assessments/' + id);
+          if (response.success) {
+            Swal.fire('Deleted', 'Assessment removed successfully', 'success');
+            loadAssessments();
+          } else {
+            throw new Error(response.message || 'Failed to delete');
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error', err.message || 'Failed to delete assessment', 'error');
+        }
+      }
+    }
+
+    // ============ CONTROL FUNCTIONS ============
+
+    async function createControl() {
+      var submitBtn = document.getElementById('create-control-submit');
+      var originalText = submitBtn.innerHTML;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+
+        var form = document.getElementById('create-control-form');
+        var formData = new FormData(form);
+
+        var orgId = localStorage.getItem('currentOrgId') || '';
+        if (!orgId) {
+          Swal.fire('Error', 'No organization selected.', 'warning');
+          return;
+        }
+
+        var complianceFrameworks = [];
+        var frameworksSelect = form.querySelector('[name="complianceFrameworks"]');
+        for (var i = 0; i < frameworksSelect.options.length; i++) {
+          if (frameworksSelect.options[i].selected) {
+            complianceFrameworks.push(frameworksSelect.options[i].value);
+          }
+        }
+
+        var payload = {
+          threatName: formData.get('threatName'),
+          description: formData.get('description') || '',
+          riskLevel: formData.get('riskLevel') || 'Medium',
+          status: formData.get('status') || 'Draft',
+          recommendedControls: parseJSONArray(formData.get('recommendedControls')),
+          mitigations: parseJSONArray(formData.get('mitigations')),
+          analystActions: parseJSONArray(formData.get('analystActions')),
+          complianceFrameworks: complianceFrameworks,
+          tags: formData.get('tags') ? formData.get('tags').split(',').map(function(t) { return t.trim(); }) : [],
+          organization: orgId,
+          threatRule: null // Optional - can be linked later
+        };
+
+        var response = await API.post('/security-controls', payload);
+        
+        if (response.success) {
+          Swal.fire('Success', 'Security control created successfully!', 'success');
+          document.getElementById('create-control-modal').classList.remove('active');
+          document.getElementById('create-control-form').reset();
+          loadControls();
+        } else {
+          throw new Error(response.message || 'Failed to create control');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to create control', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    }
+
+    async function loadControls() {
+      try {
+        var response = await API.get('/security-controls');
+        
+        if (response.success && response.data) {
+          controlsData = Array.isArray(response.data) ? response.data : (response.data.items || []);
+          renderControls(controlsData);
+        } else {
+          controlsData = [];
+          renderControls([]);
+        }
+      } catch (err) {
+        console.error(err);
+        renderControls([]);
+      }
+    }
+
+    function renderControls(data) {
+      if (controlsTable) {
+        try { controlsTable.destroy(); } catch (e) {}
+        controlsTable = null;
+      }
+
+      var tbody = document.getElementById('controls-list');
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No security controls found</td></tr>';
+
+        return;
+      }
+
+      var html = '';
+      data.forEach(function(control) {
+        var riskBadge = getRiskBadge(control.riskLevel);
+        var statusBadge = getControlStatusBadge(control.status);
+        var controlCount = (control.recommendedControls || []).length;
+        var mitigationCount = (control.mitigations || []).length;
+        var actionCount = (control.analystActions || []).length;
+
+        html += '<tr>' +
+          '<td class="fw-semibold">' + Utils.escapeHTML(control.threatName) + '</td>' +
+          '<td><span class="badge ' + riskBadge + '">' + Utils.escapeHTML(control.riskLevel || 'Medium') + '</span></td>' +
+          '<td><span class="badge badge-info">' + controlCount + '</span></td>' +
+          '<td><span class="badge badge-info">' + mitigationCount + '</span></td>' +
+          '<td><span class="badge badge-info">' + actionCount + '</span></td>' +
+          '<td><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(control.status || 'Draft') + '</span></td>' +
+          '<td>' +
+            '<div class="table-actions-cell">' +
+              '<button class="table-btn view" onclick="viewControl(\'' + control._id + '\')" title="View Details">' +
+                '<i class="fa-solid fa-eye"></i>' +
+              '</button>' +
+              '<button class="table-btn edit" onclick="editControl(\'' + control._id + '\')" title="Edit Control">' +
+                '<i class="fa-solid fa-pen"></i>' +
+              '</button>' +
+              '<button class="table-btn delete" onclick="deleteControl(\'' + control._id + '\')" title="Delete Control">' +
+                '<i class="fa-solid fa-trash"></i>' +
+              '</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+      });
+
+      tbody.innerHTML = html;
+
+      try {
+        controlsTable = Tables.init('#controls-table', {
+          columnDefs: [{ orderable: false, targets: [6] }]
+        });
+      } catch (e) {}
+    }
+
+    async function viewControl(id) {
+      try {
+        var response = await API.get('/security-controls/' + id);
+        if (response.success && response.data) {
+          renderControlModal(response.data);
+        } else {
+          Swal.fire('Error', 'Failed to load control details', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to load control details', 'error');
+      }
+    }
+
+    function renderControlModal(control) {
+      document.getElementById('control-modal-title').textContent = 'Control: ' + control.threatName;
+      
+      var riskBadge = getRiskBadge(control.riskLevel);
+      var statusBadge = getControlStatusBadge(control.status);
+      
+      var html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">';
+      
+      html += '<div class="card"><div class="card-header"><span class="card-title">Overview</span></div><div class="card-body p-3">';
+      html += '<div><span class="text-secondary">Threat:</span> <strong>' + Utils.escapeHTML(control.threatName) + '</strong></div>';
+      html += '<div><span class="text-secondary">Risk Level:</span> <span class="badge ' + riskBadge + '">' + Utils.escapeHTML(control.riskLevel || 'Medium') + '</span></div>';
+      html += '<div><span class="text-secondary">Status:</span> <span class="badge ' + statusBadge + '">' + Utils.escapeHTML(control.status || 'Draft') + '</span></div>';
+      if (control.riskScore !== undefined) {
+        html += '<div><span class="text-secondary">Risk Score:</span> ' + control.riskScore + '/10</div>';
+      }
+      html += '</div></div>';
+      
+      html += '<div class="card"><div class="card-header"><span class="card-title">Statistics</span></div><div class="card-body p-3">';
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Controls</div><div class="h3 m-0 text-info">' + (control.recommendedControls || []).length + '</div></div>';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Mitigations</div><div class="h3 m-0 text-success">' + (control.mitigations || []).length + '</div></div>';
+      html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Actions</div><div class="h3 m-0 text-warning">' + (control.analystActions || []).length + '</div></div>';
+      html += '</div></div></div>';
+      html += '</div>';
+
+      if (control.description) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title">Description</span></div><div class="card-body p-3">';
+        html += '<p class="text-secondary m-0">' + Utils.escapeHTML(control.description) + '</p>';
+        html += '</div></div>';
+      }
+
+      if (control.recommendedControls && control.recommendedControls.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-info"><i class="fa-solid fa-shield"></i> Recommended Controls (' + control.recommendedControls.length + ')</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Name</th><th>Priority</th><th>Description</th></tr></thead><tbody>';
+        control.recommendedControls.forEach(function(c) {
+          var priorityBadge = c.priority === 'High' ? 'badge-danger' : c.priority === 'Critical' ? 'badge-critical' : c.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+          html += '<tr><td class="fw-semibold">' + Utils.escapeHTML(c.name) + '</td>';
+          html += '<td><span class="badge ' + priorityBadge + '">' + Utils.escapeHTML(c.priority || 'Medium') + '</span></td>';
+          html += '<td class="text-secondary" style="font-size: 0.9rem;">' + Utils.escapeHTML(c.description || '') + '</td></tr>';
+        });
+        html += '</tbody></table></div></div>';
+      }
+
+      if (control.mitigations && control.mitigations.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-success"><i class="fa-solid fa-check-double"></i> Mitigations (' + control.mitigations.length + ')</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Name</th><th>Priority</th><th>Description</th></tr></thead><tbody>';
+        control.mitigations.forEach(function(c) {
+          var priorityBadge = c.priority === 'High' ? 'badge-danger' : c.priority === 'Critical' ? 'badge-critical' : c.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+          html += '<tr><td class="fw-semibold">' + Utils.escapeHTML(c.name) + '</td>';
+          html += '<td><span class="badge ' + priorityBadge + '">' + Utils.escapeHTML(c.priority || 'Medium') + '</span></td>';
+          html += '<td class="text-secondary" style="font-size: 0.9rem;">' + Utils.escapeHTML(c.description || '') + '</td></tr>';
+        });
+        html += '</tbody></table></div></div>';
+      }
+
+      if (control.analystActions && control.analystActions.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title text-warning"><i class="fa-solid fa-users"></i> Analyst Actions (' + control.analystActions.length + ')</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Name</th><th>Priority</th><th>Description</th></tr></thead><tbody>';
+        control.analystActions.forEach(function(c) {
+          var priorityBadge = c.priority === 'High' ? 'badge-danger' : c.priority === 'Critical' ? 'badge-critical' : c.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+          html += '<tr><td class="fw-semibold">' + Utils.escapeHTML(c.name) + '</td>';
+          html += '<td><span class="badge ' + priorityBadge + '">' + Utils.escapeHTML(c.priority || 'Medium') + '</span></td>';
+          html += '<td class="text-secondary" style="font-size: 0.9rem;">' + Utils.escapeHTML(c.description || '') + '</td></tr>';
+        });
+        html += '</tbody></table></div></div>';
+      }
+
+      if (control.complianceFrameworks && control.complianceFrameworks.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-certificate"></i> Compliance Frameworks</span></div><div class="card-body p-3">';
+        control.complianceFrameworks.forEach(function(fw) {
+          html += '<span class="badge badge-info" style="margin-right: 4px;">' + Utils.escapeHTML(fw) + '</span>';
+        });
+        html += '</div></div>';
+      }
+
+      if (control.tags && control.tags.length > 0) {
+        html += '<div class="card mb-3"><div class="card-header"><span class="card-title"><i class="fa-solid fa-tags"></i> Tags</span></div><div class="card-body p-3">';
+        control.tags.forEach(function(tag) {
+          html += '<span class="badge badge-secondary" style="margin-right: 4px;">' + Utils.escapeHTML(tag) + '</span>';
+        });
+        html += '</div></div>';
+      }
+
+      html += '<div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-info-circle"></i> Metadata</span></div><div class="card-body p-3">';
+      html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">';
+      html += '<div><span class="text-secondary">Created:</span> ' + Utils.formatDate(control.createdAt) + '</div>';
+      html += '<div><span class="text-secondary">Updated:</span> ' + Utils.formatDate(control.updatedAt) + '</div>';
+      html += '<div><span class="text-secondary">Created By:</span> ' + (control.createdBy ? Utils.escapeHTML(control.createdBy.username || control.createdBy.email) : 'N/A') + '</div>';
+      html += '<div><span class="text-secondary">Version:</span> ' + (control.version || 1) + '</div>';
+      html += '</div></div></div>';
+
+      document.getElementById('control-details-content').innerHTML = html;
+      document.getElementById('control-modal').classList.add('active');
+      
+      var editBtn = document.getElementById('btn-edit-control');
+      editBtn.style.display = 'inline-block';
+      editBtn.dataset.controlId = control._id;
+      editBtn.onclick = function() {
+        document.getElementById('control-modal').classList.remove('active');
+        editControl(control._id);
+      };
+    }
+
+    async function editControl(id) {
+      try {
+        var response = await API.get('/security-controls/' + id);
+        if (response.success && response.data) {
+          var control = response.data;
+          
+          var result = await Swal.fire({
+            title: 'Edit Control',
+            html: `
+              <input id="swal-threatName" class="swal2-input" placeholder="Threat Name" value="${Utils.escapeHTML(control.threatName)}">
+              <textarea id="swal-description" class="swal2-textarea" placeholder="Description" rows="2">${Utils.escapeHTML(control.description || '')}</textarea>
+              <select id="swal-risk" class="swal2-input">
+                <option value="Low" ${control.riskLevel === 'Low' ? 'selected' : ''}>Low</option>
+                <option value="Medium" ${control.riskLevel === 'Medium' ? 'selected' : ''}>Medium</option>
+                <option value="High" ${control.riskLevel === 'High' ? 'selected' : ''}>High</option>
+                <option value="Critical" ${control.riskLevel === 'Critical' ? 'selected' : ''}>Critical</option>
+              </select>
+              <select id="swal-status" class="swal2-input">
+                <option value="Draft" ${control.status === 'Draft' ? 'selected' : ''}>Draft</option>
+                <option value="Active" ${control.status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Deprecated" ${control.status === 'Deprecated' ? 'selected' : ''}>Deprecated</option>
+                <option value="Archived" ${control.status === 'Archived' ? 'selected' : ''}>Archived</option>
+              </select>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Update',
+            cancelButtonText: 'Cancel',
+            preConfirm: function() {
+              return {
+                threatName: document.getElementById('swal-threatName').value,
+                description: document.getElementById('swal-description').value,
+                riskLevel: document.getElementById('swal-risk').value,
+                status: document.getElementById('swal-status').value
+              };
+            }
+          });
+
+          if (result.isConfirmed && result.value) {
+            var payload = result.value;
+            var updateResponse = await API.put('/security-controls/' + id, payload);
+            if (updateResponse.success) {
+              Swal.fire('Success', 'Control updated successfully', 'success');
+              loadControls();
+            } else {
+              throw new Error(updateResponse.message || 'Failed to update');
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message || 'Failed to edit control', 'error');
+      }
+    }
+
+    async function deleteControl(id) {
+      var confirm = await Swal.fire({
+        title: 'Delete Control?',
+        text: 'This control will be permanently deleted.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--color-danger)',
+        cancelButtonColor: 'var(--text-secondary)',
+        confirmButtonText: 'Yes, delete'
+      });
+
+      if (confirm.isConfirmed) {
+        try {
+          var response = await API.delete('/security-controls/' + id);
+          if (response.success) {
+            Swal.fire('Deleted', 'Control removed successfully', 'success');
+            loadControls();
+          } else {
+            throw new Error(response.message || 'Failed to delete');
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error', err.message || 'Failed to delete control', 'error');
+        }
+      }
+    }
+
+    // ============ STATISTICS FUNCTIONS ============
+
+    async function loadStats() {
+      var container = document.getElementById('stats-content');
+      container.innerHTML = '<div class="text-center text-muted py-4">Loading statistics...</div>';
+
+      try {
+        var response = await API.get('/security-assessments/stats');
+        if (response.success && response.data) {
+          renderStats(container, response.data);
+        } else {
+          container.innerHTML = '<div class="text-center text-muted py-4">No statistics available</div>';
+        }
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="text-center text-danger py-4">Failed to load statistics</div>';
+      }
+    }
+
+    function renderStats(container, stats) {
+      var html = '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">';
+      
+      html += '<div class="card p-3 text-center"><div class="text-secondary font-xs uppercase fw-bold">Total Assessments</div><div class="h2 text-primary m-0 mt-1">' + (stats.summary?.total || 0) + '</div></div>';
+      html += '<div class="card p-3 text-center"><div class="text-secondary font-xs uppercase fw-bold">Finalized</div><div class="h2 text-success m-0 mt-1">' + (stats.summary?.final || 0) + '</div></div>';
+      html += '<div class="card p-3 text-center"><div class="text-secondary font-xs uppercase fw-bold">In Progress</div><div class="h2 text-warning m-0 mt-1">' + (stats.summary?.inProgress || 0) + '</div></div>';
+      html += '<div class="card p-3 text-center"><div class="text-secondary font-xs uppercase fw-bold">Critical Risk</div><div class="h2 text-danger m-0 mt-1">' + (stats.summary?.critical || 0) + '</div></div>';
+      
+      html += '</div>';
+
+      // Risk breakdown
+      if (stats.riskBreakdown && stats.riskBreakdown.length > 0) {
+        html += '<div class="card"><div class="card-header"><span class="card-title">Risk Level Distribution</span></div><div class="card-body p-0">';
+        html += '<table class="enterprise-table w-full m-0"><thead><tr><th>Risk Level</th><th>Count</th></tr></thead><tbody>';
+        stats.riskBreakdown.forEach(function(item) {
+          var badge = getRiskBadge(item._id);
+          html += '<tr><td><span class="badge ' + badge + '">' + (item._id || 'Unknown') + '</span></td><td>' + item.count + '</td></tr>';
+        });
+        html += '</tbody></table></div></div>';
+      }
+
+      // Linked entities
+      if (stats.linked) {
+        html += '<div class="card mt-3"><div class="card-header"><span class="card-title">Linked Entities Summary</span></div><div class="card-body p-3">';
+        html += '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">';
+        html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Alerts</div><div class="h3 text-warning m-0">' + (stats.linked.totalThreats || 0) + '</div></div>';
+        html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Incidents</div><div class="h3 text-danger m-0">' + (stats.linked.totalIncidents || 0) + '</div></div>';
+        html += '<div class="text-center p-2" style="background: var(--bg-primary); border-radius: var(--radius-sm);"><div class="text-secondary font-xs">Assets</div><div class="h3 text-info m-0">' + (stats.linked.totalAssets || 0) + '</div></div>';
+        html += '</div></div></div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Expose functions globally
+    window.switchTab = switchTab;
+    window.viewAssessment = viewAssessment;
+    window.editAssessment = editAssessment;
+    window.deleteAssessment = deleteAssessment;
+    window.viewControl = viewControl;
+    window.editControl = editControl;
+    window.deleteControl = deleteControl;
   </script>
 </body>
 </html>

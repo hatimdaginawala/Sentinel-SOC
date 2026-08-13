@@ -24,23 +24,56 @@ exports.getAssessments = async (req, res, next) => {
       sort = '-createdAt'
     } = req.query;
 
-    const result = await SecurityAssessment.getAssessments({
-      organization: req.user.organization,
-      riskLevel,
-      status,
-      search,
-      startDate,
-      endDate,
-      tags: tags ? tags.split(',') : [],
-      page: parseInt(page),
-      limit: parseInt(limit),
-      sort
-    });
+    const query = { organization: req.user.organization };
+
+    if (riskLevel && riskLevel !== 'all') query.riskLevel = riskLevel;
+    if (status && status !== 'all') query.status = status;
+
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+
+    if (tags) {
+      const tagArray = tags.split(',').map(t => t.trim());
+      query.tags = { $in: tagArray };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [assessments, total] = await Promise.all([
+      SecurityAssessment.find(query)
+        .populate('organization', 'name code')
+        .populate('threatsDetected', 'title severity status')
+        .populate('incidents', 'title severity status')
+        .populate('affectedAssets', 'name hostname ipAddress type')
+        .populate('createdBy', 'username email firstName lastName')
+        .populate('updatedBy', 'username email firstName lastName')
+        .populate('reviewedBy', 'username email firstName lastName')
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit)),
+      SecurityAssessment.countDocuments(query)
+    ]);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: result.assessments,
-      pagination: result.pagination
+      data: assessments,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     next(error);
@@ -52,7 +85,7 @@ exports.getAssessments = async (req, res, next) => {
  */
 exports.createAssessment = async (req, res, next) => {
   try {
-    const { title, description, date, assessmentPeriod, tags } = req.body;
+    const { title, description, date, assessmentPeriod, tags, riskLevel } = req.body;
 
     if (!title) {
       throw new AppError('Assessment title is required', HTTP_STATUS.BAD_REQUEST, 'TITLE_REQUIRED');
@@ -62,6 +95,7 @@ exports.createAssessment = async (req, res, next) => {
       title,
       description: description || '',
       date: date || new Date(),
+      riskLevel: riskLevel || 'Medium',
       organization: req.user.organization,
       createdBy: req.user._id,
       updatedBy: req.user._id,
@@ -97,15 +131,22 @@ exports.createAssessment = async (req, res, next) => {
  */
 exports.getAssessment = async (req, res, next) => {
   try {
-    const assessment = await SecurityAssessment.getAssessmentWithPopulated(req.params.id);
+    const assessment = await SecurityAssessment.findOne({
+      _id: req.params.id,
+      organization: req.user.organization
+    })
+      .populate('organization', 'name code')
+      .populate('threatsDetected', 'title severity status sourceIP createdAt')
+      .populate('incidents', 'title severity status description createdAt')
+      .populate('affectedAssets', 'name hostname ipAddress type criticality status')
+      .populate('createdBy', 'username email firstName lastName')
+      .populate('updatedBy', 'username email firstName lastName')
+      .populate('reviewedBy', 'username email firstName lastName')
+      .populate('recommendedControls.implementedBy', 'username email firstName lastName')
+      .populate('mitigations.implementedBy', 'username email firstName lastName');
 
     if (!assessment) {
       throw new AppError('Assessment not found', HTTP_STATUS.NOT_FOUND, 'ASSESSMENT_NOT_FOUND');
-    }
-
-    // Check organization access
-    if (assessment.organization._id.toString() !== req.user.organization.toString()) {
-      throw new AppError('Access denied', HTTP_STATUS.FORBIDDEN, 'ACCESS_DENIED');
     }
 
     res.status(HTTP_STATUS.OK).json({
@@ -160,11 +201,37 @@ exports.updateAssessment = async (req, res, next) => {
     if (securityWeaknesses) assessment.securityWeaknesses = securityWeaknesses;
     if (recommendedControls) assessment.recommendedControls = recommendedControls;
     if (mitigations) assessment.mitigations = mitigations;
-    if (status) assessment.status = status;
+    if (status) {
+      // Validate status transition
+      const validTransitions = {
+        'Draft': ['In Progress', 'Review'],
+        'In Progress': ['Review', 'Final'],
+        'Review': ['Final', 'In Progress'],
+        'Final': ['Draft', 'Review']
+      };
+      if (validTransitions[assessment.status] && !validTransitions[assessment.status].includes(status)) {
+        throw new AppError(`Invalid status transition from ${assessment.status} to ${status}`, HTTP_STATUS.BAD_REQUEST, 'INVALID_STATUS_TRANSITION');
+      }
+      assessment.status = status;
+      
+      if (status === 'Final') {
+        assessment.reviewedAt = new Date();
+        assessment.reviewedBy = req.user._id;
+      }
+    }
     if (summary !== undefined) assessment.summary = summary;
     if (tags) assessment.tags = tags;
     if (nextReviewDate) assessment.nextReviewDate = nextReviewDate;
     assessment.updatedBy = req.user._id;
+
+    // Auto-calculate risk score based on risk level
+    const riskScoreMap = {
+      'Low': 2,
+      'Medium': 5,
+      'High': 8,
+      'Critical': 10
+    };
+    assessment.riskScore = riskScoreMap[assessment.riskLevel] || 5;
 
     await assessment.save();
 
@@ -213,11 +280,96 @@ exports.deleteAssessment = async (req, res, next) => {
  */
 exports.getAssessmentStats = async (req, res, next) => {
   try {
-    const stats = await SecurityAssessment.getStatistics(req.user.organization);
+    const match = { organization: req.user.organization };
+
+    const stats = await SecurityAssessment.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          draft: {
+            $sum: { $cond: [{ $eq: ['$status', 'Draft'] }, 1, 0] }
+          },
+          inProgress: {
+            $sum: { $cond: [{ $eq: ['$status', 'In Progress'] }, 1, 0] }
+          },
+          review: {
+            $sum: { $cond: [{ $eq: ['$status', 'Review'] }, 1, 0] }
+          },
+          final: {
+            $sum: { $cond: [{ $eq: ['$status', 'Final'] }, 1, 0] }
+          },
+          critical: {
+            $sum: { $cond: [{ $eq: ['$riskLevel', 'Critical'] }, 1, 0] }
+          },
+          high: {
+            $sum: { $cond: [{ $eq: ['$riskLevel', 'High'] }, 1, 0] }
+          },
+          medium: {
+            $sum: { $cond: [{ $eq: ['$riskLevel', 'Medium'] }, 1, 0] }
+          },
+          low: {
+            $sum: { $cond: [{ $eq: ['$riskLevel', 'Low'] }, 1, 0] }
+          },
+          avgRiskScore: { $avg: '$riskScore' }
+        }
+      }
+    ]);
+
+    // Get breakdown by risk level
+    const riskStats = await SecurityAssessment.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: '$riskLevel',
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Get total linked entities
+    const linkedStats = await SecurityAssessment.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          totalThreats: { $sum: { $size: '$threatsDetected' } },
+          totalIncidents: { $sum: { $size: '$incidents' } },
+          totalAssets: { $sum: { $size: '$affectedAssets' } },
+          totalWeaknesses: { $sum: { $size: '$securityWeaknesses' } },
+          totalControls: { $sum: { $size: '$recommendedControls' } },
+          totalMitigations: { $sum: { $size: '$mitigations' } }
+        }
+      }
+    ]);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: stats
+      data: {
+        summary: stats[0] || {
+          total: 0,
+          draft: 0,
+          inProgress: 0,
+          review: 0,
+          final: 0,
+          critical: 0,
+          high: 0,
+          medium: 0,
+          low: 0,
+          avgRiskScore: 0
+        },
+        riskBreakdown: riskStats,
+        linked: linkedStats[0] || {
+          totalThreats: 0,
+          totalIncidents: 0,
+          totalAssets: 0,
+          totalWeaknesses: 0,
+          totalControls: 0,
+          totalMitigations: 0
+        }
+      }
     });
   } catch (error) {
     next(error);
@@ -254,8 +406,17 @@ exports.linkThreats = async (req, res, next) => {
       throw new AppError('Some alerts not found or do not belong to your organization', HTTP_STATUS.BAD_REQUEST, 'INVALID_ALERTS');
     }
 
-    await assessment.linkThreats(alertIds);
+    // Link alerts
+    for (const alertId of alertIds) {
+      if (!assessment.threatsDetected.includes(alertId)) {
+        assessment.threatsDetected.push(alertId);
+      }
+    }
+
+    // Recalculate risk
     await assessment.calculateRiskLevel();
+    assessment.updatedBy = req.user._id;
+    await assessment.save();
 
     await assessment.populate('threatsDetected', 'title severity status');
 
@@ -299,8 +460,17 @@ exports.linkIncidents = async (req, res, next) => {
       throw new AppError('Some incidents not found or do not belong to your organization', HTTP_STATUS.BAD_REQUEST, 'INVALID_INCIDENTS');
     }
 
-    await assessment.linkIncidents(incidentIds);
+    // Link incidents
+    for (const incidentId of incidentIds) {
+      if (!assessment.incidents.includes(incidentId)) {
+        assessment.incidents.push(incidentId);
+      }
+    }
+
+    // Recalculate risk
     await assessment.calculateRiskLevel();
+    assessment.updatedBy = req.user._id;
+    await assessment.save();
 
     await assessment.populate('incidents', 'title severity status');
 
@@ -344,7 +514,15 @@ exports.linkAssets = async (req, res, next) => {
       throw new AppError('Some assets not found or do not belong to your organization', HTTP_STATUS.BAD_REQUEST, 'INVALID_ASSETS');
     }
 
-    await assessment.linkAssets(assetIds);
+    // Link assets
+    for (const assetId of assetIds) {
+      if (!assessment.affectedAssets.includes(assetId)) {
+        assessment.affectedAssets.push(assetId);
+      }
+    }
+
+    assessment.updatedBy = req.user._id;
+    await assessment.save();
 
     await assessment.populate('affectedAssets', 'name hostname ipAddress');
 
@@ -378,7 +556,31 @@ exports.updateStatus = async (req, res, next) => {
       throw new AppError('Assessment not found', HTTP_STATUS.NOT_FOUND, 'ASSESSMENT_NOT_FOUND');
     }
 
-    await assessment.updateStatus(status, req.user._id);
+    // Validate status transition
+    const validTransitions = {
+      'Draft': ['In Progress', 'Review'],
+      'In Progress': ['Review', 'Final'],
+      'Review': ['Final', 'In Progress'],
+      'Final': ['Draft', 'Review']
+    };
+
+    if (validTransitions[assessment.status] && !validTransitions[assessment.status].includes(status)) {
+      throw new AppError(
+        `Invalid status transition from ${assessment.status} to ${status}`,
+        HTTP_STATUS.BAD_REQUEST,
+        'INVALID_STATUS_TRANSITION'
+      );
+    }
+
+    assessment.status = status;
+    assessment.updatedBy = req.user._id;
+
+    if (status === 'Final') {
+      assessment.reviewedAt = new Date();
+      assessment.reviewedBy = req.user._id;
+    }
+
+    await assessment.save();
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -420,11 +622,14 @@ exports.calculateRisk = async (req, res, next) => {
 };
 
 /**
- * Get assessment types for dropdown
+ * Get risk levels for dropdown
  */
 exports.getRiskLevels = async (req, res, next) => {
   try {
-    const levels = await SecurityAssessment.getRiskLevels();
+    const levels = ['Low', 'Medium', 'High', 'Critical'].map(level => ({
+      value: level,
+      label: level
+    }));
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: levels
@@ -435,11 +640,14 @@ exports.getRiskLevels = async (req, res, next) => {
 };
 
 /**
- * Get assessment statuses for dropdown
+ * Get statuses for dropdown
  */
 exports.getStatuses = async (req, res, next) => {
   try {
-    const statuses = await SecurityAssessment.getStatuses();
+    const statuses = ['Draft', 'In Progress', 'Review', 'Final'].map(status => ({
+      value: status,
+      label: status
+    }));
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: statuses
