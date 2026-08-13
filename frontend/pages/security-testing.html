@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SentinelSOC - Security Testing Lab</title>
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -31,24 +33,46 @@
       background: var(--bg-primary);
       border-radius: var(--radius-md);
       font-size: 0.85rem;
+      gap: 0.25rem;
+      flex-wrap: wrap;
     }
     .pipeline-step {
       text-align: center;
       flex: 1;
+      min-width: 60px;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      transition: all 0.3s ease;
     }
     .pipeline-icon {
       font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
       transition: color 0.3s ease;
     }
     .pipeline-text {
       font-weight: 600;
+      font-size: 0.7rem;
       transition: color 0.3s ease;
     }
     .step-pending .pipeline-icon, .step-pending .pipeline-text { color: var(--text-muted); }
+    .step-pending { background: transparent; }
     .step-success .pipeline-icon, .step-success .pipeline-text { color: var(--success); }
+    .step-success { background: rgba(46, 125, 50, 0.1); }
     .step-fail .pipeline-icon, .step-fail .pipeline-text { color: var(--danger); }
+    .step-fail { background: rgba(197, 48, 48, 0.1); }
     .step-running .pipeline-icon, .step-running .pipeline-text { color: var(--warning); }
+    .step-running { background: rgba(237, 137, 54, 0.1); animation: pulse-bg 1.5s ease-in-out infinite; }
+    
+    @keyframes pulse-bg {
+      0%, 100% { background: rgba(237, 137, 54, 0.05); }
+      50% { background: rgba(237, 137, 54, 0.2); }
+    }
+    
+    .pipeline-arrow {
+      color: var(--text-muted);
+      font-size: var(--font-sm);
+      padding: 0 var(--spacing-xs);
+    }
     
     .test-scenario-card {
       border: 1px solid var(--border-color);
@@ -56,11 +80,32 @@
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       background: var(--bg-secondary);
-      transition: box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease, border-color 0.3s ease;
     }
     .test-scenario-card:hover {
       box-shadow: var(--shadow-sm);
     }
+    .test-scenario-card.pass { border-left: 4px solid var(--success); }
+    .test-scenario-card.fail { border-left: 4px solid var(--danger); }
+    .test-scenario-card.running { border-left: 4px solid var(--warning); }
+    .test-scenario-card.pending { border-left: 4px solid var(--text-muted); }
+    
+    .raw-log-block {
+      background: var(--bg-primary);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+      font-size: var(--font-xs);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .badge-pass { background: var(--success); color: white; }
+    .badge-fail { background: var(--danger); color: white; }
+    .badge-running { background: var(--warning); color: var(--text-primary); }
+    .badge-pending { background: var(--text-muted); color: white; }
   </style>
 </head>
 <body class="dark-theme">
@@ -337,15 +382,72 @@
       </div>
     </main>
 
-    <!-- Test Detail Modal -->
+    <!-- CREATE TEST MODAL -->
+    <div class="modal-overlay" id="create-test-modal">
+      <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Create Security Test</h3>
+          <button class="modal-close" id="create-test-modal-close">&times;</button>
+        </div>
+        <form id="create-test-form">
+          <div class="modal-body">
+            <p class="text-muted mb-3">Define a controlled test scenario to validate your detection pipeline.</p>
+
+            <div class="form-group">
+              <label class="form-label">Test Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="e.g., Port Scan Detection Test" required>
+              <span class="form-error">Test name is required</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="2" placeholder="Describe what this test validates..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Test Type <span class="text-danger">*</span></label>
+                <select name="testType" class="form-control" required>
+                  <option value="port_scan">Port Scan</option>
+                  <option value="brute_force">Brute Force</option>
+                  <option value="suspicious_traffic">Suspicious Traffic</option>
+                  <option value="unauthorized_connection">Unauthorized Connection</option>
+                  <option value="sql_injection">SQL Injection</option>
+                  <option value="xss">Cross-Site Scripting (XSS)</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Expected Detection Rule</label>
+                <select name="expectedDetection" class="form-control" id="test-rule-select">
+                  <option value="">-- No Rule (Test will fail) --</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="padding: var(--spacing-md); background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-sm);">
+              <i class="fa-solid fa-lightbulb text-info"></i>
+              <span class="font-sm">The test will generate a log event. If a matching threat rule exists, it will trigger an alert and potentially an incident.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="create-test-modal-cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="create-test-submit">Create Test</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TEST DETAIL MODAL -->
     <div class="modal-overlay" id="test-modal">
-      <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-content" style="max-width: 750px; max-height: 90vh; overflow-y: auto;">
         <div class="modal-header">
           <h3 class="modal-title" id="test-modal-title">Test Result Details</h3>
           <button class="modal-close" id="test-modal-close">&times;</button>
         </div>
-        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
-          <div id="test-details-content"></div>
+        <div class="modal-body" id="test-details-content">
+          <!-- Populated dynamically -->
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" id="test-modal-cancel">Close</button>
@@ -365,34 +467,143 @@
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/sidebar.js"></script>
   <script src="/assets/js/navbar.js"></script>
+  <script src="/assets/js/forms.js"></script>
 
   <script>
-    let activePolls = {};
-    let testsData = [];
+    var activePolls = {};
+    var testsData = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
+      loadThreatRules();
       loadTests();
       
       document.getElementById('btn-refresh').addEventListener('click', loadTests);
-      document.getElementById('btn-create-test').addEventListener('click', () => {
-        Swal.fire('Not Implemented', 'Test creation form is available in the admin panel.', 'info');
+      document.getElementById('btn-create-test').addEventListener('click', function() {
+        document.getElementById('create-test-modal').classList.add('active');
       });
 
-      // Modal close handlers
-      document.getElementById('test-modal-close').addEventListener('click', () => {
+      // Create Test Modal handlers
+      document.getElementById('create-test-modal-close').addEventListener('click', function() {
+        document.getElementById('create-test-modal').classList.remove('active');
+      });
+      document.getElementById('create-test-modal-cancel').addEventListener('click', function() {
+        document.getElementById('create-test-modal').classList.remove('active');
+      });
+
+      // Test Detail Modal handlers
+      document.getElementById('test-modal-close').addEventListener('click', function() {
         document.getElementById('test-modal').classList.remove('active');
       });
-      document.getElementById('test-modal-cancel').addEventListener('click', () => {
+      document.getElementById('test-modal-cancel').addEventListener('click', function() {
         document.getElementById('test-modal').classList.remove('active');
+      });
+
+      // Create Test Form submission
+      document.getElementById('create-test-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createTest();
       });
     });
 
+    async function loadThreatRules() {
+      var select = document.getElementById('test-rule-select');
+      try {
+        var response = await API.get('/threat-rules');
+        if (response.success && response.data) {
+          var rules = response.data.items || response.data;
+          select.innerHTML = '<option value="">-- No Rule (Test will fail) --</option>';
+          rules.forEach(function(rule) {
+            select.innerHTML += '<option value="' + rule._id + '">' + Utils.escapeHTML(rule.name) + ' (' + Utils.escapeHTML(rule.severity) + ')</option>';
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load threat rules:', err);
+      }
+    }
+
+// In the createTest function in security-testing.html
+
+async function createTest() {
+  var submitBtn = document.getElementById('create-test-submit');
+  var originalText = submitBtn.innerHTML;
+  
+  try {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+
+    var form = document.getElementById('create-test-form');
+    var formData = new FormData(form);
+
+    var orgId = localStorage.getItem('currentOrgId') || '';
+    if (!orgId) {
+      Swal.fire('Error', 'No organization selected. Please select an organization.', 'warning');
+      return;
+    }
+
+    // Build test payload with valid event category
+    var testType = formData.get('testType');
+    
+    // Map test type to valid event category for the log
+    var categoryMap = {
+      'port_scan': 'network',
+      'brute_force': 'authentication',
+      'suspicious_traffic': 'network',
+      'unauthorized_connection': 'network',
+      'sql_injection': 'web',
+      'xss': 'web',
+      'other': 'system'
+    };
+    
+    var payload = {
+      sourceType: 'custom',
+      eventCategory: categoryMap[testType] || 'system',
+      eventType: testType,
+      severity: 'info',
+      message: 'Security Test: ' + formData.get('name'),
+      sourceIP: '192.168.1.100',
+      destinationIP: '10.0.0.5',
+      destinationPort: 80,
+      protocol: 'TCP',
+      hostname: 'test-host',
+      ipAddress: '10.0.0.10',
+      username: 'test-user',
+      processName: 'test-process'
+    };
+
+    var testData = {
+      name: formData.get('name'),
+      description: formData.get('description') || '',
+      testType: testType,
+      expectedDetection: formData.get('expectedDetection') || null,
+      organization: orgId,
+      payload: payload
+    };
+
+    var response = await API.post('/security-tests', testData);
+    
+    if (response.success) {
+      Swal.fire('Success', 'Security test created successfully!', 'success');
+      document.getElementById('create-test-modal').classList.remove('active');
+      document.getElementById('create-test-form').reset();
+      loadTests();
+    } else {
+      throw new Error(response.message || 'Failed to create test');
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', err.message || 'Failed to create security test', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+  }
+}
+
     async function loadTests() {
-      const loader = document.getElementById('dashboard-loader');
+      var loader = document.getElementById('dashboard-loader');
       loader.style.display = 'flex';
 
       try {
-        const response = await API.get('/security-tests');
+        var response = await API.get('/security-tests');
         if (response.success && response.data) {
           testsData = response.data;
           renderTests(testsData);
@@ -404,7 +615,7 @@
         }
       } catch (err) {
         console.error(err);
-        Swal.fire('Error', 'Failed to load security tests', 'error');
+        Swal.fire('Error', 'Failed to load security tests: ' + (err.message || 'Unknown error'), 'error');
         renderTests([]);
       } finally {
         loader.style.display = 'none';
@@ -413,14 +624,14 @@
 
     function updateMetrics(tests) {
       document.getElementById('stat-total').textContent = tests.length;
-      document.getElementById('stat-passed').textContent = tests.filter(t => t.status === 'PASS').length;
-      document.getElementById('stat-failed').textContent = tests.filter(t => t.status === 'FAIL').length;
-      document.getElementById('stat-pending').textContent = tests.filter(t => t.status === 'PENDING' || t.status === 'RUNNING').length;
+      document.getElementById('stat-passed').textContent = tests.filter(function(t) { return t.status === 'PASS'; }).length;
+      document.getElementById('stat-failed').textContent = tests.filter(function(t) { return t.status === 'FAIL'; }).length;
+      document.getElementById('stat-pending').textContent = tests.filter(function(t) { return t.status === 'PENDING' || t.status === 'RUNNING'; }).length;
     }
 
     function renderTests(tests) {
-      const container = document.getElementById('test-scenarios-container');
-      const emptyState = document.getElementById('empty-state');
+      var container = document.getElementById('test-scenarios-container');
+      var emptyState = document.getElementById('empty-state');
       
       if (tests.length === 0) {
         container.innerHTML = '';
@@ -431,195 +642,249 @@
       emptyState.style.display = 'none';
       container.innerHTML = '';
 
-      tests.forEach(test => {
-        // Pipeline states
-        // If PASS: everything is success
-        // If FAIL: some are success, some failed
-        // If PENDING/RUNNING: only Log Generated is running/success, rest pending
+      tests.forEach(function(test) {
+        var isPass = test.status === 'PASS';
+        var isFail = test.status === 'FAIL';
+        var isRunning = test.status === 'RUNNING';
+        var isPending = test.status === 'PENDING';
         
-        const isPass = test.status === 'PASS';
-        const isFail = test.status === 'FAIL';
-        const isRunning = test.status === 'PENDING' || test.status === 'RUNNING';
+        var cardClass = isPass ? 'pass' : isFail ? 'fail' : isRunning ? 'running' : 'pending';
         
-        let genClass = 'step-pending';
-        let ingClass = 'step-pending';
-        let detClass = 'step-pending';
-        let altClass = 'step-pending';
-        let incClass = 'step-pending';
-        let evdClass = 'step-pending';
-
-        if (isPass) {
-           genClass = ingClass = detClass = altClass = incClass = evdClass = 'step-success';
-        } else if (isFail) {
-           genClass = ingClass = 'step-success';
-           detClass = altClass = incClass = 'step-fail';
-           evdClass = 'step-success';
-        } else if (isRunning) {
-           genClass = 'step-success';
-           ingClass = 'step-running';
-        } else {
-           // Fresh state or undefined
-           genClass = ingClass = detClass = altClass = incClass = evdClass = 'step-pending';
+        // Parse result details if available
+        var resultDetails = {};
+        try {
+          if (test.actualResult) {
+            resultDetails = JSON.parse(test.actualResult);
+          }
+        } catch (e) {
+          // If not JSON, use as string
         }
 
-        // Specific overrides based on related records
-        if (!isRunning && !isPass && !isFail) {
-            if (test.relatedAlert) altClass = 'step-success';
-            if (test.relatedIncident) incClass = 'step-success';
-        }
+        var genClass = isPass || isFail || resultDetails.logGenerated ? 'step-success' : isRunning ? 'step-success' : 'step-pending';
+        var ingClass = isPass || isFail || resultDetails.logIngested ? 'step-success' : isRunning ? 'step-running' : 'step-pending';
+        var detClass = isPass ? 'step-success' : isFail ? 'step-fail' : isRunning ? 'step-pending' : 'step-pending';
+        var altClass = isPass ? 'step-success' : isFail ? 'step-fail' : (test.relatedAlert ? 'step-success' : 'step-pending');
+        var incClass = isPass ? 'step-success' : isFail ? 'step-fail' : (test.relatedIncident ? 'step-success' : 'step-pending');
+        var evdClass = isPass || resultDetails.evidenceRecorded ? 'step-success' : isFail ? 'step-success' : 'step-pending';
 
-        let badgeClass = 'bg-secondary';
-        if (test.status === 'PASS') badgeClass = 'bg-success';
-        if (test.status === 'FAIL') badgeClass = 'bg-danger';
-        if (test.status === 'PENDING' || test.status === 'RUNNING') badgeClass = 'bg-warning text-dark';
+        var badgeClass = isPass ? 'badge-pass' : isFail ? 'badge-fail' : isRunning ? 'badge-running' : 'badge-pending';
+        var badgeText = test.status || 'PENDING';
 
-        const runBtnDisabled = isRunning ? 'disabled' : '';
-        const runBtnHtml = `<button class="btn btn-sm btn-outline-primary" onclick="runTest('${test._id}')" ${runBtnDisabled} id="btn-run-${test._id}">
-                              <i class="fa-solid fa-play"></i> Run
-                            </button>`;
-        const viewBtnHtml = `<button class="btn btn-sm btn-secondary" onclick="viewTest('${test._id}')" style="margin-left: 0.5rem;">
-                              <i class="fa-solid fa-eye"></i> View Result
-                            </button>`;
+        var runBtnDisabled = isRunning ? 'disabled' : '';
+        var runBtnHtml = '<button class="btn btn-sm btn-outline-primary" onclick="runTest(\'' + test._id + '\')" ' + runBtnDisabled + ' id="btn-run-' + test._id + '">' +
+                          '<i class="fa-solid fa-play"></i> Run' +
+                        '</button>';
+        var viewBtnHtml = '<button class="btn btn-sm btn-secondary" onclick="viewTest(\'' + test._id + '\')" style="margin-left: 0.5rem;">' +
+                            '<i class="fa-solid fa-eye"></i> View Result' +
+                          '</button>';
 
-        const html = `
-          <div class="test-scenario-card" id="card-${test._id}">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-              <div>
-                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                  ${Utils.escapeHTML(test.name)}
-                  <span class="badge ${badgeClass}" style="font-size: 0.75rem;" id="badge-${test._id}">${test.status || 'READY'}</span>
-                </h4>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0 0 0;">${Utils.escapeHTML(test.description || '')}</p>
-                <div class="font-xs text-muted mt-1">Expected Detection: <strong>${Utils.escapeHTML(test.expectedDetection?.name || 'Any')}</strong></div>
-              </div>
-              <div style="display: flex; gap: 0.5rem;">
-                ${runBtnHtml}
-                ${viewBtnHtml}
-              </div>
-            </div>
-            
-            <div class="pipeline-status">
-              <div class="pipeline-step ${genClass}" id="step-gen-${test._id}">
-                <i class="fa-solid fa-file-code pipeline-icon"></i>
-                <div class="pipeline-text">Log Generated</div>
-              </div>
-              <i class="fa-solid fa-arrow-right text-muted"></i>
-              <div class="pipeline-step ${ingClass}" id="step-ing-${test._id}">
-                <i class="fa-solid fa-database pipeline-icon"></i>
-                <div class="pipeline-text">Log Ingested</div>
-              </div>
-              <i class="fa-solid fa-arrow-right text-muted"></i>
-              <div class="pipeline-step ${detClass}" id="step-det-${test._id}">
-                <i class="fa-solid fa-microchip pipeline-icon"></i>
-                <div class="pipeline-text">Detection Triggered</div>
-              </div>
-              <i class="fa-solid fa-arrow-right text-muted"></i>
-              <div class="pipeline-step ${altClass}" id="step-alt-${test._id}">
-                <i class="fa-solid fa-bell pipeline-icon"></i>
-                <div class="pipeline-text">Alert Created</div>
-              </div>
-              <i class="fa-solid fa-arrow-right text-muted"></i>
-              <div class="pipeline-step ${incClass}" id="step-inc-${test._id}">
-                <i class="fa-solid fa-ticket pipeline-icon"></i>
-                <div class="pipeline-text">Incident Created</div>
-              </div>
-              <i class="fa-solid fa-arrow-right text-muted"></i>
-              <div class="pipeline-step ${evdClass}" id="step-evd-${test._id}">
-                <i class="fa-solid fa-file-shield pipeline-icon"></i>
-                <div class="pipeline-text">Evidence Recorded</div>
-              </div>
-            </div>
-          </div>
-        `;
+        var ruleName = test.expectedDetection && typeof test.expectedDetection === 'object' ? test.expectedDetection.name : 'Any';
+
+        var html = '<div class="test-scenario-card ' + cardClass + '" id="card-' + test._id + '">' +
+          '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">' +
+            '<div>' +
+              '<h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">' +
+                Utils.escapeHTML(test.name) +
+                '<span class="badge ' + badgeClass + '" style="font-size: 0.75rem;" id="badge-' + test._id + '">' + Utils.escapeHTML(badgeText) + '</span>' +
+              '</h4>' +
+              '<p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0 0 0;">' + Utils.escapeHTML(test.description || '') + '</p>' +
+              '<div class="font-xs text-muted mt-1">Expected Detection: <strong>' + Utils.escapeHTML(ruleName) + '</strong></div>' +
+            '</div>' +
+            '<div style="display: flex; gap: 0.5rem;">' +
+              runBtnHtml +
+              viewBtnHtml +
+            '</div>' +
+          '</div>' +
+          
+          '<div class="pipeline-status">' +
+            '<div class="pipeline-step ' + genClass + '" id="step-gen-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-file-code"></i></div>' +
+              '<div class="pipeline-text">Generated</div>' +
+            '</div>' +
+            '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>' +
+            '<div class="pipeline-step ' + ingClass + '" id="step-ing-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-database"></i></div>' +
+              '<div class="pipeline-text">Ingested</div>' +
+            '</div>' +
+            '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>' +
+            '<div class="pipeline-step ' + detClass + '" id="step-det-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-microchip"></i></div>' +
+              '<div class="pipeline-text">Detection</div>' +
+            '</div>' +
+            '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>' +
+            '<div class="pipeline-step ' + altClass + '" id="step-alt-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-bell"></i></div>' +
+              '<div class="pipeline-text">Alert</div>' +
+            '</div>' +
+            '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>' +
+            '<div class="pipeline-step ' + incClass + '" id="step-inc-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-ticket"></i></div>' +
+              '<div class="pipeline-text">Incident</div>' +
+            '</div>' +
+            '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>' +
+            '<div class="pipeline-step ' + evdClass + '" id="step-evd-' + test._id + '">' +
+              '<div class="pipeline-icon"><i class="fa-solid fa-file-shield"></i></div>' +
+              '<div class="pipeline-text">Evidence</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+        
         container.innerHTML += html;
       });
     }
 
     async function runTest(testId) {
-      document.getElementById(`btn-run-${testId}`).disabled = true;
-      document.getElementById(`badge-${testId}`).className = 'badge bg-warning text-dark';
-      document.getElementById(`badge-${testId}`).textContent = 'PENDING';
+      var runBtn = document.getElementById('btn-run-' + testId);
+      if (runBtn) {
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+      }
+      
+      document.getElementById('badge-' + testId).className = 'badge badge-running';
+      document.getElementById('badge-' + testId).textContent = 'RUNNING';
+
+      // Update pipeline to running state
+      document.getElementById('step-gen-' + testId).className = 'pipeline-step step-success';
+      document.getElementById('step-ing-' + testId).className = 'pipeline-step step-running';
+      document.getElementById('step-det-' + testId).className = 'pipeline-step step-pending';
+      document.getElementById('step-alt-' + testId).className = 'pipeline-step step-pending';
+      document.getElementById('step-inc-' + testId).className = 'pipeline-step step-pending';
+      document.getElementById('step-evd-' + testId).className = 'pipeline-step step-pending';
 
       try {
-        const response = await API.post(`/security-tests/${testId}/run`, {});
+        var response = await API.post('/security-tests/' + testId + '/run', {});
+        
         if (response.success) {
-          // Visual pipeline set to running state
-          document.getElementById(`step-gen-${testId}`).className = 'pipeline-step step-success';
-          document.getElementById(`step-ing-${testId}`).className = 'pipeline-step step-running';
-          document.getElementById(`step-det-${testId}`).className = 'pipeline-step step-pending';
-          document.getElementById(`step-alt-${testId}`).className = 'pipeline-step step-pending';
-          document.getElementById(`step-inc-${testId}`).className = 'pipeline-step step-pending';
-          document.getElementById(`step-evd-${testId}`).className = 'pipeline-step step-pending';
-          
+          // Poll for result
           pollTestResult(testId);
         } else {
+          if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run';
+          }
           Swal.fire('Error', response.message || 'Failed to execute test', 'error');
-          loadTests(); // Refresh to original state
+          loadTests();
         }
       } catch (err) {
         console.error(err);
-        Swal.fire('Error', 'Failed to execute test', 'error');
+        if (runBtn) {
+          runBtn.disabled = false;
+          runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run';
+        }
+        Swal.fire('Error', err.message || 'Failed to execute test', 'error');
         loadTests();
       }
     }
 
     function pollTestResult(testId) {
-      if (activePolls[testId]) return; // Already polling
+      if (activePolls[testId]) return;
       
-      let attempts = 0;
-      const maxAttempts = 30; // 30 seconds
+      var attempts = 0;
+      var maxAttempts = 30;
       
-      activePolls[testId] = setInterval(async () => {
+      activePolls[testId] = setInterval(function() {
         attempts++;
-        try {
-          const res = await API.get(`/security-tests/${testId}`);
-          if (res.success) {
-            const test = res.data;
-            if (test.status === 'PASS' || test.status === 'FAIL') {
-              clearInterval(activePolls[testId]);
-              delete activePolls[testId];
-              
-              // Find and update the test in testsData
-              const idx = testsData.findIndex(t => t._id === testId);
-              if (idx !== -1) testsData[idx] = test;
-              
-              renderTests(testsData); // Re-render everything to update UI correctly
-              updateMetrics(testsData);
+        
+        API.get('/security-tests/' + testId)
+          .then(function(res) {
+            if (res.success) {
+              var test = res.data;
+              if (test.status === 'PASS' || test.status === 'FAIL') {
+                clearInterval(activePolls[testId]);
+                delete activePolls[testId];
+                
+                var idx = testsData.findIndex(function(t) { return t._id === testId; });
+                if (idx !== -1) testsData[idx] = test;
+                
+                renderTests(testsData);
+                updateMetrics(testsData);
+              }
             }
-          }
-        } catch (err) {
-          console.error('Polling error', err);
-        }
+          })
+          .catch(function(err) {
+            console.error('Polling error', err);
+          });
 
         if (attempts >= maxAttempts) {
           clearInterval(activePolls[testId]);
           delete activePolls[testId];
-          Swal.fire('Timeout', 'The test took too long to complete. Check backend logs.', 'warning');
-          loadTests(); // Fallback reload
+          Swal.fire('Timeout', 'The test took too long to complete.', 'warning');
+          loadTests();
         }
-      }, 1000); // 1 sec poll
+      }, 1000);
     }
 
     function viewTest(testId) {
-      const test = testsData.find(t => t._id === testId);
-      if (!test) return;
+      var test = testsData.find(function(t) { return t._id === testId; });
+      if (!test) {
+        Swal.fire('Error', 'Test not found', 'error');
+        return;
+      }
 
-      document.getElementById('test-modal-title').textContent = `Test: ${test.name}`;
+      document.getElementById('test-modal-title').textContent = 'Test: ' + test.name;
       
-      let html = `<table class="enterprise-table w-full mb-3"><tbody>`;
-      html += `<tr><td class="fw-semibold" style="width: 30%;">Status</td><td><span class="badge ${test.status==='PASS'?'bg-success':test.status==='FAIL'?'bg-danger':'bg-warning text-dark'}">${test.status}</span></td></tr>`;
-      html += `<tr><td class="fw-semibold">Result Details</td><td>${Utils.escapeHTML(test.actualResult || 'N/A')}</td></tr>`;
+      var statusBadge = test.status === 'PASS' ? 'badge-pass' : 
+                        test.status === 'FAIL' ? 'badge-fail' : 
+                        test.status === 'RUNNING' ? 'badge-running' : 'badge-pending';
       
+      var resultDetails = {};
+      try {
+        if (test.actualResult) {
+          resultDetails = JSON.parse(test.actualResult);
+        }
+      } catch (e) {}
+
+      var html = '<div class="stat-card-group mb-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">' +
+        '<div class="card p-2 text-center"><div class="text-secondary font-xs uppercase fw-bold">Status</div><div><span class="badge ' + statusBadge + '">' + Utils.escapeHTML(test.status) + '</span></div></div>' +
+        '<div class="card p-2 text-center"><div class="text-secondary font-xs uppercase fw-bold">Type</div><div class="font-sm">' + Utils.escapeHTML(test.testType) + '</div></div>' +
+        '<div class="card p-2 text-center"><div class="text-secondary font-xs uppercase fw-bold">Created</div><div class="font-sm">' + Utils.formatDate(test.createdAt) + '</div></div>' +
+      '</div>';
+      
+      // Pipeline status in detail view
+      html += '<h5 class="font-sm mb-2">Detection Pipeline</h5>';
+      html += '<div class="pipeline-status mb-3" style="display: flex; align-items: center; justify-content: space-between;">';
+      
+      var steps = [
+        { key: 'logGenerated', label: 'Generated', icon: 'fa-file-code' },
+        { key: 'logIngested', label: 'Ingested', icon: 'fa-database' },
+        { key: 'detectionTriggered', label: 'Detection', icon: 'fa-microchip' },
+        { key: 'alertCreated', label: 'Alert', icon: 'fa-bell' },
+        { key: 'incidentCreated', label: 'Incident', icon: 'fa-ticket' },
+        { key: 'evidenceRecorded', label: 'Evidence', icon: 'fa-file-shield' }
+      ];
+      
+      steps.forEach(function(step, idx) {
+        var status = resultDetails[step.key] ? 'step-success' : 'step-pending';
+        if (test.status === 'PASS') status = 'step-success';
+        else if (test.status === 'FAIL' && step.key === 'detectionTriggered') status = 'step-fail';
+        
+        if (idx > 0) {
+          html += '<div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>';
+        }
+        html += '<div class="pipeline-step ' + status + '" style="flex: 1; padding: var(--spacing-xs);">' +
+          '<div class="pipeline-icon"><i class="fa-solid ' + step.icon + '"></i></div>' +
+          '<div class="pipeline-text" style="font-size: 0.6rem;">' + step.label + '</div>' +
+        '</div>';
+      });
+      
+      html += '</div>';
+
+      // Related records
       if (test.relatedAlert) {
-         html += `<tr><td class="fw-semibold">Triggered Alert</td><td><a href="/pages/alerts.html?id=${test.relatedAlert._id}">${Utils.escapeHTML(test.relatedAlert.title)}</a></td></tr>`;
+        var alertTitle = typeof test.relatedAlert === 'object' ? test.relatedAlert.title : 'Alert';
+        var alertId = typeof test.relatedAlert === 'object' ? test.relatedAlert._id : test.relatedAlert;
+        html += '<div class="card p-2 mb-2"><div class="font-sm"><strong>Alert:</strong> <a href="/pages/alerts.html">' + Utils.escapeHTML(alertTitle) + '</a></div></div>';
       }
+      
       if (test.relatedIncident) {
-         html += `<tr><td class="fw-semibold">Correlated Incident</td><td><a href="/pages/incidents.html?id=${test.relatedIncident._id}">${Utils.escapeHTML(test.relatedIncident.title)}</a></td></tr>`;
+        var incTitle = typeof test.relatedIncident === 'object' ? test.relatedIncident.title : 'Incident';
+        var incId = typeof test.relatedIncident === 'object' ? test.relatedIncident._id : test.relatedIncident;
+        html += '<div class="card p-2 mb-2"><div class="font-sm"><strong>Incident:</strong> <a href="/pages/incidents.html">' + Utils.escapeHTML(incTitle) + '</a></div></div>';
       }
-      html += `</tbody></table>`;
 
-      html += `<div class="fw-semibold mb-2">Raw Test Payload:</div>`;
-      html += `<pre style="background: var(--bg-primary); padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; color: var(--text-primary);">${Utils.escapeHTML(JSON.stringify(test.payload, null, 2))}</pre>`;
+      // Raw payload
+      html += '<h5 class="font-sm mb-2 mt-2">Raw Test Payload</h5>';
+      html += '<pre class="raw-log-block">' + Utils.escapeHTML(JSON.stringify(test.payload, null, 2)) + '</pre>';
 
       document.getElementById('test-details-content').innerHTML = html;
       document.getElementById('test-modal').classList.add('active');
