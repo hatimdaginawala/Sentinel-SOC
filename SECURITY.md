@@ -143,16 +143,6 @@ SentinelSOC implements the following security controls:
 
 ---
 
-## Security Contacts
-
-| Role | Contact |
-|------|---------|
-| **Security Team** | security@sentinel-soc.com |
-| **Incident Response** | incident-response@sentinel-soc.com |
-| **Emergency (Critical)** | +1-555-SOC-ALERT |
-
----
-
 ## Acknowledgments
 
 We would like to thank the following individuals and organizations for their contributions to SentinelSOC's security:
