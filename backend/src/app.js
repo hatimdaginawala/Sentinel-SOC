@@ -166,7 +166,10 @@ app.get('/health', (req, res) => {
 
 // API routes
 const API_PREFIX = process.env.API_PREFIX || '/api/v1';
+app.use(`${API_PREFIX}`, logRoutes);
 
+// Log Source management routes
+app.use(`${API_PREFIX}`, logSourceRoutes);
 // ============================================
 // MOUNT AUTH ROUTES FIRST (NO AUDIT)
 // ============================================
