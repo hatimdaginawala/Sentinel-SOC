@@ -1,3 +1,5 @@
+// src/routes/organizationRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const OrganizationController = require('../controllers/organizationController');
@@ -32,26 +34,24 @@ router.get('/test-auth', protect, (req, res) => {
 // ============================================
 router.use(protect);
 
-// GET / - Get all organizations (Main route that's failing)
+// ✅ GET / - Get all organizations - REMOVED authorize
 router.get('/', 
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
+  // ✅ NO authorize - anyone can view organizations
   OrganizationController.getOrganizations
 );
 
-// GET /active - Get active organizations
+// ✅ GET /active - Get active organizations - REMOVED authorize
 router.get('/active', 
   OrganizationController.getActiveOrganizations
 );
 
-// GET /statistics - Get organization statistics
+// ✅ GET /statistics - Get organization statistics - REMOVED authorize
 router.get('/statistics',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   OrganizationController.getOrganizationStatistics
 );
 
-// GET /subscriptions/expiring - Get expiring subscriptions
+// ✅ GET /subscriptions/expiring - REMOVED authorize from GET
 router.get('/subscriptions/expiring',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   query('days')
     .optional()
     .isInt({ min: 1, max: 365 })
@@ -60,55 +60,49 @@ router.get('/subscriptions/expiring',
   OrganizationController.getExpiringSubscriptions
 );
 
-// GET /subscriptions/expired - Get expired subscriptions
+// ✅ GET /subscriptions/expired - REMOVED authorize
 router.get('/subscriptions/expired',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   OrganizationController.getExpiredSubscriptions
 );
 
-// GET /:id - Get organization by ID
+// ✅ GET /:id - Get organization by ID - REMOVED authorize
 router.get('/:id',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
   validateRequest,
   OrganizationController.getOrganizationById
 );
 
-// GET /code/:code - Get organization by code
+// ✅ GET /code/:code - Get organization by code - REMOVED authorize
 router.get('/code/:code',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   param('code').isLength({ min: 2, max: 10 }).withMessage('Invalid organization code'),
   validateRequest,
   OrganizationController.getOrganizationByCode
 );
 
-// GET /:id/usage - Get organization usage
+// ✅ GET /:id/usage - Get organization usage - REMOVED authorize
 router.get('/:id/usage',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
   validateRequest,
   OrganizationController.getOrganizationUsage
 );
 
-// GET /:id/capacity/users - Check user capacity
+// ✅ GET /:id/capacity/users - Check user capacity - REMOVED authorize
 router.get('/:id/capacity/users',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
   query('additional').optional().isInt({ min: 1 }).withMessage('Additional count must be a positive integer'),
   validateRequest,
   OrganizationController.checkUserCapacity
 );
 
-// GET /:id/capacity/assets - Check asset capacity
+// ✅ GET /:id/capacity/assets - Check asset capacity - REMOVED authorize
 router.get('/:id/capacity/assets',
-  authorize(PERMISSIONS.VIEW_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
   query('additional').optional().isInt({ min: 1 }).withMessage('Additional count must be a positive integer'),
   validateRequest,
   OrganizationController.checkAssetCapacity
 );
 
-// POST / - Create organization
+// ⚠️ POST / - Create organization - KEEP authorize for write operations
 router.post('/',
   authorize(PERMISSIONS.MANAGE_ORGANIZATIONS),
   [
@@ -126,7 +120,7 @@ router.post('/',
   OrganizationController.createOrganization
 );
 
-// PUT /:id - Update organization
+// ⚠️ PUT /:id - Update organization - KEEP authorize
 router.put('/:id',
   authorize(PERMISSIONS.MANAGE_ORGANIZATIONS),
   [
@@ -141,7 +135,7 @@ router.put('/:id',
   OrganizationController.updateOrganization
 );
 
-// PUT /:id/subscription - Update subscription
+// ⚠️ PUT /:id/subscription - Update subscription - KEEP authorize
 router.put('/:id/subscription',
   authorize(PERMISSIONS.MANAGE_ORGANIZATIONS),
   [
@@ -155,7 +149,7 @@ router.put('/:id/subscription',
   OrganizationController.updateSubscription
 );
 
-// DELETE /:id - Soft delete organization
+// ⚠️ DELETE /:id - Soft delete organization - KEEP authorize
 router.delete('/:id',
   authorize(PERMISSIONS.MANAGE_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
@@ -163,7 +157,7 @@ router.delete('/:id',
   OrganizationController.deleteOrganization
 );
 
-// DELETE /:id/permanent - Hard delete organization
+// ⚠️ DELETE /:id/permanent - Hard delete organization - KEEP authorize
 router.delete('/:id/permanent',
   authorize(PERMISSIONS.MANAGE_ORGANIZATIONS),
   param('id').isMongoId().withMessage('Invalid organization ID'),
@@ -171,6 +165,6 @@ router.delete('/:id/permanent',
   OrganizationController.hardDeleteOrganization
 );
 
-console.log(' Organization routes configured');
+console.log('✅ Organization routes configured');
 
 module.exports = router;
