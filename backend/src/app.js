@@ -37,7 +37,7 @@ const securitySensorRoutes = require('./routes/securitySensorRoutes');
 const securityControlRoutes = require('./routes/securityControlRoutes');
 const securityTestRoutes = require('./routes/securityTestRoutes');
 const securityAssessmentRoutes = require('./routes/securityAssessmentRoutes');
-
+const simulatorRoutes = require('./routes/simulatorRoutes');
 // Import audit middleware
 const audit = require('./middleware/audit');
 
@@ -175,7 +175,7 @@ app.use(`${API_PREFIX}`, logSourceRoutes);
 // ============================================
 console.log(' Mounting auth routes...');
 app.use(`${API_PREFIX}/auth`, userRoutes);
-
+app.use(`${API_PREFIX}`, simulatorRoutes);
 // ============================================
 // APPLY AUDIT MIDDLEWARE HERE
 // All routes after this point will be audited
